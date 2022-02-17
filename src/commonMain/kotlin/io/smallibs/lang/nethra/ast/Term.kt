@@ -1,41 +1,5 @@
 package io.smallibs.lang.nethra.ast
 
-/*
-    n in Ident
-    i in Int
-    c in Char
-
-    e ::=
-        Type_i                -- Type at level i
-        n                     -- Variable
-        C(i:e)                -- Constructor                            ???
-
-        i                     -- Integer literal
-        c                     -- Character literal
-
-        Π(n:e).e   Π{n:e}.e   -- Dependant function type
-        λ(n).e     λ{n}.e     -- Function
-        e e        e {e}      -- Application
-
-        Σ(n:e).e              -- Dependant pair type
-        e , e                 -- Pair
-        fst e                 -- Left projection
-        snd e                 -- Right Projection
-
-        e + e                 -- Disjunction
-        inl e                 -- Left injection
-        inr e                 -- Right injection
-        case e e e            -- Catamorphism
-
-        rec(n).e              -- Recursion
-        fold (rec(n).e) e     -- Fold recursive type
-        unfold (rec(n).e) e   -- Unfold recursive type
-
-        e ∈ e                 -- Term inhabits Type
-
-        ?n                    -- Hole for inference
-*/
-
 sealed class Term<C>(open val context: C? = null) {
 
     sealed interface Literal {

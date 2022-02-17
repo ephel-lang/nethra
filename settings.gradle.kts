@@ -1,3 +1,2 @@
-
-rootProject.name = "lambe2"
+rootProject.name = "nethra"
 

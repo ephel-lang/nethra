@@ -11,7 +11,7 @@ import io.smallibs.lang.nethra.ast.Term.Id
 import io.smallibs.lang.nethra.ast.Term.Type
 
 //
-// Stupid version base on strict equality for the moment
+// Stupid version based on strict equality for the moment
 //
 
 class CongruenceImpl<C>(
