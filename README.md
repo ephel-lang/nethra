@@ -43,8 +43,8 @@ e ::=
 ### Hierarchy and hypothesis
 
 ```
-----------------------     -----------------
-Γ ⊢ Type_i : Type_i+1      Γ, x : T ⊢ x : T
+---------------------     ----------------
+Γ ⊢ Type_i : Type_i+1     Γ, x : T ⊢ x : T
 ```
 
 ### Literals and constructors
@@ -134,6 +134,6 @@ l ∈ int         l ∈ char
 
 ```
 Γ ⊢ x : T
-----------------
+---------------
 Γ ⊢ (x ∈ T) : T
 ```

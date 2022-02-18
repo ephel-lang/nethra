@@ -35,25 +35,25 @@ class InferenceImpl<C>(
      */
 
     //
-    // ----------------------
+    // ---------------------
     // Γ ⊢ Type_i : Type_i+1
     override fun Term.Type<C>.run(i: Gamma<C>): Term<C> =
         type(level + 1)
 
     //
-    // ------------------
+    // -----------------
     // Γ ⊢ data(n:T) : T
     override fun Term.Data<C>.run(i: Gamma<C>): Term<C> =
         type
 
     //
-    // -----------------
+    // ----------------
     // Γ, x : T ⊢ x : T
     override fun Term.Id<C>.run(i: Gamma<C>): Term<C> =
         i.get(value) ?: throw Exception("unbound variable $value")
 
-    // l ∈ int          l ∈ char
-    // ------------     -------------
+    // l ∈ int         l ∈ char
+    // -----------     -------------
     // Γ ⊢ l : int     Γ ⊢ l : char
     override fun Term.Lit<C>.run(i: Gamma<C>): Term<C> =
         when (this.literal) {
@@ -62,13 +62,13 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ M : T   Γ, x : M ⊢ N : T
-    // ------------------------------
+    // ----------------------------
     // Γ ⊢ Π(x:M).N : T
     override fun Term.Pi<C>.run(i: Gamma<C>): Term<C> =
         i.set(n, bound).infer(body)
 
     // Γ, x : A ⊢ B : T
-    // ---------------------- // Cannot infer
+    // ---------------------
     // Γ ⊢ λ(x).B : Π(x:A).T
     override fun Term.Lambda<C>.run(i: Gamma<C>): Term<C> =
         hole(newVariable()).let { hole ->
@@ -76,8 +76,8 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
-    // ------------------------------      ------------------------------      -----------------------------------------
-    // Γ ⊢ f e : N[x=e]                   Γ ⊢ f {e} : N[x=e]                 Γ ⊢ f e : N
+    // ----------------------------      ----------------------------      -----------------------------------------
+    // Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]                Γ ⊢ f e : N
     override fun Term.Apply<C>.run(i: Gamma<C>): Term<C> =
         when (val type = i.infer(abstraction)) {
             is Term.Pi ->
@@ -102,19 +102,19 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ A : T   Γ,x : A ⊢ B : T
-    // -----------------------------
+    // ---------------------------
     // Γ ⊢ Σ(x:A).B : T
     override fun Term.Sigma<C>.run(i: Gamma<C>): Term<C> =
         i.set(n, bound).infer(body)
 
     // Γ ⊢ A : M   Γ ⊢ B : N[x=A]
-    // ----------------------------
+    // --------------------------
     // Γ ⊢ A,B : Σ(x:M).N
     override fun Term.Couple<C>.run(i: Gamma<C>): Term<C> =
         sigma("_", i.infer(lhd), i.infer(rhd))
 
     // Γ ⊢ p : Σ(x:M).N
-    // -----------------
+    // ----------------
     // Γ ⊢ fst p : M
     override fun Term.Fst<C>.run(i: Gamma<C>): Term<C> =
         when (val type = i.infer(term)) {
@@ -123,7 +123,7 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ p : Σ(x:M).N
-    // -----------------------
+    // ----------------------
     // Γ ⊢ snd p : N[x=fst p]
     override fun Term.Snd<C>.run(i: Gamma<C>): Term<C> =
         when (val type = i.infer(term)) {
@@ -132,13 +132,13 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ A : T   Γ ⊢ B : T
-    // -----------------------
+    // ---------------------
     // Γ ⊢ A | B : T
     override fun Term.Disjunction<C>.run(i: Gamma<C>): Term<C> =
         or(i.infer(lhd), i.infer(rhd))
 
     // Γ ⊢ A : M
-    // ------------------
+    // -----------------
     // Γ ⊢ inl A : M + N
     override fun Term.Inl<C>.run(i: Gamma<C>): Term<C> =
         or(i.infer(term), hole(newVariable()))
@@ -150,7 +150,7 @@ class InferenceImpl<C>(
         or(hole(newVariable()), i.infer(term))
 
     // Γ ⊢ a : A + B   Γ ⊢ l : A -> C   Γ ⊢ r : B -> C
-    // --------------------------------------------------
+    // -----------------------------------------------
     // Γ ⊢ case a l r : C
     override fun Term.Case<C>.run(i: Gamma<C>): Term<C> =
         when (val type = i.infer(term)) {
@@ -167,7 +167,7 @@ class InferenceImpl<C>(
         }
 
     // Γ,x : T ⊢ A : T
-    // -----------------
+    // ----------------
     // Γ ⊢ rec(x).A : T
     override
     fun Term.Rec<C>.run(i: Gamma<C>): Term<C> =
@@ -177,7 +177,7 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ A : N[x=rec(x).N]
-    // --------------------------------
+    // -------------------------------
     // Γ ⊢ fold(rec(x).N) A : rec(x).N
     override fun Term.Fold<C>.run(i: Gamma<C>): Term<C> =
         if (i.check(term, type.body.substitute(type.self, type))) {
@@ -187,7 +187,7 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ A : rec(x).N
-    // ---------------------------------------
+    // --------------------------------------
     // Γ ⊢ unfold(rec(x).N) A : N[x=rec(x).N]
     override fun Term.Unfold<C>.run(i: Gamma<C>): Term<C> =
         if (i.check(term, type)) {
@@ -197,7 +197,7 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ x : T
-    // --------------
+    // ---------------
     // Γ ⊢ (x ∈ T) : T
     override fun Term.Inhabit<C>.run(i: Gamma<C>): Term<C> =
         if (i.check(term, type)) {
@@ -207,7 +207,7 @@ class InferenceImpl<C>(
         }
 
     //
-    // -----------------
+    // ----------------
     // Γ, x : T ⊢ x : T
     override fun Term.Hole<C>.run(i: Gamma<C>): Term<C> =
         i.get(value) ?: throw Exception("unbound variable $value")
