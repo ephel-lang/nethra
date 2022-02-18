@@ -26,13 +26,13 @@ class CheckerImpl<C>(
     data class Context<C>(val gamma: Gamma<C>, val type: Term<C>)
 
     override fun Gamma<C>.check(term: Term<C>, type: Term<C>) =
-        println("[↑]${this.prettyPrint()} |- ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
+        println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
             val r = try {
                 term.run(Context(this, type))
             } catch (_: Exception) {
                 false
             }
-            println("[↑]${this.prettyPrint()} |- ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
+            println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
             r
         }
 
@@ -42,39 +42,39 @@ class CheckerImpl<C>(
 
     //
     // ----------------------
-    // Γ |- Type_i : Type_i+1
+    // Γ ⊢ Type_i : Type_i+1
     override fun Term.Type<C>.run(i: Context<C>) = Term.Type<C>(level + 1) compatibleWith i.type
 
     //
     // ------------------
-    // Γ |- data(n:T) : T
+    // Γ ⊢ data(n:T) : T
     override fun Term.Data<C>.run(i: Context<C>) = this@run.type compatibleWith i.type
 
     //
     // -----------------
-    // Γ, x : T |- x : T
+    // Γ, x : T ⊢ x : T
     override fun Term.Id<C>.run(i: Context<C>) =
         i.gamma.get(this@run.value)?.let { type -> type compatibleWith i.type } ?: false
 
     // l ∈ int          l ∈ char
     // ------------     -------------
-    // Γ |- l : int     Γ |- l : char
+    // Γ ⊢ l : int     Γ ⊢ l : char
     override fun Term.Lit<C>.run(i: Context<C>) = when (this.literal) {
         is Term.Literal.IntLit -> data("int", type()) compatibleWith i.type
         is Term.Literal.CharLit -> data("char", type()) compatibleWith i.type
     }
 
-    // Γ, x : M |- N : T
+    // Γ, x : M ⊢ N : T
     // -----------------
-    // Γ |- Π(x:M).N : T
+    // Γ ⊢ Π(x:M).N : T
     override fun Term.Pi<C>.run(i: Context<C>) = when (i.type) {
         is Term.Type -> i.gamma.set(n, bound).check(body, i.type)
         else -> false
     }
 
-    // Γ, x : A |- B : T          Γ, x : A |- B : T
+    // Γ, x : A ⊢ B : T          Γ, x : A ⊢ B : T
     // ----------------------     ----------------------
-    // Γ |- λ(x).B : Π(x:A).T     Γ |- λ{x}.B : Π{x:A}.T
+    // Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
     override fun Term.Lambda<C>.run(i: Context<C>) = when (i.type) {
         is Term.Pi -> {
             val variable = substitution.newVariable()
@@ -85,9 +85,9 @@ class CheckerImpl<C>(
         else -> false
     }
 
-    // Γ |- f : Π(x:M).N   Γ |- e : M      Γ |- f : Π{x:M}.N   Γ |- e : M      Γ |- f : Π{x:M}.N   Γ, v:M |- f {v} e : N
+    // Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
     // ------------------------------      ------------------------------      -----------------------------------------
-    // Γ |- f e : N[x=e]                   Γ |- f {e} : N[x=e]                 Γ |- f e : N
+    // Γ ⊢ f e : N[x=e]                   Γ ⊢ f {e} : N[x=e]                 Γ ⊢ f e : N
     override fun Term.Apply<C>.run(i: Context<C>) = with(inference(this@CheckerImpl)) {
         when (val type = i.gamma.infer(abstraction)) {
             is Term.Pi -> if (implicit == type.implicit) {
@@ -102,22 +102,22 @@ class CheckerImpl<C>(
         }
     }
 
-    // Γ,x : A |- B : T
+    // Γ,x : A ⊢ B : T
     // -----------------
-    // Γ |- Σ(x:A).B : T
+    // Γ ⊢ Σ(x:A).B : T
     override fun Term.Sigma<C>.run(i: Context<C>) = i.gamma.set(n, bound).check(body, i.type)
 
-    // Γ |- A : M   Γ |- B : N[x=A]
+    // Γ ⊢ A : M   Γ ⊢ B : N[x=A]
     // ----------------------------
-    // Γ |- A,B : Σ(x:M).N
+    // Γ ⊢ A,B : Σ(x:M).N
     override fun Term.Couple<C>.run(i: Context<C>) = when (i.type) {
         is Term.Sigma -> i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd, i.type.body.substitute(i.type.n, lhd))
         else -> false
     }
 
-    // Γ |- p : Σ(x:M).N
+    // Γ ⊢ p : Σ(x:M).N
     // -----------------
-    // Γ |- fst p : M
+    // Γ ⊢ fst p : M
     override fun Term.Fst<C>.run(i: Context<C>) = with(inference(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Term.Sigma -> type.bound compatibleWith i.type
@@ -125,9 +125,9 @@ class CheckerImpl<C>(
         }
     }
 
-    // Γ |- p : Σ(x:M).N
+    // Γ ⊢ p : Σ(x:M).N
     // -----------------------
-    // Γ |- snd p : N[x=fst p]
+    // Γ ⊢ snd p : N[x=fst p]
     override fun Term.Snd<C>.run(i: Context<C>) = with(inference(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Term.Sigma -> type.body.substitute(type.n, fst(term)) compatibleWith i.type
@@ -135,30 +135,30 @@ class CheckerImpl<C>(
         }
     }
 
-    // Γ |- A : T   Γ |- B : T
+    // Γ ⊢ A : T   Γ ⊢ B : T
     // -----------------------
-    // Γ |- A + B : T
+    // Γ ⊢ A + B : T
     override fun Term.Disjunction<C>.run(i: Context<C>) = i.gamma.check(lhd, i.type) && i.gamma.check(rhd, i.type)
 
-    // Γ |- A : M
+    // Γ ⊢ A : M
     // ------------------
-    // Γ |- inl A : M + N
+    // Γ ⊢ inl A : M + N
     override fun Term.Inl<C>.run(i: Context<C>) = when (i.type) {
         is Term.Disjunction -> i.gamma.check(this.term, i.type.lhd)
         else -> false
     }
 
-    // Γ |- A : N
+    // Γ ⊢ A : N
     // ------------------
-    // Γ |- inr A : M + N
+    // Γ ⊢ inr A : M + N
     override fun Term.Inr<C>.run(i: Context<C>) = when (i.type) {
         is Term.Disjunction -> i.gamma.check(this.term, i.type.rhd)
         else -> false
     }
 
-    // Γ |- a : A + B   Γ |- l : A -> C   Γ |- r : B -> C
+    // Γ ⊢ a : A + B   Γ ⊢ l : A -> C   Γ ⊢ r : B -> C
     // --------------------------------------------------
-    // Γ |- case a l r : C
+    // Γ ⊢ case a l r : C
     override fun Term.Case<C>.run(i: Context<C>) = with(inference(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Term.Disjunction -> i.gamma.check(left, type.lhd arrow i.type) && i.gamma.check(right,
@@ -167,31 +167,31 @@ class CheckerImpl<C>(
         }
     }
 
-    // Γ,x : T |- A : T
+    // Γ,x : T ⊢ A : T
     // -----------------
-    // Γ |- rec(x).A : T
+    // Γ ⊢ rec(x).A : T
     override fun Term.Rec<C>.run(i: Context<C>) = i.gamma.set(self, i.type).check(body, i.type)
 
-    // Γ |- A : N[x=rec(x).N]
+    // Γ ⊢ A : N[x=rec(x).N]
     // --------------------------------
-    // Γ |- fold(rec(x).N) A : rec(x).N
+    // Γ ⊢ fold(rec(x).N) A : rec(x).N
     override fun Term.Fold<C>.run(i: Context<C>) =
         type compatibleWith i.type && i.gamma.check(term, type.body.substitute(type.self, i.type))
 
-    // Γ |- A : rec(x).N
+    // Γ ⊢ A : rec(x).N
     // ---------------------------------------
-    // Γ |- unfold(rec(x).N) A : N[x=rec(x).N]
+    // Γ ⊢ unfold(rec(x).N) A : N[x=rec(x).N]
     override fun Term.Unfold<C>.run(i: Context<C>) =
         type.body.substitute(type.self, type) compatibleWith i.type && i.gamma.check(term, type)
 
-    // Γ |- x : T
+    // Γ ⊢ x : T
     // --------------
-    // Γ |- (x ∈ T) : T
+    // Γ ⊢ (x ∈ T) : T
     override fun Term.Inhabit<C>.run(i: Context<C>) = i.gamma.check(term, i.type) && type compatibleWith i.type
 
     //
     // -----------------
-    // Γ, x : T |- x : T
+    // Γ, x : T ⊢ x : T
     override fun Term.Hole<C>.run(i: Context<C>) =
         i.gamma.get(this@run.value)?.let { type -> type compatibleWith i.type } ?: false
 

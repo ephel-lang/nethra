@@ -21,9 +21,9 @@ class CongruenceImpl<C>(
 ) : Interpret<C, Term<C>, Boolean>, Congruence<C>, Printer<C> by printer, Substitution<C> by substitution {
 
     override infix fun Term<C>.compatibleWith(i: Term<C>) =
-        println("[≡] ${this.prettyPrint()} == ${i.prettyPrint()} / ?").let {
+        println("[?] ${this.prettyPrint()} ≅ ${i.prettyPrint()} / ?").let {
             val r = if (this.isHole() || !i.isHole()) this.run(i) else i.run(this)
-            println("[≡] ${this.prettyPrint()} == ${i.prettyPrint()} / $r")
+            println("[?] ${this.prettyPrint()} ≅ ${i.prettyPrint()} / $r")
             r
         }
 
