@@ -4,18 +4,18 @@ top ::=
     "def"  ID "=" expr 
 
 type ::=
-    ptype "->" type    
-    stype ("-> type)?
+    "(" id ":" type ")" "->" type    
+    "{" id ":" type "}" "->" type
+    apply (("->" | ",") type)?
 
-ptype ::=
-    "(" id ":" type ")"
-    "{" id ":" type "}"
+apply ::=
+    stype ("{" type "}" | stype)*
 
 stype ::=
     "*"
     "int"
     "char"
     "(" type ")"
-
+    
 
 

@@ -2,39 +2,57 @@ package io.smallibs.lang.nethra.parser
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.smallibs.lang.nethra.parser.Cst.pretty
 import io.smallibs.parsec.io.Reader
+import io.smallibs.parsec.parser.Common.get
 import io.smallibs.parsec.parser.Common.isSuccess
 import io.smallibs.parsec.parser.Flow.eos
 import io.smallibs.parsec.parser.Flow.thenLeft
 
 class TypeSpec : StringSpec({
 
-    "should parse an int" {
-        (Type() thenLeft eos())(Reader.string("Int")).isSuccess() shouldBe true
+    "[parser] Int" {
+        (Type() thenLeft eos())(Reader.string("Int")).get()?.pretty() shouldBe "Int"
     }
 
-    "should parse a char" {
-        (Type() thenLeft eos())(Reader.string("Char")).isSuccess() shouldBe true
+    "[parser] Char" {
+        (Type() thenLeft eos())(Reader.string("Char")).get()?.pretty() shouldBe "Char"
     }
 
-    "should parse an block" {
-        (Type() thenLeft eos())(Reader.string("(Char)")).isSuccess() shouldBe true
+    "[parser] (Char)" {
+        (Type() thenLeft eos())(Reader.string("(Char)")).get()?.pretty() shouldBe "Char"
     }
 
-    "should parse an function type" {
-        (Type() thenLeft eos())(Reader.string("Char -> Int")).isSuccess() shouldBe true
+    "[parser] Char -> Int" {
+        (Type() thenLeft eos())(Reader.string("Char -> Int")).get()?.pretty() shouldBe "Char -> Int"
     }
 
-    "should parse a dependant function type" {
-        (Type() thenLeft eos())(Reader.string("(e:Char) -> e")).isSuccess() shouldBe true
+    "[parse] (e:Char) -> e" {
+        (Type() thenLeft eos())(Reader.string("(e:Char) -> e")).get()?.pretty() shouldBe "(e:Char) -> e"
     }
 
-    "should parse a implicit dependant function type" {
-        (Type() thenLeft eos())(Reader.string("{e:Char} -> e")).isSuccess() shouldBe true
+    "[parse] {e:Char} -> e" {
+        (Type() thenLeft eos())(Reader.string("{e:Char} -> e")).get()?.pretty() shouldBe "{e:Char} -> e"
     }
 
-    "should parse a complex implicit dependant function type and more" {
-        (Type() thenLeft eos())(Reader.string("{e:Type} -> ({v:e} -> v)")).isSuccess() shouldBe true
+    "[parse] {e:Type} -> {v:e} -> v" {
+        (Type() thenLeft eos())(Reader.string("{e:Type} -> {v:e} -> v")).get()?.pretty() shouldBe "{e:*} -> {v:e} -> v"
+    }
+
+    "[parse] {e:Type} -> ({v:e} -> v)" {
+        (Type() thenLeft eos())(Reader.string("{e:Type} -> ({v:e} -> v)")).get()?.pretty() shouldBe "{e:*} -> {v:e} -> v"
+    }
+
+    "[parse] ({e:Type} -> e) -> v" {
+        (Type() thenLeft eos())(Reader.string("({e:Type} -> e) -> v")).get()?.pretty() shouldBe "({e:*} -> e) -> v"
+    }
+
+    "[parse] e e" {
+        (Type() thenLeft eos())(Reader.string("e e")).get()?.pretty() shouldBe "e (e)"
+    }
+
+    "[parse] e {e}" {
+        (Type() thenLeft eos())(Reader.string("e {e}")).get()?.pretty() shouldBe "e {e}"
     }
 })
 
