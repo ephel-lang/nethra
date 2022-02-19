@@ -11,7 +11,7 @@ e ::=
     Type_i                -- Type at level i
     n                     -- Variable
     
-    C(n:e)                -- Constructor ???
+    data(n:e)             -- Constructor ???
     i                     -- Integer literal
     c                     -- Character literal
     
