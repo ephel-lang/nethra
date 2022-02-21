@@ -8,8 +8,8 @@ object Core {
         Accept(v, it, false)
     }
 
-    fun <I, A> fails(): Parser<I, A> = {
-        Reject(it.location(), false)
+    fun <I, A> fails(reason: String? = null): Parser<I, A> = {
+        Reject(it.location(), false, reason)
     }
 
     fun <I> any(): Parser<I, I> = {

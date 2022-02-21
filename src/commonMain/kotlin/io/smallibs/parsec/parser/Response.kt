@@ -13,6 +13,7 @@ sealed class Response<I, out A>(open val consumed: Boolean) {
     data class Reject<I, out A>(
         val location: Location,
         override val consumed: Boolean,
+        val reason: String? = null,
     ) : Response<I, A>(consumed)
 
     fun <B> fold(accept: (Accept<I, A>) -> B, reject: (Reject<I, A>) -> B): B =

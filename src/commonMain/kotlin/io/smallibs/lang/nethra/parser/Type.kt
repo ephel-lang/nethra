@@ -34,37 +34,56 @@ object Type {
     private val RPAR get() = Token(char(')')) map { it.toString() }
     private val LACC get() = Token(char('{')) map { it.toString() }
     private val RACC get() = Token(char('}')) map { it.toString() }
-    private val SCOL get() = Token(char(':')) map { it.toString() }
-    private val COMMA get() = Token(char(',')) map { it.toString() }
+    private val COLON get() = Token(char(':')) map { it.toString() }
+    private val PRODUCT get() = Token(char('*')) map { it.toString() }
 
     private val TYPE get() = Localise(string("Type") map { Cst.Type.Kind })
     private val INT get() = Localise(string("Int") map { Cst.Type.IntLiteral })
     private val CHAR get() = Localise(string("Char") map { Cst.Type.CharLiteral })
     private val VAR get() = Localise(ID map { Cst.Type.Var(it) })
+    private val HOLE get() = Localise(char('?') thenRight ID map { Cst.Type.Var(it, true) })
 
     private fun ptype(
         left: Parser<Char, String>,
         right: Parser<Char, String>,
-        implicit: Boolean,
+        operator: Parser<Char, String>,
+        builder: (String, String, Localised, Localised) -> Cst.Type,
+        `try`: (Parser<Char, String>) -> Parser<Char, String> = { it },
     ): Parser<Char, Localised> =
-        Localise(`try`(left thenRight ID thenLeft SCOL) then lazy(::type) thenLeft right thenLeft ARROW then lazy(::type) map {
-            Cst.Type.Fun(it.first.first, it.first.second, it.second, implicit)
+        Localise(`try`(left thenRight ID thenLeft COLON) then lazy(::type) thenLeft right then operator then lazy(::type) map {
+            builder(it.first.second, it.first.first.first, it.first.first.second, it.second)
         })
 
-    private fun ptype(): Parser<Char, Localised> = ptype(LPAR, RPAR, false) or ptype(LACC, RACC, true)
+    private fun forallImplicit(): Parser<Char, Localised> =
+        ptype(LACC, RACC, ARROW, { _, n, l, r -> Cst.Type.Forall(n, l, r, true) })
+
+    private fun forallOrExists(): Parser<Char, Localised> =
+        ptype(LPAR, RPAR, ARROW or PRODUCT, { o, n, l, r ->
+            if (o == "->") {
+                Cst.Type.Forall(n, l, r, false)
+            } else {
+                Cst.Type.Exists(n, l, r)
+            }
+        }, ::`try`)
 
     private fun stype(): Parser<Char, Localised> =
-        TYPE or INT or CHAR or VAR or (LPAR thenRight lazy(::type) thenLeft RPAR)
+        TYPE or INT or CHAR or HOLE or VAR or (LPAR thenRight lazy(::type) thenLeft RPAR)
 
-    private fun mayBeArrowOrTuple(left: Localised): Parser<Char, Cst.Type> =
-        (ARROW thenRight lazy(::type) map {
-            Cst.Type.Fun(null, left, it, false)
-        }) or (COMMA thenRight lazy(::type) map {
-            Cst.Type.Tuple(left, it)
+    private fun mayBeProduct(left: Localised): Parser<Char, Cst.Type> =
+        (PRODUCT thenRight lazy(::stype) map {
+            Cst.Type.Exists(null, left, it)
         }) or returns(left.type)
 
+    private fun mayBeArrow(left: Localised): Parser<Char, Cst.Type> =
+        (ARROW thenRight lazy(::type) map {
+            Cst.Type.Forall(null, left, it, false)
+        }) or returns(left.type)
+
+    private fun param(): Parser<Char, Pair<Boolean, Localised>> =
+        (stype() map { false to it }) or (LACC thenRight lazy(::type) thenLeft RACC map { true to it })
+
     private fun apply(): Parser<Char, Localised> =
-        Localise(stype() then (LACC thenRight (lazy(::type) map { true to it }) thenLeft RACC or (stype() map { false to it })).optrep map {
+        Localise(stype() then lazy(::param).optrep map {
             if (it.second.isEmpty()) it.first.type
             else {
                 it.second.fold(it.first) { acc, type ->
@@ -74,7 +93,8 @@ object Type {
             }
         })
 
-    private fun type(): Parser<Char, Localised> = ptype() or Localise(apply() bind { mayBeArrowOrTuple(it) })
+    private fun type(): Parser<Char, Localised> =
+        forallOrExists() or forallImplicit() or Localise(Localise(apply() bind { mayBeProduct(it) }) bind { mayBeArrow(it) })
 
     operator fun invoke(): Parser<Char, Localised> = SKIP thenRight type()
 }

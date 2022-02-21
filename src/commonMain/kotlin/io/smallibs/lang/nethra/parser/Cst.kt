@@ -8,51 +8,61 @@ object Cst {
         object Kind : Type
         object IntLiteral : Type
         object CharLiteral : Type
-        data class Fun(val v: String?, val bound: Localised, val body: Localised, val implicit: Boolean) : Type
+        data class Var(val v: String, val hole: Boolean = false) : Type
+        data class Forall(val v: String?, val bound: Localised, val body: Localised, val implicit: Boolean) : Type
         data class Apply(val ldh: Localised, val rhd: Localised, val implicit: Boolean) : Type
-        data class Tuple(val ldh: Localised, val rhd: Localised) : Type
-        data class Var(val v: String) : Type
+        data class Exists(val v: String?, val bound: Localised, val body: Localised) : Type
 
         data class Localised(val type: Type, val region: Region.T)
 
-        fun pretty(): String =
+        private fun pretty(): String =
             when (this) {
-                Kind -> "*"
-                CharLiteral -> "Char"
+                Kind -> "Type"
                 IntLiteral -> "Int"
-                is Fun -> {
-                    if (this.v == null)
-                        if (this.bound.type.isAtom())
-                            "${this.bound.pretty()} -> ${this.body.pretty()}"
-                        else
-                            "(${this.bound.pretty()}) -> ${this.body.pretty()}"
+                CharLiteral -> "Char"
+                is Var ->
+                    if (hole) {
+                        "?$v"
+                    } else {
+                        v
+                    }
+                is Forall -> {
+                    if (v == null)
+                        "${bound.pretty(true)} -> ${body.pretty(true)}"
                     else if (implicit)
-                        "{$v:${this.bound.pretty()}} -> ${this.body.pretty()}"
+                        "{$v:${bound.pretty()}} -> ${body.pretty()}"
                     else
-                        "($v:${this.bound.pretty()}) -> ${this.body.pretty()}"
+                        "($v:${bound.pretty()}) -> ${body.pretty()}"
                 }
-                is Tuple -> "${this.ldh.pretty()},${this.ldh.pretty()}"
                 is Apply -> {
                     if (implicit)
-                        "${this.ldh.pretty()} {${this.rhd.pretty()}}"
+                        "${ldh.pretty()} {${rhd.pretty()}}"
                     else
-                        "${this.ldh.pretty()} (${this.rhd.pretty()})"
+                        "${ldh.pretty()} ${rhd.pretty(true)}"
                 }
-                is Var -> this.v
+                is Exists ->
+                    if (v == null)
+                        "${bound.pretty(true)} * ${body.pretty(true)}"
+                    else
+                        "($v:${bound.pretty()}) * ${body.pretty()}"
+
             }
 
-        fun isAtom(): Boolean =
+        private fun isAtom(): Boolean =
             when (this) {
-                is Apply -> false
-                CharLiteral -> true
-                is Fun -> false
-                IntLiteral -> true
                 Kind -> true
-                is Tuple -> false
+                IntLiteral -> true
+                CharLiteral -> true
                 is Var -> true
+                is Forall -> false
+                is Apply -> false
+                is Exists -> false
             }
+
+        fun pretty(atom: Boolean = false): String =
+            if (atom && !isAtom()) "(${pretty()})" else pretty()
     }
 
-    fun Type.Localised.pretty() = this.type.pretty()
+    fun Type.Localised.pretty(atom: Boolean = false) = type.pretty(atom)
 
 }

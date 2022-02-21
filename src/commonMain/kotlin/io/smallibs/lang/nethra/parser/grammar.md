@@ -1,3 +1,5 @@
+## Nethra grammar
+
 ```
 top ::= 
     "type" ID "=" type
@@ -5,23 +7,27 @@ top ::=
     "def"  ID "=" expr 
 ```
 
+## Type grammar
+
 ```
 type ::=
-    "(" id ":" type ")" "->" type    
-    "{" id ":" type "}" "->" type
-    apply (("->" | ",") type)?
+    ptype
+    stype ("{" type "}" | stype)* ("*" stype)? ("->" type)?
 ```
 
 ```
-apply ::=
-    stype ("{" type "}" | stype)*
+ptype ::=
+    "(" id ":" type ")" ("->" | "*") type    
+    "{" id ":" type "}" "->" type    
 ```
 
 ```
 stype ::=
-    "*"
-    "int"
-    "char"
+    "Type"
+    "Int"
+    "Char"
+    id
+    ?id
     "(" type ")"
 ```
 
