@@ -11,19 +11,19 @@ import io.smallibs.parsec.utils.Location
 class ErrorTypeSpec : StringSpec({
 
     "[parser] Int -> " {
-        (Type() thenLeft eos())(Reader.string("Int -> ")).error()?.location shouldBe Location(7, 0, 7)
+        (Term() thenLeft eos())(Reader.string("Int -> ")).error()?.location shouldBe Location(7, 0, 7)
     }
 
     "[parser] Int -> * " {
-        (Type() thenLeft eos())(Reader.string("Int -> * ")).error()?.location shouldBe Location(8, 0, 8)
+        (Term() thenLeft eos())(Reader.string("Int -> * ")).error()?.location shouldBe Location(8, 0, 8)
     }
 
     "[parser] { e }" {
-        (Type() thenLeft eos())(Reader.string("{ e }")).error()?.location shouldBe Location(5, 0, 5)
+        (Term() thenLeft eos())(Reader.string("{ e }")).error()?.location shouldBe Location(5, 0, 5)
     }
 
     "[parser] e { v : Type } -> v" {
-        (Type() thenLeft eos())(Reader.string("e { v : Type } -> v")).error()?.location shouldBe Location(2, 0, 2)
+        (Term() thenLeft eos())(Reader.string("e { v : Type } -> v")).error()?.location shouldBe Location(2, 0, 2)
     }
 })
 

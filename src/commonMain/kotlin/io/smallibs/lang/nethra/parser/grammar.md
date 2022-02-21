@@ -2,33 +2,34 @@
 
 ```
 top ::= 
-    "type" ID "=" type
-    "sig"  ID ":" type
-    "def"  ID "=" expr 
+    "sig" ID ":" term
+    "def" ID "=" term 
 ```
 
-## Type grammar
+## Term grammar
 
 ```
-type ::=
-    ptype
-    stype ("{" type "}" | stype)* ("*" stype)? ("->" type)?
-```
-
-```
-ptype ::=
-    "(" id ":" type ")" ("->" | "*") type    
-    "{" id ":" type "}" "->" type    
+term ::=
+    pterm
+    sterm ("{" term "}" | sterm)* ("*" sterm)? ("->" term)?
 ```
 
 ```
-stype ::=
+pterm ::=
+    "(" id ":" term ")" ("->" | "*") term    
+    "{" id ":" term "}" ("->") term    
+    "(" id ")" "." term    
+    "{" id "}" "." term    
+```
+
+```
+sterm ::=
     "Type"
     "Int"
     "Char"
     id
     ?id
-    "(" type ")"
+    "(" term ")"
 ```
 
 
