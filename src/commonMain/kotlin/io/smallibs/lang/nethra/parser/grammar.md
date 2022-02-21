@@ -27,9 +27,10 @@ sterm ::=
     "Type"
     "Int"
     "Char"
+    "case" sterm sterm sterm
+    "(" term ")"
     id
     ?id
-    "(" term ")"
 ```
 
 

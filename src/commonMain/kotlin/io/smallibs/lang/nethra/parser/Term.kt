@@ -91,7 +91,7 @@ object Term {
         })
 
     private fun sterm(): Parser<Char, Localised> =
-        Term or INT or CHAR or HOLE or VAR or (LPAR thenRight lazy(::term) thenLeft RPAR)
+        case() or Term or INT or CHAR or HOLE or VAR or (LPAR thenRight lazy(::term) thenLeft RPAR)
 
 
     private fun mayBeProduct(left: Localised): Parser<Char, Cst.Term> = (PRODUCT thenRight lazy(::sterm) map {
@@ -121,7 +121,6 @@ object Term {
     })
 
     private fun term(): Parser<Char, Localised> =
-        case() or
         forallOrExists() or
                 forallImplicit() or
                 lambda() or
