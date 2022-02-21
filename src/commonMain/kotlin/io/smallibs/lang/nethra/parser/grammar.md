@@ -11,15 +11,15 @@ top ::=
 ```
 term ::=
     pterm
-    sterm ("{" term "}" | sterm)* ("*" sterm)? ("->" term)?
+    sterm ("{" term "}" | sterm)* ("*" sterm)? ("|" sterm)? ("->" term)?
 ```
 
 ```
 pterm ::=
     "(" id ":" term ")" ("->" | "*") term    
     "{" id ":" term "}" ("->") term    
-    "(" id ")" "." term    
-    "{" id "}" "." term    
+    "(" id ")" "." sterm    
+    "{" id "}" "." sterm
 ```
 
 ```

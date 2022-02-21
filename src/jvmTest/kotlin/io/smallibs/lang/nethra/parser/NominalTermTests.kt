@@ -39,11 +39,13 @@ class NominalTypeSpec : StringSpec({
     }
 
     "[parse] {e:Type} -> {v:e} -> v" {
-        (Term() thenLeft eos())(Reader.string("{e:Type} -> {v:e} -> v")).get()?.pretty() shouldBe "{e:Type} -> {v:e} -> v"
+        (Term() thenLeft eos())(Reader.string("{e:Type} -> {v:e} -> v")).get()
+            ?.pretty() shouldBe "{e:Type} -> {v:e} -> v"
     }
 
     "[parse] {e:Type} -> ({v:e} -> v)" {
-        (Term() thenLeft eos())(Reader.string("{e:Type} -> ({v:e} -> v)")).get()?.pretty() shouldBe "{e:Type} -> {v:e} -> v"
+        (Term() thenLeft eos())(Reader.string("{e:Type} -> ({v:e} -> v)")).get()
+            ?.pretty() shouldBe "{e:Type} -> {v:e} -> v"
     }
 
     "[parse] ({e:Type} -> e) -> v" {
@@ -108,6 +110,42 @@ class NominalTypeSpec : StringSpec({
 
     "[parse] {e}.(f e)" {
         (Term() thenLeft eos())(Reader.string("{e}.(f e)")).get()?.pretty() shouldBe "{e}.(f e)"
+    }
+
+    "[parse] e | f" {
+        (Term() thenLeft eos())(Reader.string("e | f")).get()?.pretty() shouldBe "e | f"
+    }
+
+    "[parse] e | f -> g" {
+        (Term() thenLeft eos())(Reader.string("e | f -> g")).get()?.pretty() shouldBe "e | f -> g"
+    }
+
+    "[parse] (e | f) -> g" {
+        (Term() thenLeft eos())(Reader.string("(e | f) -> g")).get()?.pretty() shouldBe "e | f -> g"
+    }
+
+    "[parse] e f | g -> h" {
+        (Term() thenLeft eos())(Reader.string("e f | g -> h")).get()?.pretty() shouldBe "e f | g -> h"
+    }
+
+    "[parse] ((e f) | g) -> h" {
+        (Term() thenLeft eos())(Reader.string("((e f) | g) -> h")).get()?.pretty() shouldBe "e f | g -> h"
+    }
+
+    "[parse] e (f | g) -> h" {
+        (Term() thenLeft eos())(Reader.string("e (f | g) -> h")).get()?.pretty() shouldBe "e (f | g) -> h"
+    }
+
+    "[parse] (e) | (f -> g)" {
+        (Term() thenLeft eos())(Reader.string("e | (f -> g)")).get()?.pretty() shouldBe "e | (f -> g)"
+    }
+
+    "[parse] case True Int Char" {
+        (Term() thenLeft eos())(Reader.string("case True Int Char")).get()?.pretty() shouldBe "case True Int Char"
+    }
+
+    "[parse] {e:True+False} -> case e Int Char" {
+        (Term() thenLeft eos())(Reader.string("{e:True|False} -> case e Int Char")).get()?.pretty() shouldBe "{e:True | False} -> case e Int Char"
     }
 })
 

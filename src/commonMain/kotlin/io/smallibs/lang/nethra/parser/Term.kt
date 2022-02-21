@@ -29,7 +29,7 @@ object Term {
     private val ID
         get() = token((charIn('A'..'Z') or charIn('a'..'z') or charIn("_")).rep).map { it.joinToString("") }
 
-    private val ARROW get() = token(string("->"))
+    private val ARROW get() = token(`try`(string("->")))
     private val DOT get() = token(char('.')) map { it.toString() }
     private val LPAR get() = token(char('(')) map { it.toString() }
     private val RPAR get() = token(char(')')) map { it.toString() }
@@ -37,10 +37,12 @@ object Term {
     private val RACC get() = token(char('}')) map { it.toString() }
     private val COLON get() = token(char(':')) map { it.toString() }
     private val PRODUCT get() = token(char('*')) map { it.toString() }
+    private val DISJUNCTION get() = token(char('|')) map { it.toString() }
+    private val CASE get() = token(string("case"))
 
-    private val Term get() = localise(string("Type") map { Cst.Term.Kind })
-    private val INT get() = localise(string("Int") map { Cst.Term.IntLiteral })
-    private val CHAR get() = localise(string("Char") map { Cst.Term.CharLiteral })
+    private val Term get() = localise(`try`(string("Type")) map { Cst.Term.Kind })
+    private val INT get() = localise(`try`(string("Int")) map { Cst.Term.IntLiteral })
+    private val CHAR get() = localise(`try`(string("Char")) map { Cst.Term.CharLiteral })
     private val VAR get() = localise(ID map { Cst.Term.Var(it) })
     private val HOLE get() = localise(char('?') thenRight ID map { Cst.Term.Var(it, true) })
 
@@ -81,11 +83,23 @@ object Term {
         pterm(LACC, RACC) { n, t -> Cst.Term.Lambda(n, t, true) } or
                 pterm(LPAR, RPAR) { n, t -> Cst.Term.Lambda(n, t, false) }
 
+    private fun case(): Parser<Char, Localised> =
+        localise(CASE thenRight lazy(::sterm) then lazy(::sterm) then lazy(::sterm) map {
+            Cst.Term.Case(it.first.first,
+                it.first.second,
+                it.second)
+        })
+
     private fun sterm(): Parser<Char, Localised> =
         Term or INT or CHAR or HOLE or VAR or (LPAR thenRight lazy(::term) thenLeft RPAR)
 
+
     private fun mayBeProduct(left: Localised): Parser<Char, Cst.Term> = (PRODUCT thenRight lazy(::sterm) map {
         Cst.Term.Exists(null, left, it)
+    }) or returns(left.term)
+
+    private fun mayBeDisjunction(left: Localised): Parser<Char, Cst.Term> = (DISJUNCTION thenRight lazy(::sterm) map {
+        Cst.Term.Disjunction(left, it)
     }) or returns(left.term)
 
     private fun mayBeArrow(left: Localised): Parser<Char, Cst.Term> = (ARROW thenRight lazy(::term) map {
@@ -107,10 +121,11 @@ object Term {
     })
 
     private fun term(): Parser<Char, Localised> =
+        case() or
         forallOrExists() or
                 forallImplicit() or
                 lambda() or
-                localise(localise(apply() bind { mayBeProduct(it) }) bind { mayBeArrow(it) })
+                localise(localise(localise(apply() bind ::mayBeProduct) bind ::mayBeDisjunction) bind ::mayBeArrow)
 
     operator fun invoke(): Parser<Char, Localised> = SKIP thenRight term()
 }
