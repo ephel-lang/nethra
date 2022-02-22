@@ -4,8 +4,22 @@ import io.smallibs.parsec.parser.Region
 
 object Cst {
 
+    sealed interface Binding {
+        val name: String
+        val value: Term.Localised
+
+        data class Signature(override val name: String, override val value: Term.Localised) : Binding
+        data class Definition(override val name: String, override val value: Term.Localised) : Binding
+
+        fun pretty(atom: Boolean = false): String =
+            when (this) {
+                is Signature -> "sig $name : ${value.pretty()}"
+                is Definition -> "def $name = ${value.pretty()}"
+            }
+    }
+
     sealed interface Term {
-        object Kind : Term
+        object Type : Term
         object IntTypeLiteral : Term
         object CharTypeLiteral : Term
         object StringTypeLiteral : Term
@@ -23,7 +37,7 @@ object Cst {
         data class Localised(val term: Term, val region: Region.T)
 
         private fun pretty(): String = when (this) {
-            Kind -> "Type"
+            Type -> "Type"
             IntTypeLiteral -> "Int"
             CharTypeLiteral -> "Char"
             StringTypeLiteral -> "String"
@@ -61,7 +75,7 @@ object Cst {
         }
 
         private fun isAtom(): Boolean = when (this) {
-            Kind -> true
+            Type -> true
             IntTypeLiteral -> true
             CharTypeLiteral -> true
             StringTypeLiteral -> true

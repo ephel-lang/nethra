@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.checker
+package io.smallibs.lang.nethra.stages.s02_Checker
 
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Term

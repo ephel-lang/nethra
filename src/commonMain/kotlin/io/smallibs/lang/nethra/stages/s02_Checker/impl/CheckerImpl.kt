@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.checker.impl
+package io.smallibs.lang.nethra.stages.s02_Checker.impl
 
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
@@ -6,9 +6,9 @@ import io.smallibs.lang.nethra.ast.Interpret
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.ast.Term
-import io.smallibs.lang.nethra.checker.Checker
-import io.smallibs.lang.nethra.checker.Gamma
-import io.smallibs.lang.nethra.checker.Inference
+import io.smallibs.lang.nethra.stages.s02_Checker.Checker
+import io.smallibs.lang.nethra.stages.s02_Checker.Gamma
+import io.smallibs.lang.nethra.stages.s02_Checker.Inference
 
 //
 // Stupid version returning a simple Bool

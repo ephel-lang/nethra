@@ -1,58 +1,41 @@
-package io.smallibs.lang.nethra.parser
+package io.smallibs.lang.nethra.stages.s01_Parser
 
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.cst.Cst.Term.Localised
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.ARROW
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.CASE
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.COLON
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.DISJUNCTION
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.DOT
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.ID
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.LACC
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.LPAR
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.PRODUCT
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.RACC
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.RPAR
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.SKIP
+import io.smallibs.lang.nethra.stages.s01_Parser.Commons.localise
 import io.smallibs.parsec.parser.Core.`try`
 import io.smallibs.parsec.parser.Core.lazy
 import io.smallibs.parsec.parser.Core.returns
 import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.or
-import io.smallibs.parsec.parser.Flow.rep
 import io.smallibs.parsec.parser.Flow.then
 import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Flow.thenRight
 import io.smallibs.parsec.parser.Literal.char
-import io.smallibs.parsec.parser.Literal.charIn
 import io.smallibs.parsec.parser.Literal.delimitedChar
 import io.smallibs.parsec.parser.Literal.delimitedString
 import io.smallibs.parsec.parser.Literal.integer
 import io.smallibs.parsec.parser.Literal.string
 import io.smallibs.parsec.parser.Monad.bind
 import io.smallibs.parsec.parser.Monad.map
-import io.smallibs.parsec.parser.Monad.satisfy
 import io.smallibs.parsec.parser.Parser
 import io.smallibs.parsec.parser.Region
-import io.smallibs.parsec.parser.Region.locate
 
 object Term {
 
-    private val SKIP get() = charIn(" \t\n\r").optrep map {}
-
-    private fun <A> token(p: Parser<Char, A>) = p thenLeft SKIP
-    private fun localise(p: Parser<Char, Cst.Term>) = token(p.locate() map { Localised(it.second, it.first) })
-
-    private val operators: List<String>
-        get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|")
-
-    private val keywords: List<String>
-        get() = listOf("Type", "Int", "Char", "String", "case")
-
-    private val ID
-        get() = token((charIn('A'..'Z') or charIn('a'..'z') or charIn("_")).rep) map
-                { it.joinToString("") } satisfy { !keywords.contains(it) }
-
-    private val ARROW get() = token(`try`(string("->")))
-    private val DOT get() = token(char('.')) map { it.toString() }
-    private val LPAR get() = token(char('(')) map { it.toString() }
-    private val RPAR get() = token(char(')')) map { it.toString() }
-    private val LACC get() = token(char('{')) map { it.toString() }
-    private val RACC get() = token(char('}')) map { it.toString() }
-    private val COLON get() = token(char(':')) map { it.toString() }
-    private val PRODUCT get() = token(char('*')) map { it.toString() }
-    private val DISJUNCTION get() = token(char('|')) map { it.toString() }
-    private val CASE get() = token(string("case"))
-
-    private val KIND_TYPE get() = localise(`try`(string("Type")) map { Cst.Term.Kind })
+    private val KIND_TYPE get() = localise(`try`(string("Type")) map { Cst.Term.Type })
     private val INT_TYPE get() = localise(`try`(string("Int")) map { Cst.Term.IntTypeLiteral })
     private val CHAR_TYPE get() = localise(`try`(string("Char")) map { Cst.Term.CharTypeLiteral })
     private val STRING_TYPE get() = localise(`try`(string("String")) map { Cst.Term.StringTypeLiteral })
@@ -70,7 +53,8 @@ object Term {
         builder: (Int, String, Localised, Localised) -> Cst.Term,
         `try`: (Parser<Char, String>) -> Parser<Char, String> = { it },
     ): Parser<Char, Localised> =
-        localise(`try`(left thenRight ID thenLeft COLON) then lazy(::term) thenLeft right then operator then lazy(::term) map {
+        localise(`try`(left thenRight ID thenLeft COLON) then lazy(Term::term) thenLeft right then operator then lazy(
+            Term::term) map {
             builder(it.first.second, it.first.first.first, it.first.first.second, it.second)
         })
 
@@ -79,7 +63,7 @@ object Term {
         right: Parser<Char, String>,
         builder: (String, Localised) -> Cst.Term,
     ): Parser<Char, Localised> =
-        localise(`try`(left thenRight ID thenLeft right thenLeft DOT) then lazy(::sterm) map {
+        localise(`try`(left thenRight ID thenLeft right thenLeft DOT) then lazy(Term::sterm) map {
             builder(it.first, it.second)
         })
 
@@ -102,7 +86,7 @@ object Term {
                 pterm(LPAR, RPAR) { n, t -> Cst.Term.Lambda(n, t, false) }
 
     private fun case(): Parser<Char, Localised> =
-        localise(CASE thenRight lazy(::sterm) then lazy(::sterm) then lazy(::sterm) map {
+        localise(CASE thenRight lazy(Term::sterm) then lazy(Term::sterm) then lazy(Term::sterm) map {
             Cst.Term.Case(it.first.first,
                 it.first.second,
                 it.second)
@@ -112,26 +96,27 @@ object Term {
         case() or
                 KIND_TYPE or INT_TYPE or CHAR_TYPE or STRING_TYPE or
                 HOLE or VAR or
-                (LPAR thenRight lazy(::term) thenLeft RPAR) or
+                (LPAR thenRight lazy(Term::term) thenLeft RPAR) or
                 INT or CHAR or STRING
 
 
-    private fun mayBeProduct(left: Localised): Parser<Char, Cst.Term> = (PRODUCT thenRight lazy(::sterm) map {
+    private fun mayBeProduct(left: Localised): Parser<Char, Cst.Term> = (PRODUCT thenRight lazy(Term::sterm) map {
         Cst.Term.Exists(null, left, it)
     }) or returns(left.term)
 
-    private fun mayBeDisjunction(left: Localised): Parser<Char, Cst.Term> = (DISJUNCTION thenRight lazy(::sterm) map {
-        Cst.Term.Disjunction(left, it)
-    }) or returns(left.term)
+    private fun mayBeDisjunction(left: Localised): Parser<Char, Cst.Term> =
+        (DISJUNCTION thenRight lazy(Term::sterm) map {
+            Cst.Term.Disjunction(left, it)
+        }) or returns(left.term)
 
-    private fun mayBeArrow(left: Localised): Parser<Char, Cst.Term> = (ARROW thenRight lazy(::term) map {
+    private fun mayBeArrow(left: Localised): Parser<Char, Cst.Term> = (ARROW thenRight lazy(Term::term) map {
         Cst.Term.Forall(null, left, it, false)
     }) or returns(left.term)
 
     private fun param(): Parser<Char, Pair<Boolean, Localised>> =
-        (sterm() map { false to it }) or (LACC thenRight lazy(::term) thenLeft RACC map { true to it })
+        (sterm() map { false to it }) or (LACC thenRight lazy(Term::term) thenLeft RACC map { true to it })
 
-    private fun apply(): Parser<Char, Localised> = localise(sterm() then lazy(::param).optrep map {
+    private fun apply(): Parser<Char, Localised> = localise(sterm() then lazy(Term::param).optrep map {
         if (it.second.isEmpty()) {
             it.first.term
         } else {
@@ -144,7 +129,7 @@ object Term {
 
     private fun term(): Parser<Char, Localised> =
         lambda() or forallOrExists() or forallImplicit() or
-                localise(localise(localise(apply() bind ::mayBeProduct) bind ::mayBeDisjunction) bind ::mayBeArrow)
+                localise(localise(localise(apply() bind Term::mayBeProduct) bind Term::mayBeDisjunction) bind Term::mayBeArrow)
 
     operator fun invoke(): Parser<Char, Localised> = SKIP thenRight term()
 }

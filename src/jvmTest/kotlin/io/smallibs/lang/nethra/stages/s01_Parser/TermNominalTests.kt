@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.parser
+package io.smallibs.lang.nethra.stages.s01_Parser
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -8,7 +8,7 @@ import io.smallibs.parsec.parser.Common.get
 import io.smallibs.parsec.parser.Flow.eos
 import io.smallibs.parsec.parser.Flow.thenLeft
 
-class NominalTypeSpec : StringSpec({
+class TermNominalSpec : StringSpec({
 
     "[parser] Type" {
         (Term() thenLeft eos())(string("Type")).get()?.pretty() shouldBe "Type"

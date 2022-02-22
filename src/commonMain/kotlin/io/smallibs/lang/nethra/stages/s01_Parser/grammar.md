@@ -2,9 +2,9 @@
 
 ```
 s0 ::=
-    def*
+    entity*
 
-def ::= 
+entity ::= 
     "sig" ID ":" term
     "def" ID "=" term 
 ```
