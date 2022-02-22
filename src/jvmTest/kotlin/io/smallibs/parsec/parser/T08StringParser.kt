@@ -8,7 +8,7 @@ import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Literal.delimitedString
 import io.smallibs.parsec.parser.Literal.string
 
-class T07StringParser : StringSpec({
+class T08StringParser : StringSpec({
 
     "shouldStringParserReturnAccept" {
         val parser = string("hello") thenLeft eos()
@@ -18,7 +18,7 @@ class T07StringParser : StringSpec({
 
 
     "shouldDelimitedStringParserReturnEmptyString" {
-        val parser = delimitedString() thenLeft eos()
+        val parser = delimitedString thenLeft eos()
 
         parser(Reader.string(""""hel\"lo"""")).fold({ it.value }, { null }) shouldBe """hel\"lo"""
     }

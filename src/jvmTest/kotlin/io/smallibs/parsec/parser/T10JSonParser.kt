@@ -17,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
-class T09JSonParser : StringSpec({
+class T10JSonParser : StringSpec({
 
     "should JsonParser Return Integer" {
         JSON.invoke(Reader.string("42")).fold({ it.value == JsonNumber(42F) }, { false }) shouldBe true
@@ -63,7 +63,7 @@ class T09JSonParser : StringSpec({
     }
 
     "should Parse Json File" {
-        val stream = T09JSonParser::class.java.getResourceAsStream("/fragment.Json")
+        val stream = T10JSonParser::class.java.getResourceAsStream("/fragment.Json")
         val reader = JsonParser.reader(Reader.string(String(withContext(Dispatchers.IO) {
             stream.readAllBytes()
         })))

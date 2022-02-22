@@ -1,7 +1,10 @@
 ## Nethra grammar
 
 ```
-top ::= 
+s0 ::=
+    def*
+
+def ::= 
     "sig" ID ":" term
     "def" ID "=" term 
 ```
@@ -27,10 +30,14 @@ sterm ::=
     "Type"
     "Int"
     "Char"
+    "String"
     "case" sterm sterm sterm
     "(" term ")"
     id
     ?id
+    Int 
+    Char
+    String
 ```
 
 

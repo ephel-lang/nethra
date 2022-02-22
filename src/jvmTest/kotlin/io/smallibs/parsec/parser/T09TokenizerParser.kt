@@ -13,7 +13,7 @@ import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Literal.char
 import io.smallibs.parsec.parser.Literal.integer
 
-class T08TokenizerParser : StringSpec({
+class T09TokenizerParser : StringSpec({
 
     "shouldCountNumber" {
         val tokenizer = integer thenLeft char(',').opt

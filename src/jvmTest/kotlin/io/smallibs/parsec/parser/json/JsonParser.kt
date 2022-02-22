@@ -1,11 +1,5 @@
 package io.smallibs.parsec.parser.json
 
-import io.smallibs.parsec.parser.json.Json.JsonArray
-import io.smallibs.parsec.parser.json.Json.JsonBoolean
-import io.smallibs.parsec.parser.json.Json.JsonNull
-import io.smallibs.parsec.parser.json.Json.JsonNumber
-import io.smallibs.parsec.parser.json.Json.JsonObject
-import io.smallibs.parsec.parser.json.Json.JsonString
 import io.smallibs.parsec.io.Reader
 import io.smallibs.parsec.io.skip
 import io.smallibs.parsec.parser.Core.any
@@ -25,6 +19,12 @@ import io.smallibs.parsec.parser.Literal.string
 import io.smallibs.parsec.parser.Monad.bind
 import io.smallibs.parsec.parser.Monad.map
 import io.smallibs.parsec.parser.Parser
+import io.smallibs.parsec.parser.json.Json.JsonArray
+import io.smallibs.parsec.parser.json.Json.JsonBoolean
+import io.smallibs.parsec.parser.json.Json.JsonNull
+import io.smallibs.parsec.parser.json.Json.JsonNumber
+import io.smallibs.parsec.parser.json.Json.JsonObject
+import io.smallibs.parsec.parser.json.Json.JsonString
 
 object JsonParser {
 
@@ -41,7 +41,7 @@ object JsonParser {
         float map { JsonNumber(it) }
 
     private val JSON_STRING: Parser<Char, Json> =
-        delimitedString() map { JsonString(it) }
+        delimitedString map { JsonString(it) }
 
     private fun <A> structure(p: Parser<Char, A>, o: Char, s: Char, c: Char): Parser<Char, List<A>?> =
         char(o) thenRight (p then (char(s) thenRight p).optrep thenLeft char(c) map { (s, l) -> listOf(s) + l }).opt
@@ -50,7 +50,7 @@ object JsonParser {
         structure(lazy { JSON }, '[', ',', ']') map { JsonArray(it.orEmpty()) }
 
     private val JSON_ATTRIBUTE: Parser<Char, Pair<String, Json>> =
-        delimitedString() thenLeft char(':') then lazy { JSON }
+        delimitedString thenLeft char(':') then lazy { JSON }
 
     private val JSON_OBJECT: Parser<Char, Json> =
         structure(JSON_ATTRIBUTE, '{', ',', '}') map { JsonObject(it.orEmpty().toMap()) }

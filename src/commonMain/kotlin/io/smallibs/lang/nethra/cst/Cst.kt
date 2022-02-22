@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.parser
+package io.smallibs.lang.nethra.cst
 
 import io.smallibs.parsec.parser.Region
 
@@ -6,8 +6,12 @@ object Cst {
 
     sealed interface Term {
         object Kind : Term
-        object IntLiteral : Term
-        object CharLiteral : Term
+        object IntTypeLiteral : Term
+        object CharTypeLiteral : Term
+        object StringTypeLiteral : Term
+        data class IntLiteral(val value: Int) : Term
+        data class CharLiteral(val value: Char) : Term
+        data class StringLiteral(val value: String) : Term
         data class Var(val v: String, val hole: Boolean = false) : Term
         data class Forall(val v: String?, val bound: Localised, val body: Localised, val implicit: Boolean) : Term
         data class Apply(val lhd: Localised, val rhd: Localised, val implicit: Boolean) : Term
@@ -20,8 +24,17 @@ object Cst {
 
         private fun pretty(): String = when (this) {
             Kind -> "Type"
-            IntLiteral -> "Int"
-            CharLiteral -> "Char"
+            IntTypeLiteral -> "Int"
+            CharTypeLiteral -> "Char"
+            StringTypeLiteral -> "String"
+            is IntLiteral -> "$value"
+            is CharLiteral ->
+                if (value == '\'') {
+                    "'\\''"
+                } else {
+                    "'$value'"
+                }
+            is StringLiteral -> "\"$value\""
             is Var -> if (hole) {
                 "?$v"
             } else {
@@ -49,8 +62,12 @@ object Cst {
 
         private fun isAtom(): Boolean = when (this) {
             Kind -> true
-            IntLiteral -> true
-            CharLiteral -> true
+            IntTypeLiteral -> true
+            CharTypeLiteral -> true
+            StringTypeLiteral -> true
+            is IntLiteral -> true
+            is CharLiteral -> true
+            is StringLiteral -> true
             is Var -> true
             is Forall -> false
             is Apply -> false
