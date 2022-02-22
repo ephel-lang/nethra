@@ -6,15 +6,15 @@ object Cst {
 
     sealed interface Binding {
         val name: String
-        val value: Term.Localised
+        val value: Localised<Term>
 
-        data class Signature(override val name: String, override val value: Term.Localised) : Binding
-        data class Definition(override val name: String, override val value: Term.Localised) : Binding
+        data class Signature(override val name: String, override val value: Localised<Term>) : Binding
+        data class Definition(override val name: String, override val value: Localised<Term>) : Binding
 
         fun pretty(atom: Boolean = false): String =
             when (this) {
-                is Signature -> "sig $name : ${value.pretty()}"
-                is Definition -> "def $name = ${value.pretty()}"
+                is Signature -> "sig $name : ${value.prettyTerm()}"
+                is Definition -> "def $name = ${value.prettyTerm()}"
             }
     }
 
@@ -27,14 +27,18 @@ object Cst {
         data class CharLiteral(val value: Char) : Term
         data class StringLiteral(val value: String) : Term
         data class Var(val v: String, val hole: Boolean = false) : Term
-        data class Forall(val v: String?, val bound: Localised, val body: Localised, val implicit: Boolean) : Term
-        data class Apply(val lhd: Localised, val rhd: Localised, val implicit: Boolean) : Term
-        data class Exists(val v: String?, val bound: Localised, val body: Localised) : Term
-        data class Lambda(val v: String, val body: Localised, val implicit: Boolean) : Term
-        data class Disjunction(val lhd: Localised, val rhd: Localised) : Term
-        data class Case(val term: Localised, val lhd: Localised, val rhd: Localised) : Term
+        data class Forall(
+            val v: String?,
+            val bound: Localised<Term>,
+            val body: Localised<Term>,
+            val implicit: Boolean,
+        ) : Term
 
-        data class Localised(val term: Term, val region: Region.T)
+        data class Apply(val lhd: Localised<Term>, val rhd: Localised<Term>, val implicit: Boolean) : Term
+        data class Exists(val v: String?, val bound: Localised<Term>, val body: Localised<Term>) : Term
+        data class Lambda(val v: String, val body: Localised<Term>, val implicit: Boolean) : Term
+        data class Disjunction(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
+        data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
 
         private fun pretty(): String = when (this) {
             Type -> "Type"
@@ -55,23 +59,23 @@ object Cst {
                 v
             }
             is Forall -> {
-                if (v == null) "${bound.pretty()} -> ${body.pretty(true)}"
-                else if (implicit) "{$v:${bound.pretty()}} -> ${body.pretty()}"
-                else "($v:${bound.pretty()}) -> ${body.pretty()}"
+                if (v == null) "${bound.prettyTerm()} -> ${body.prettyTerm(true)}"
+                else if (implicit) "{$v:${bound.prettyTerm()}} -> ${body.prettyTerm()}"
+                else "($v:${bound.prettyTerm()}) -> ${body.prettyTerm()}"
             }
             is Apply -> {
-                if (implicit) "${lhd.pretty()} {${rhd.pretty()}}"
-                else "${lhd.pretty()} ${rhd.pretty(true)}"
+                if (implicit) "${lhd.prettyTerm()} {${rhd.prettyTerm()}}"
+                else "${lhd.prettyTerm()} ${rhd.prettyTerm(true)}"
             }
-            is Exists -> if (v == null) "${bound.pretty()} * ${body.pretty(true)}"
-            else "($v:${bound.pretty()}) * ${body.pretty()}"
+            is Exists -> if (v == null) "${bound.prettyTerm()} * ${body.prettyTerm(true)}"
+            else "($v:${bound.prettyTerm()}) * ${body.prettyTerm()}"
             is Lambda ->
-                if (implicit) "{$v}.${body.pretty(true)}"
-                else "($v).${body.pretty(true)}"
+                if (implicit) "{$v}.${body.prettyTerm(true)}"
+                else "($v).${body.prettyTerm(true)}"
             is Disjunction ->
-                "${lhd.pretty()} | ${rhd.pretty(true)}"
+                "${lhd.prettyTerm()} | ${rhd.prettyTerm(true)}"
             is Case ->
-                "case ${term.pretty(true)} ${lhd.pretty(true)} ${rhd.pretty(true)}"
+                "case ${term.prettyTerm(true)} ${lhd.prettyTerm(true)} ${rhd.prettyTerm(true)}"
         }
 
         private fun isAtom(): Boolean = when (this) {
@@ -94,6 +98,9 @@ object Cst {
         fun pretty(atom: Boolean = false): String = if (atom && !isAtom()) "(${pretty()})" else pretty()
     }
 
-    fun Term.Localised.pretty(atom: Boolean = false) = term.pretty(atom)
+    data class Localised<V>(val value: V, val region: Region.T)
 
+    fun Localised<Term>.prettyTerm(atom: Boolean = false) = value.pretty(atom)
+
+    fun Localised<Binding>.prettyBinding(atom: Boolean = false) = value.pretty(atom)
 }

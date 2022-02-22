@@ -1,7 +1,7 @@
 package io.smallibs.lang.nethra.stages.s01_Parser
 
 import io.smallibs.lang.nethra.cst.Cst
-import io.smallibs.lang.nethra.cst.Cst.Term.Localised
+import io.smallibs.lang.nethra.cst.Cst.Localised
 import io.smallibs.lang.nethra.stages.s01_Parser.Commons.ARROW
 import io.smallibs.lang.nethra.stages.s01_Parser.Commons.CASE
 import io.smallibs.lang.nethra.stages.s01_Parser.Commons.COLON
@@ -35,24 +35,34 @@ import io.smallibs.parsec.parser.Region
 
 object Term {
 
-    private val KIND_TYPE get() = localise(`try`(string("Type")) map { Cst.Term.Type })
-    private val INT_TYPE get() = localise(`try`(string("Int")) map { Cst.Term.IntTypeLiteral })
-    private val CHAR_TYPE get() = localise(`try`(string("Char")) map { Cst.Term.CharTypeLiteral })
-    private val STRING_TYPE get() = localise(`try`(string("String")) map { Cst.Term.StringTypeLiteral })
-    private val VAR get() = localise(ID map { Cst.Term.Var(it) })
-    private val HOLE get() = localise(char('?') thenRight ID map { Cst.Term.Var(it, true) })
+    private val KIND_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("Type")) map { Cst.Term.Type })
+    private val INT_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("Int")) map { Cst.Term.IntTypeLiteral })
+    private val CHAR_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("Char")) map { Cst.Term.CharTypeLiteral })
+    private val STRING_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("String")) map { Cst.Term.StringTypeLiteral })
+    private val VAR: Parser<Char, Localised<Cst.Term>> get() = localise(ID map { Cst.Term.Var(it) })
+    private val HOLE: Parser<Char, Localised<Cst.Term>>
+        get() = localise(char('?') thenRight ID map {
+            Cst.Term.Var(it,
+                true)
+        })
 
-    private val INT get() = localise(`try`(integer) map { Cst.Term.IntLiteral(it) })
-    private val CHAR get() = localise(`try`(delimitedChar) map { Cst.Term.CharLiteral(it) })
-    private val STRING get() = localise(`try`(delimitedString) map { Cst.Term.StringLiteral(it) })
+    private val INT: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(integer) map { Cst.Term.IntLiteral(it) })
+    private val CHAR: Parser<Char, Localised<Cst.Term>>
+        get() = localise(`try`(delimitedChar) map {
+            Cst.Term.CharLiteral(it)
+        })
+    private val STRING: Parser<Char, Localised<Cst.Term>>
+        get() = localise(`try`(delimitedString) map {
+            Cst.Term.StringLiteral(it)
+        })
 
     private fun ptype(
         left: Parser<Char, String>,
         right: Parser<Char, String>,
         operator: Parser<Char, Int>,
-        builder: (Int, String, Localised, Localised) -> Cst.Term,
+        builder: (Int, String, Localised<Cst.Term>, Localised<Cst.Term>) -> Cst.Term,
         `try`: (Parser<Char, String>) -> Parser<Char, String> = { it },
-    ): Parser<Char, Localised> =
+    ): Parser<Char, Localised<Cst.Term>> =
         localise(`try`(left thenRight ID thenLeft COLON) then lazy(Term::term) thenLeft right then operator then lazy(
             Term::term) map {
             builder(it.first.second, it.first.first.first, it.first.first.second, it.second)
@@ -61,18 +71,18 @@ object Term {
     private fun pterm(
         left: Parser<Char, String>,
         right: Parser<Char, String>,
-        builder: (String, Localised) -> Cst.Term,
-    ): Parser<Char, Localised> =
+        builder: (String, Localised<Cst.Term>) -> Cst.Term,
+    ): Parser<Char, Localised<Cst.Term>> =
         localise(`try`(left thenRight ID thenLeft right thenLeft DOT) then lazy(Term::sterm) map {
             builder(it.first, it.second)
         })
 
-    private fun forallImplicit(): Parser<Char, Localised> =
+    private fun forallImplicit(): Parser<Char, Localised<Cst.Term>> =
         ptype(LACC, RACC, ARROW map { 0 }, { _, n, l, r ->
             Cst.Term.Forall(n, l, r, true)
         })
 
-    private fun forallOrExists(): Parser<Char, Localised> =
+    private fun forallOrExists(): Parser<Char, Localised<Cst.Term>> =
         ptype(LPAR, RPAR, ARROW map { 0 } or (PRODUCT map { 1 }), { o, n, l, r ->
             if (o == 0) {
                 Cst.Term.Forall(n, l, r, false)
@@ -81,18 +91,18 @@ object Term {
             }
         }, ::`try`)
 
-    private fun lambda(): Parser<Char, Localised> =
+    private fun lambda(): Parser<Char, Localised<Cst.Term>> =
         pterm(LACC, RACC) { n, t -> Cst.Term.Lambda(n, t, true) } or
                 pterm(LPAR, RPAR) { n, t -> Cst.Term.Lambda(n, t, false) }
 
-    private fun case(): Parser<Char, Localised> =
+    private fun case(): Parser<Char, Localised<Cst.Term>> =
         localise(CASE thenRight lazy(Term::sterm) then lazy(Term::sterm) then lazy(Term::sterm) map {
             Cst.Term.Case(it.first.first,
                 it.first.second,
                 it.second)
         })
 
-    private fun sterm(): Parser<Char, Localised> =
+    private fun sterm(): Parser<Char, Localised<Cst.Term>> =
         case() or
                 KIND_TYPE or INT_TYPE or CHAR_TYPE or STRING_TYPE or
                 HOLE or VAR or
@@ -100,36 +110,37 @@ object Term {
                 INT or CHAR or STRING
 
 
-    private fun mayBeProduct(left: Localised): Parser<Char, Cst.Term> = (PRODUCT thenRight lazy(Term::sterm) map {
-        Cst.Term.Exists(null, left, it)
-    }) or returns(left.term)
+    private fun mayBeProduct(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
+        (PRODUCT thenRight lazy(Term::sterm) map {
+            Cst.Term.Exists(null, left, it)
+        }) or returns(left.value)
 
-    private fun mayBeDisjunction(left: Localised): Parser<Char, Cst.Term> =
+    private fun mayBeDisjunction(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
         (DISJUNCTION thenRight lazy(Term::sterm) map {
             Cst.Term.Disjunction(left, it)
-        }) or returns(left.term)
+        }) or returns(left.value)
 
-    private fun mayBeArrow(left: Localised): Parser<Char, Cst.Term> = (ARROW thenRight lazy(Term::term) map {
+    private fun mayBeArrow(left: Localised<Cst.Term>): Parser<Char, Cst.Term> = (ARROW thenRight lazy(Term::term) map {
         Cst.Term.Forall(null, left, it, false)
-    }) or returns(left.term)
+    }) or returns(left.value)
 
-    private fun param(): Parser<Char, Pair<Boolean, Localised>> =
+    private fun param(): Parser<Char, Pair<Boolean, Localised<Cst.Term>>> =
         (sterm() map { false to it }) or (LACC thenRight lazy(Term::term) thenLeft RACC map { true to it })
 
-    private fun apply(): Parser<Char, Localised> = localise(sterm() then lazy(Term::param).optrep map {
+    private fun apply(): Parser<Char, Localised<Cst.Term>> = localise(sterm() then lazy(Term::param).optrep map {
         if (it.second.isEmpty()) {
-            it.first.term
+            it.first.value
         } else {
             it.second.fold(it.first) { acc, type ->
                 Localised(Cst.Term.Apply(acc, type.second, type.first),
                     Region.T(acc.region.begin, type.second.region.end))
-            }.term
+            }.value
         }
     })
 
-    private fun term(): Parser<Char, Localised> =
+    private fun term(): Parser<Char, Localised<Cst.Term>> =
         lambda() or forallOrExists() or forallImplicit() or
                 localise(localise(localise(apply() bind Term::mayBeProduct) bind Term::mayBeDisjunction) bind Term::mayBeArrow)
 
-    operator fun invoke(): Parser<Char, Localised> = SKIP thenRight term()
+    operator fun invoke(): Parser<Char, Localised<Cst.Term>> = SKIP thenRight term()
 }

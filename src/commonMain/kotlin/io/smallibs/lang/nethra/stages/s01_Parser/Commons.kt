@@ -17,7 +17,7 @@ object Commons {
     val SKIP get() = Literal.charIn(" \t\n\r").optrep map {}
 
     fun <A> token(p: Parser<Char, A>) = p thenLeft SKIP
-    fun localise(p: Parser<Char, Cst.Term>) = token(p.locate() map { Cst.Term.Localised(it.second, it.first) })
+    fun <T> localise(p: Parser<Char, T>) = token(p.locate() map { Cst.Localised<T>(it.second, it.first) })
 
     val operators: List<String>
         get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=")
