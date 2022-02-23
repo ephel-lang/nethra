@@ -1,15 +1,16 @@
 package io.smallibs.lang.nethra.extension
 
 import io.kotest.matchers.shouldBe
+import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Congruence
-import io.smallibs.lang.nethra.ast.Term
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Context
 
 object MatcherForTerm {
-    infix fun <C> Term<C>.shouldBe(term: Term<C>): Unit = with(Congruence<C>()) {
-        this@shouldBe compatibleWith term shouldBe true
+    infix fun <C> Ast.Term<C>.shouldBe(term: Ast.Term<C>): Unit = with(Congruence<C>()) {
+        Context<C>().congruent(this@shouldBe, term) shouldBe true
     }
 
-    infix fun <C> Term<C>.shouldNotBe(term: Term<C>): Unit = with(Congruence<C>()) {
-        this@shouldNotBe compatibleWith term shouldBe false
+    infix fun <C> Ast.Term<C>.shouldNotBe(term: Ast.Term<C>): Unit = with(Congruence<C>()) {
+        Context<C>().congruent(this@shouldNotBe, term) shouldBe false
     }
 }

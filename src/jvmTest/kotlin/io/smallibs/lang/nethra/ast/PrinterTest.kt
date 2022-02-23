@@ -16,7 +16,7 @@ class PrinterTest : StringSpec({
             }
 
             "should pretty constructor" {
-                data("nil", id("nil")).prettyPrint() shouldBe "nil"
+                data("foo", id("bar")).prettyPrint() shouldBe "data(foo:bar)"
             }
 
             "should pretty id" {

@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.smallibs.lang.nethra.extension.MatcherForTerm.shouldBe
 import io.smallibs.lang.nethra.extension.MatcherForTerm.shouldNotBe
 
-class ComparatorTest : StringSpec({
+class CongruenceTest : StringSpec({
     with(Builder<Nothing>()) {
         "should compare same type" {
             type(2) shouldBe type(2)

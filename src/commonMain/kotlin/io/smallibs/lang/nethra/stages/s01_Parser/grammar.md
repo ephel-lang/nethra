@@ -2,9 +2,9 @@
 
 ```
 s0 ::=
-    entity*
+    binding*
 
-entity ::= 
+binding ::= 
     "sig" ID ":" term
     "def" ID "=" term 
 ```
@@ -21,12 +21,12 @@ term ::=
 pterm ::=
     "(" id ":" term ")" ("->" | "*") term    
     "{" id ":" term "}" ("->") term    
-    "(" id ")" "." sterm    
-    "{" id "}" "." sterm
 ```
 
 ```
 sterm ::=
+    "(" id ")" "." sterm    
+    "{" id "}" "." sterm
     "Type"
     "Int"
     "Char"

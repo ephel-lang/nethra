@@ -3,36 +3,37 @@ package io.smallibs.lang.nethra.ast
 import io.smallibs.lang.nethra.ast.impl.BuilderImpl
 
 interface Builder<C> {
-    fun type(level: Int = 0): Term.Type<C>
-    fun data(value: String, type: Term<C>): Term.Data<C>
-    fun id(value: String): Term.Id<C>
+    fun type(level: Int = 0): Ast.Term.Type<C>
+    fun data(value: String, type: Ast.Term<C>): Ast.Term.Data<C>
+    fun id(value: String): Ast.Term.Id<C>
 
-    fun int(value: Int): Term.Lit<C>
-    fun char(value: Char): Term.Lit<C>
+    fun int(value: Int): Ast.Term.Lit<C>
+    fun char(value: Char): Ast.Term.Lit<C>
+    fun string(value: String): Ast.Term.Lit<C>
 
-    infix fun Term<C>.arrow(body: Term<C>): Term.Pi<C> = pi("_", this, body)
-    fun pi(n: String, bound: Term<C>, body: Term<C>, i: Boolean = false): Term.Pi<C>
-    fun lambda(n: String, body: Term<C>, i: Boolean = false): Term.Lambda<C>
-    fun apply(abstraction: Term<C>, argument: Term<C>, i: Boolean = false): Term.Apply<C>
+    infix fun Ast.Term<C>.arrow(body: Ast.Term<C>): Ast.Term.Pi<C> = pi("_", this, body)
+    fun pi(n: String, bound: Ast.Term<C>, body: Ast.Term<C>, i: Boolean = false): Ast.Term.Pi<C>
+    fun lambda(n: String, body: Ast.Term<C>, i: Boolean = false): Ast.Term.Lambda<C>
+    fun apply(abstraction: Ast.Term<C>, argument: Ast.Term<C>, i: Boolean = false): Ast.Term.Apply<C>
 
-    infix fun Term<C>.and(body: Term<C>): Term.Sigma<C> = sigma("_", this, body)
-    fun sigma(n: String, bound: Term<C>, body: Term<C>): Term.Sigma<C>
-    fun pair(lhd: Term<C>, rhd: Term<C>): Term.Couple<C>
-    fun fst(e: Term<C>): Term.Fst<C>
-    fun snd(e: Term<C>): Term.Snd<C>
+    infix fun Ast.Term<C>.and(body: Ast.Term<C>): Ast.Term.Sigma<C> = sigma("_", this, body)
+    fun sigma(n: String, bound: Ast.Term<C>, body: Ast.Term<C>): Ast.Term.Sigma<C>
+    fun pair(lhd: Ast.Term<C>, rhd: Ast.Term<C>): Ast.Term.Couple<C>
+    fun fst(e: Ast.Term<C>): Ast.Term.Fst<C>
+    fun snd(e: Ast.Term<C>): Ast.Term.Snd<C>
 
-    fun or(lhd: Term<C>, rhd: Term<C>): Term.Disjunction<C>
-    fun inl(e: Term<C>): Term.Inl<C>
-    fun inr(e: Term<C>): Term.Inr<C>
-    fun case(e: Term<C>, l: Term<C>, r: Term<C>): Term.Case<C>
+    fun or(lhd: Ast.Term<C>, rhd: Ast.Term<C>): Ast.Term.Disjunction<C>
+    fun inl(e: Ast.Term<C>): Ast.Term.Inl<C>
+    fun inr(e: Ast.Term<C>): Ast.Term.Inr<C>
+    fun case(e: Ast.Term<C>, l: Ast.Term<C>, r: Ast.Term<C>): Ast.Term.Case<C>
 
-    fun rec(self: String, value: Term<C>): Term.Rec<C>
-    fun fold(e: Term<C>, t: Term.Rec<C>): Term.Fold<C>
-    fun unfold(e: Term<C>, t: Term.Rec<C>): Term.Unfold<C>
+    fun rec(self: String, value: Ast.Term<C>): Ast.Term.Rec<C>
+    fun fold(e: Ast.Term<C>, t: Ast.Term.Rec<C>): Ast.Term.Fold<C>
+    fun unfold(e: Ast.Term<C>, t: Ast.Term.Rec<C>): Ast.Term.Unfold<C>
 
-    fun inhabit(term: Term<C>, type: Term<C>): Term.Inhabit<C>
+    fun inhabit(term: Ast.Term<C>, type: Ast.Term<C>): Ast.Term.Inhabit<C>
 
-    fun hole(name:String): Term.Hole<C>
+    fun hole(name:String): Ast.Term.Hole<C>
 
     companion object {
         operator fun <C> invoke(): Builder<C> = BuilderImpl()

@@ -1,59 +1,13 @@
-# Nethra
+# Typing rules
 
-Nethra is an experiment based on well know theory and constructions:
-- dependent function type,
-- dependent pair type,
-- recursive type and
-- basic lambda calculus
-
-## Terms
-
-```
-n in Ident
-i in Int
-c in Char
-
-e ::=
-    Type_i                -- Type at level i
-    n                     -- Variable
-    
-    data(n:e)             -- Constructor ???
-    i                     -- Integer literal
-    c                     -- Character literal
-    
-    Π(n:e).e   Π{n:e}.e   -- Dependant function type
-    λ(n).e     λ{n}.e     -- Function
-    e e        e {e}      -- Application
-    
-    Σ(n:e).e              -- Dependant pair type
-    e , e                 -- Pair
-    fst e                 -- Left projection
-    snd e                 -- Right Projection
-    
-    e + e                 -- Disjunction
-    inl e                 -- Left injection
-    inr e                 -- Right injection
-    case e e e            -- Catamorphism
-    
-    μ(n).e                -- Recursion
-    fold (μ(n).e) e       -- Fold recursive type
-    unfold (μ(n).e) e     -- Unfold recursive type
-    
-    e ∈ e                 -- Term inhabits Type
-    
-    ?n                    -- Hole for inference
-```
-
-## Typing rules
-
-### Hierarchy and hypothesis
+## Hierarchy and hypothesis
 
 ```
 ---------------------     ----------------
 Γ ⊢ Type_i : Type_i+1     Γ, x : T ⊢ x : T
 ```
 
-### Literals and constructors
+## Literals and constructors
 
 ```
 l ∈ int         l ∈ char
@@ -61,7 +15,7 @@ l ∈ int         l ∈ char
 Γ ⊢ l : int     Γ ⊢ l : char     Γ ⊢ data(n:T) : T
 ```
 
-### Dependant function type
+## Dependant function type
 
 ```
 Γ, x : M ⊢ N : T
@@ -81,7 +35,7 @@ l ∈ int         l ∈ char
 Γ ⊢ f e : N
 ```
 
-### Dependant pair type
+## Dependant pair type
 
 ```
 Γ,x : A ⊢ B : T
@@ -101,7 +55,7 @@ l ∈ int         l ∈ char
 Γ ⊢ snd p : N[x=fst p]
 ```
 
-### Disjunction
+## Disjunction
 
 ```
 Γ ⊢ A : T   Γ ⊢ B : T
@@ -121,7 +75,7 @@ l ∈ int         l ∈ char
 Γ ⊢ case a l r : C
 ```
 
-### Recursion
+## Recursion
 
 ```
 Γ, x : T ⊢ A : T
@@ -136,7 +90,7 @@ l ∈ int         l ∈ char
 ----------------------------------
 Γ ⊢ unfold(μ(x).N) A : N[x=μ(x).N]
 ```
-### Term inhabitation
+## Term inhabitation
 
 ```
 Γ ⊢ x : T

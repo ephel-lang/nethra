@@ -14,8 +14,6 @@ import io.smallibs.parsec.parser.Flow.rep
 import io.smallibs.parsec.parser.Flow.then
 import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Flow.thenRight
-import io.smallibs.parsec.parser.Literal.char
-import io.smallibs.parsec.parser.Literal.charIn
 import io.smallibs.parsec.parser.Monad.map
 import io.smallibs.parsec.parser.Monad.satisfy
 
@@ -61,7 +59,7 @@ object Literal {
                     char('"') map { it.stringsToString() }
 
     fun string(s: String): Parser<Char, String> =
-        s.fold(returns<Char, Unit>(Unit)) { a, c -> a thenLeft char(c) } map { s }
+        `try`(s.fold(returns<Char, Unit>(Unit)) { a, c -> a thenLeft char(c) } map { s })
 
     private val STRING_NUMBER: Parser<Char, List<Char>> =
         charIn('0'..'9').rep

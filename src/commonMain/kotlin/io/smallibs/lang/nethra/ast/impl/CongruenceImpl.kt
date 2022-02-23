@@ -1,14 +1,15 @@
 package io.smallibs.lang.nethra.ast.impl
 
+import io.smallibs.lang.nethra.ast.Ast
+import io.smallibs.lang.nethra.ast.Ast.Term.Data
+import io.smallibs.lang.nethra.ast.Ast.Term.Id
+import io.smallibs.lang.nethra.ast.Ast.Term.Type
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
-import io.smallibs.lang.nethra.ast.Interpret
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Substitution
-import io.smallibs.lang.nethra.ast.Term
-import io.smallibs.lang.nethra.ast.Term.Data
-import io.smallibs.lang.nethra.ast.Term.Id
-import io.smallibs.lang.nethra.ast.Term.Type
+import io.smallibs.lang.nethra.ast.Visitor
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Context
 
 //
 // Stupid version based on strict equality for the moment
@@ -18,97 +19,105 @@ class CongruenceImpl<C>(
     private val substitution: Substitution<C> = Substitution(),
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
-) : Interpret<C, Term<C>, Boolean>, Congruence<C>, Printer<C> by printer, Substitution<C> by substitution {
+) : Visitor<C, Pair<Context<C>, Ast.Term<C>>, Boolean>, Congruence<C>, Printer<C> by printer,
+    Substitution<C> by substitution {
 
-    override infix fun Term<C>.compatibleWith(i: Term<C>) =
-        println("[?] ${this.prettyPrint()} ≅ ${i.prettyPrint()} / ?").let {
-            val r = if (this.isHole() || !i.isHole()) this.run(i) else i.run(this)
-            println("[?] ${this.prettyPrint()} ≅ ${i.prettyPrint()} / $r")
+    override fun Context<C>.congruent(lhd: Ast.Term<C>, rhd: Ast.Term<C>) =
+        println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / ?").let {
+            val r = if (lhd.isHole() || !rhd.isHole()) lhd.reduce().run(this to rhd.reduce())
+            else rhd.reduce().run(this to lhd.reduce())
+            println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / $r")
             r
         }
 
-    private fun Term<C>.isHole(): Boolean = this is Term.Hole<C>
+    private fun Ast.Term<C>.isHole(): Boolean = this is Ast.Term.Hole<C>
 
     /**
      * Interpret implementation
      */
 
-    override fun Type<C>.run(i: Term<C>) = this == i
+    override fun Type<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
+    override fun Data<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
+    override fun Id<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
+    override fun Ast.Term.Lit<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Data<C>.run(i: Term<C>) = this == i
-    override fun Id<C>.run(i: Term<C>) = this == i
-
-    override fun Term.Lit<C>.run(i: Term<C>) = this == i
-
-    override fun Term.Pi<C>.run(i: Term<C>) = when (i) {
-        is Term.Pi -> withBindingEquals(this.n to this.body, i.n to i.body)
+    override fun Ast.Term.Pi<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Pi -> i.first.congruent(this.bound, t.bound) && i.first.withBindingEquals(this.n to this.body,
+            t.n to t.body)
         else -> false
     }
 
-    override fun Term.Lambda<C>.run(i: Term<C>) = when (i) {
-        is Term.Lambda -> withBindingEquals(this.n to this.body, i.n to i.body)
+    override fun Ast.Term.Lambda<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Lambda -> i.first.withBindingEquals(this.n to this.body, t.n to t.body)
         else -> false
     }
 
-    override fun Term.Apply<C>.run(i: Term<C>) = when (i) {
-        is Term.Apply -> this.abstraction compatibleWith i.abstraction && this.argument compatibleWith i.argument
+    override fun Ast.Term.Apply<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Apply -> i.first.congruent(this.abstraction, t.abstraction) && i.first.congruent(this.argument,
+            t.argument)
         else -> false
     }
 
-    override fun Term.Sigma<C>.run(i: Term<C>) = when (i) {
-        is Term.Sigma -> withBindingEquals(this.n to this.body, i.n to i.body)
+    override fun Ast.Term.Sigma<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Sigma -> i.first.withBindingEquals(this.n to this.body, t.n to t.body)
         else -> false
     }
 
-    override fun Term.Couple<C>.run(i: Term<C>) = when (i) {
-        is Term.Couple -> this.lhd compatibleWith i.lhd && this.rhd compatibleWith i.rhd
+    override fun Ast.Term.Couple<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Couple -> i.first.congruent(this.lhd, t.lhd) && i.first.congruent(this.rhd, t.rhd)
         else -> false
     }
 
-    override fun Term.Fst<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Fst<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Term.Snd<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Snd<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Term.Disjunction<C>.run(i: Term<C>) = when (i) {
-        is Term.Disjunction -> this.lhd compatibleWith i.lhd && this.rhd compatibleWith i.rhd
+    override fun Ast.Term.Disjunction<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Disjunction -> i.first.congruent(this.lhd, t.lhd) && i.first.congruent(this.rhd, t.rhd)
         else -> false
     }
 
-    override fun Term.Inl<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Inl<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i
 
-    override fun Term.Inr<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Inr<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i
 
-    override fun Term.Case<C>.run(i: Term<C>) = TODO()
+    override fun Ast.Term.Case<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = TODO()
 
-    override fun Term.Rec<C>.run(i: Term<C>) = when (i) {
-        is Term.Rec -> withBindingEquals(this.self to this.body, i.self to i.body)
+    override fun Ast.Term.Rec<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (val t = i.second) {
+        is Ast.Term.Rec -> i.first.withBindingEquals(this.self to this.body, t.self to t.body)
         else -> false
     }
 
-    override fun Term.Fold<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Fold<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Term.Unfold<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Unfold<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Term.Inhabit<C>.run(i: Term<C>) = this == i
+    override fun Ast.Term.Inhabit<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = this == i.second
 
-    override fun Term.Hole<C>.run(i: Term<C>) =
-        when (term) {
-            null -> {
-                term = i
-                true
-            }
-            else -> term!!.run(i)
+    override fun Ast.Term.Hole<C>.run(i: Pair<Context<C>, Ast.Term<C>>) = when (term) {
+        null -> {
+            term = i.second
+            true
         }
+        else -> term!!.run(i)
+    }
 
     /**
      * Private behaviors
      */
 
-    private
+    private fun Context<C>.withBindingEquals(lhd: Pair<String, Ast.Term<C>>, rhd: Pair<String, Ast.Term<C>>): Boolean =
+        with(builder) {
+            val n = substitution.newVariable()
+            congruent(lhd.second.substitute(lhd.first, id(n)), rhd.second.substitute(rhd.first, id(n)))
+        }
 
-    fun withBindingEquals(lhd: Pair<String, Term<C>>, rhd: Pair<String, Term<C>>) = with(builder) {
-        val n = substitution.newVariable()
-        lhd.second.substitute(lhd.first, id(n)) compatibleWith (rhd.second.substitute(rhd.first, id(n)))
+    private fun Ast.Term<C>.reduce(): Ast.Term<C> = when (this) {
+        is Ast.Term.Apply -> when (val abstraction = this.abstraction) {
+            is Ast.Term.Lambda -> abstraction.body.substitute(abstraction.n, this.argument)
+            else -> this
+        }
+        else -> this
     }
 
 }

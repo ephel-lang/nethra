@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.stages.s01_Parser
+package io.smallibs.lang.nethra.stages.s01_Parser.internal
 
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.parsec.parser.Core
@@ -22,8 +22,8 @@ object Commons {
     val operators: List<String>
         get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=")
 
-    val keywords: List<String>
-        get() = listOf("sig", "def", "Type", "Int", "Char", "String", "case")
+    private val keywords: List<String>
+        get() = listOf("sig", "def", "type", "int", "char", "string", "case")
 
     val ID
         get() = token((Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")).rep) map
