@@ -2,15 +2,19 @@ package io.smallibs.lang.nethra.ast.impl
 
 import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Builder
-import io.smallibs.lang.nethra.ast.Visitor
 import io.smallibs.lang.nethra.ast.Substitution
+import io.smallibs.lang.nethra.ast.Visitor
 
 class SubstitutionImpl<C>(
-    private var index: Int = 0,
     private val constructor: Builder<C> = Builder(),
 ) : Substitution<C>, Visitor<C, Pair<String, Ast.Term<C>>, Ast.Term<C>>, Builder<C> by constructor {
 
-    override fun newVariable(): String = this.index.let { "\$${index++}" }
+    // UGLY !
+    companion object {
+        private var index: Int = 0
+    }
+
+    override fun newVariable(): String = index.let { "\$${index++}" }
 
     override fun Ast.Term<C>.substitute(name: String, term: Ast.Term<C>) = this.run(name to term)
 

@@ -5,6 +5,7 @@ import io.smallibs.parsec.parser.Core
 import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.or
 import io.smallibs.parsec.parser.Flow.rep
+import io.smallibs.parsec.parser.Flow.then
 import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Literal
 import io.smallibs.parsec.parser.Monad.map
@@ -23,11 +24,17 @@ object Commons {
         get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=")
 
     private val keywords: List<String>
-        get() = listOf("sig", "def", "type", "int", "char", "string", "case")
+        get() = listOf("sig", "def", "type", "int", "char", "string", "case", "inl", "inr")
+
+    val LETTER
+        get() = Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")
+
+    val NUMBER
+        get() = Literal.charIn('0'..'9')
 
     val ID
-        get() = token((Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")).rep) map
-                { it.joinToString("") } satisfy { !keywords.contains(it) }
+        get() = token(LETTER then (LETTER or NUMBER).optrep) map
+                { it.first + it.second.joinToString("") } satisfy { !keywords.contains(it) }
 
     val ARROW get() = token(Core.`try`(Literal.string("->")))
     val DOT get() = token(Literal.char('.')) map { it.toString() }
@@ -40,6 +47,8 @@ object Commons {
     val DISJUNCTION get() = token(Literal.char('|')) map { it.toString() }
     val EQUAL get() = token(Literal.char('=')) map { it.toString() }
     val CASE get() = token(Literal.string("case"))
+    val INL get() = token(Literal.string("inl"))
+    val INR get() = token(Literal.string("inr"))
     val SIG get() = token(Literal.string("sig"))
     val DEF get() = token(Literal.string("def"))
 }

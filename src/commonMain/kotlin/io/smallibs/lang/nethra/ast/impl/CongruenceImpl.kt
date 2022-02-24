@@ -5,6 +5,8 @@ import io.smallibs.lang.nethra.ast.Ast.Term.Apply
 import io.smallibs.lang.nethra.ast.Ast.Term.Data
 import io.smallibs.lang.nethra.ast.Ast.Term.Hole
 import io.smallibs.lang.nethra.ast.Ast.Term.Id
+import io.smallibs.lang.nethra.ast.Ast.Term.Inl
+import io.smallibs.lang.nethra.ast.Ast.Term.Inr
 import io.smallibs.lang.nethra.ast.Ast.Term.Type
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
@@ -25,14 +27,16 @@ class CongruenceImpl<C>(
     Substitution<C> by substitution {
 
     override fun Bindings<C>.congruent(lhd: Ast.Term<C>, rhd: Ast.Term<C>) =
-        println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / ?").let {
-            val r = if (lhd.isHole() || !rhd.isHole()) reduce(lhd).run(this to reduce(rhd))
-            else reduce(rhd).run(this to reduce(lhd))
-            println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / $r")
-            r
+        (reduce(lhd) to reduce(rhd)).let { (lhd, rhd) ->
+            println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / ?").let {
+                val r = if (lhd.isHole() || !rhd.isHole()) lhd.run(this to rhd)
+                else rhd.run(this to lhd)
+                println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / $r")
+                r
+            }
         }
 
-    private fun Ast.Term<C>.isHole(): Boolean = this is Hole<C> && this.term == null
+    private fun Ast.Term<C>.isHole(): Boolean = this is Hole<C>
 
     /**
      * Interpret implementation
@@ -78,9 +82,9 @@ class CongruenceImpl<C>(
         else -> false
     }
 
-    override fun Ast.Term.Inl<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i
+    override fun Inl<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i
 
-    override fun Ast.Term.Inr<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i
+    override fun Inr<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i
 
     override fun Ast.Term.Case<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = TODO()
 
@@ -122,6 +126,12 @@ class CongruenceImpl<C>(
                     is Ast.Term.Lambda -> reduce(abstraction.body.substitute(abstraction.n, t.argument))
                     else -> t
                 }
+                is Ast.Term.Case ->
+                    when (val proj = reduce(t.term)) {
+                        is Inl -> reduce(builder.apply(t.left, proj.term))
+                        is Inr -> reduce(builder.apply(t.right, proj.term))
+                        else -> t
+                    }
                 else -> t
             }
         }.let {

@@ -42,8 +42,34 @@ class CheckerStageTest : StringSpec({
         def combineInt = add
         """.trimIndent().let { check(it) }
     }
-}) {
 
+    "[checker] inl/inr/case" {
+        """
+        sig ic : int | char -> type
+        def ic = (x).(case x (_).char (_).int)
+        
+        sig m1 : ic (inl 1)
+        def m1 = 'c'
+
+        sig m2 : ic (inr m1)
+        def m2 = 1
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] inl/inr/case/2" {
+        """
+        sig ic : int | char -> type
+        def ic = (x).(case x (_).char (_).int)
+        
+        sig m1 : ic (inl 1)
+        def m1 = 'c'
+
+        sig m2 : ic (inr 'c') | ic (inl 1) 
+        def m2 = inl 1
+        """.trimIndent().let { check(it) }
+    }
+
+}) {
     companion object {
         fun check(program: String) =
             (ParserStage() compile program).let { bindings ->

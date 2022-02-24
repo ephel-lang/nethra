@@ -14,7 +14,12 @@ binding ::=
 ```
 term ::=
     pterm
-    sterm ("{" term "}" | sterm)* ("*" sterm)? ("|" sterm)? ("->" term)?
+    aterm ("->" term)?
+```
+
+```
+aterm ::=
+    sterm ("{" term "}" | sterm)* ("*" aterm)? ("|" aterm)?
 ```
 
 ```
@@ -32,6 +37,8 @@ sterm ::=
     "char"
     "string"
     "case" sterm sterm sterm
+    "inl" sterm
+    "inr" sterm
     "(" term ")"
     id
     ?id
@@ -40,4 +47,15 @@ sterm ::=
     String
 ```
 
+## Examples
+
+```
+sig combine : (x:type) -> type
+def combine = (X).(X -> X -> X)
+    
+sig add : int -> int -> int
+
+sig combineInt : combine int   
+def combineInt = add
+```
 

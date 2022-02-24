@@ -39,6 +39,8 @@ object Cst {
         data class Lambda(val v: String, val body: Localised<Term>, val implicit: Boolean) : Term
         data class Disjunction(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
+        enum class Side { Left, Right }
+        data class Proj(val term: Localised<Term>, val side: Side) : Term
 
         private fun pretty(): String = when (this) {
             is Type -> "Type$level"
@@ -76,6 +78,12 @@ object Cst {
                 "${lhd.prettyTerm()} | ${rhd.prettyTerm(true)}"
             is Case ->
                 "case ${term.prettyTerm(true)} ${lhd.prettyTerm(true)} ${rhd.prettyTerm(true)}"
+            is Proj ->
+                if (side == Side.Left) {
+                    "inl ${term.prettyTerm(true)}"
+                } else {
+                    "inr ${term.prettyTerm(true)}"
+                }
         }
 
         private fun isAtom(): Boolean = when (this) {
@@ -93,6 +101,7 @@ object Cst {
             is Lambda -> true
             is Disjunction -> false
             is Case -> true
+            is Proj -> true
         }
 
         fun pretty(atom: Boolean = false): String = if (atom && !isAtom()) "(${pretty()})" else pretty()
