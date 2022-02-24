@@ -19,7 +19,7 @@ object Cst {
     }
 
     sealed interface Term {
-        object Type : Term
+        data class Type(val level: Int) : Term
         object IntTypeLiteral : Term
         object CharTypeLiteral : Term
         object StringTypeLiteral : Term
@@ -41,7 +41,7 @@ object Cst {
         data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
 
         private fun pretty(): String = when (this) {
-            Type -> "Type"
+            is Type -> "Type$level"
             IntTypeLiteral -> "Int"
             CharTypeLiteral -> "Char"
             StringTypeLiteral -> "String"
@@ -79,7 +79,7 @@ object Cst {
         }
 
         private fun isAtom(): Boolean = when (this) {
-            Type -> true
+            is Type -> true
             IntTypeLiteral -> true
             CharTypeLiteral -> true
             StringTypeLiteral -> true

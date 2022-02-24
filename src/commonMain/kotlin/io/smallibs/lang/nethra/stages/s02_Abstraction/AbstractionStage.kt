@@ -4,13 +4,14 @@ import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.stages.common.Stage
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
 
-class AbstractionStage(
-    val builder: Builder<Nothing> = Builder(),
-) : Stage<List<Cst.Localised<Cst.Binding>>, List<Ast.Binding<Nothing>>>, Builder<Nothing> by builder {
-    private fun Cst.Term.compile(): Ast.Term<Nothing> =
+class AbstractionStage<C>(
+    val builder: Builder<C> = Builder(),
+) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<C>>, Builder<C> by builder {
+    private fun Cst.Term.compile(): Ast.Term<C> =
         when (this) {
-            Cst.Term.Type -> type()
+            is Cst.Term.Type -> type(level)
             Cst.Term.IntTypeLiteral -> data("int", type())
             Cst.Term.CharTypeLiteral -> data("char", type())
             Cst.Term.StringTypeLiteral -> data("string", type())
@@ -26,16 +27,21 @@ class AbstractionStage(
             is Cst.Term.Case -> case(term.value.compile(), lhd.value.compile(), rhd.value.compile())
         }
 
-    private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<Nothing> =
+    private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<C> =
         when (val binding = i.value) {
             is Cst.Binding.Signature -> Ast.Binding.Signature(binding.name, binding.value.value.compile())
             is Cst.Binding.Definition -> Ast.Binding.Definition(binding.name, binding.value.value.compile())
         }
 
-    override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): List<Ast.Binding<Nothing>> =
-        i.map(::compile)
+    override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): Bindings<C> =
+        i.map(::compile).let { bindings ->
+            Bindings(
+                bindings.filterIsInstance<Ast.Binding.Signature<C>>().associate { it.name to it.value },
+                bindings.filterIsInstance<Ast.Binding.Definition<C>>().associate { it.name to it.value }
+            )
+        }
 
-    override infix fun decompile(o: List<Ast.Binding<Nothing>>): List<Cst.Localised<Cst.Binding>> {
+    override infix fun decompile(o: Bindings<C>): List<Cst.Localised<Cst.Binding>> {
         TODO("Not yet implemented")
     }
 

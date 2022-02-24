@@ -23,11 +23,11 @@ class CheckerImpl<C>(
     Printer<C> by printer, Substitution<C> by substitution {
 
     data class Context<C>(
-        val gamma: io.smallibs.lang.nethra.stages.s03_Checker.internal.Context<C>,
+        val gamma: io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>,
         val type: Ast.Term<C>,
     )
 
-    override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Context<C>.check(
+    override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>.check(
         term: Ast.Term<C>,
         type: Ast.Term<C>,
     ) =
@@ -209,7 +209,7 @@ class CheckerImpl<C>(
     companion object {
         private fun <C> inferenceProvider(): (Checker<C>) -> Inference<C> = { checker ->
             Inference(object : Checker<C> {
-                override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Context<C>.check(
+                override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>.check(
                     term: Ast.Term<C>,
                     type: Ast.Term<C>,
                 ) = with(checker) {

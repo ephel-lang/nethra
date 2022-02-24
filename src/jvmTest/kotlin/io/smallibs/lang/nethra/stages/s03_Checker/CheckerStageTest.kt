@@ -1,7 +1,6 @@
 package io.smallibs.lang.nethra.stages.s03_Checker
 
 import io.kotest.core.spec.style.StringSpec
-import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.stages.s01_Parser.ParserStage
 import io.smallibs.lang.nethra.stages.s02_Abstraction.AbstractionStage
 
@@ -39,16 +38,16 @@ class CheckerStageTest : StringSpec({
             
         sig add : int -> int -> int
         
-        sig combineInt : (X).(X -> X -> X) int   
+        sig combineInt : combine int   
         def combineInt = add
         """.trimIndent().let { check(it) }
     }
 }) {
 
     companion object {
-        fun check(program: String): List<Ast.Binding<Nothing>> =
+        fun check(program: String) =
             (ParserStage() compile program).let { bindings ->
-                AbstractionStage() compile bindings
+                AbstractionStage<Nothing>() compile bindings
             }.let { bindings ->
                 CheckerStage<Nothing>() compile bindings
             }

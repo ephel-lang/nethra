@@ -3,14 +3,14 @@ package io.smallibs.lang.nethra.extension
 import io.kotest.matchers.shouldBe
 import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Congruence
-import io.smallibs.lang.nethra.stages.s03_Checker.internal.Context
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
 
 object MatcherForTerm {
     infix fun <C> Ast.Term<C>.shouldBe(term: Ast.Term<C>): Unit = with(Congruence<C>()) {
-        Context<C>().congruent(this@shouldBe, term) shouldBe true
+        Bindings<C>().congruent(this@shouldBe, term) shouldBe true
     }
 
     infix fun <C> Ast.Term<C>.shouldNotBe(term: Ast.Term<C>): Unit = with(Congruence<C>()) {
-        Context<C>().congruent(this@shouldNotBe, term) shouldBe false
+        Bindings<C>().congruent(this@shouldNotBe, term) shouldBe false
     }
 }

@@ -18,6 +18,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.localise
 import io.smallibs.parsec.parser.Core.`try`
 import io.smallibs.parsec.parser.Core.lazy
 import io.smallibs.parsec.parser.Core.returns
+import io.smallibs.parsec.parser.Flow.opt
 import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.or
 import io.smallibs.parsec.parser.Flow.then
@@ -35,7 +36,10 @@ import io.smallibs.parsec.parser.Region
 
 object TermParser {
 
-    private val KIND_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("type")) map { Cst.Term.Type })
+    private val KIND_TYPE: Parser<Char, Localised<Cst.Term>>
+        get() = localise(`try`(string("type") thenRight integer.opt) map {
+            Cst.Term.Type(it ?: 0)
+        })
     private val INT_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("int")) map { Cst.Term.IntTypeLiteral })
     private val CHAR_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("char")) map { Cst.Term.CharTypeLiteral })
     private val STRING_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("string")) map { Cst.Term.StringTypeLiteral })
