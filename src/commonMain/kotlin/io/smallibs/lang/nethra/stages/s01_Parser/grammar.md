@@ -27,10 +27,10 @@ pterm ::=
 sterm ::=
     "(" id ")" "." sterm    
     "{" id "}" "." sterm
-    "Type"
-    "Int"
-    "Char"
-    "String"
+    "type" int?
+    "int"
+    "char"
+    "string"
     "case" sterm sterm sterm
     "(" term ")"
     id
