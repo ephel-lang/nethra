@@ -4,8 +4,10 @@ import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
 import io.smallibs.lang.nethra.ast.Printer
+import io.smallibs.lang.nethra.ast.Reducer
 import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.ast.Visitor
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Checker
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Inference
 
@@ -19,26 +21,29 @@ class CheckerImpl<C>(
     private val substitution: Substitution<C> = Substitution(),
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
+    private val reducer: Reducer<C> = Reducer(),
 ) : Visitor<C, CheckerImpl.Context<C>, Boolean>, Checker<C>, Builder<C> by builder, Congruence<C> by congruence,
-    Printer<C> by printer, Substitution<C> by substitution {
+    Printer<C> by printer, Substitution<C> by substitution, Reducer<C> by reducer {
 
     data class Context<C>(
-        val gamma: io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>,
+        val gamma: Bindings<C>,
         val type: Ast.Term<C>,
     )
 
-    override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>.check(
+    override fun Bindings<C>.check(
         term: Ast.Term<C>,
         type: Ast.Term<C>,
     ) =
-        println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
-            val r = try {
-                term.run(Context(this, type))
-            } catch (_: Exception) {
-                false
+        reduce(type).let { type ->
+            println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
+                val r = try {
+                    term.run(Context(this, type))
+                } catch (_: Exception) {
+                    false
+                }
+                println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
+                r
             }
-            println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
-            r
         }
 
     /**
@@ -209,7 +214,7 @@ class CheckerImpl<C>(
     companion object {
         private fun <C> inferenceProvider(): (Checker<C>) -> Inference<C> = { checker ->
             Inference(object : Checker<C> {
-                override fun io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings<C>.check(
+                override fun Bindings<C>.check(
                     term: Ast.Term<C>,
                     type: Ast.Term<C>,
                 ) = with(checker) {

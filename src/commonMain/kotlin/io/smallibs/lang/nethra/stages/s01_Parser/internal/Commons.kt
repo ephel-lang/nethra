@@ -23,7 +23,7 @@ object Commons {
         get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=")
 
     private val keywords: List<String>
-        get() = listOf("sig", "def", "type", "int", "char", "string", "case", "inl", "inr", "fst", "snd")
+        get() = listOf("sig", "def", "type", "int", "char", "string", "case", "inl", "inr", "fst", "snd", "rec")
 
     val LETTER
         get() = Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")
@@ -54,4 +54,5 @@ object Commons {
     val INR get() = token(Literal.string("inr"))
     val FST get() = token(Literal.string("fst"))
     val SND get() = token(Literal.string("snd"))
+    val REC get() = token(Literal.string("rec"))
 }

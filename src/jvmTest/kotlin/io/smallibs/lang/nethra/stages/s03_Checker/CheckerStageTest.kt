@@ -15,7 +15,7 @@ class CheckerStageTest : StringSpec({
 
     "[checker] combine/add" {
         """
-        sig combine : {X:type} -> X -> X -> X
+        sig combine : {t:type} -> t -> t -> t
         
         sig add : int -> int -> int    
         def add = combine {int}
@@ -26,7 +26,7 @@ class CheckerStageTest : StringSpec({
         """
         sig add : int -> int -> int
         
-        sig combineInt : (X).(X -> X -> X) int   
+        sig combineInt : (t).(t -> t -> t) int   
         def combineInt = add
         """.trimIndent().let { check(it) }
     }
@@ -34,7 +34,7 @@ class CheckerStageTest : StringSpec({
     "[checker] combine/combineInt/add" {
         """
         sig combine : (x:type) -> type
-        def combine = (X).(X -> X -> X)
+        def combine = (t).(t -> t -> t)
             
         sig add : int -> int -> int
         
@@ -71,8 +71,27 @@ class CheckerStageTest : StringSpec({
 
     "[checker] exist" {
         """
-        sig A : (X:type) * X
-        def A = (char , 'c')
+        sig A : (t:type) * t
+        def A = (char, 'c')
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] exist/fst/snd" {
+        """
+        sig A_T  : type
+        def A_T  = (t:type) * (t * (t -> int))
+        
+        sig Am_T : type
+        def Am_T = (t:type) * t
+            
+        sig An_T : type
+        def An_T = (t:type) * (t -> int)
+
+        sig A_m : A_T -> Am_T
+        def A_m = (x).(fst x, fst snd x)
+
+        sig A_n : A_T -> An_T
+        def A_n = (x).(fst x, snd snd x)
         """.trimIndent().let { check(it) }
     }
 

@@ -4,6 +4,7 @@ import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
 import io.smallibs.lang.nethra.ast.Printer
+import io.smallibs.lang.nethra.ast.Reducer
 import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.ast.Visitor
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Checker
@@ -20,12 +21,13 @@ class InferenceImpl<C>(
     private val substitution: Substitution<C> = Substitution(),
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
+    private val reducer: Reducer<C> = Reducer()
 ) : Visitor<C, Bindings<C>, Ast.Term<C>>, Inference<C>, Builder<C> by builder, Congruence<C> by congruence,
-    Checker<C> by checker, Printer<C> by printer, Substitution<C> by substitution {
+    Checker<C> by checker, Printer<C> by printer, Substitution<C> by substitution, Reducer<C> by reducer {
 
     override fun Bindings<C>.infer(term: Ast.Term<C>): Ast.Term<C> =
         println("[↓]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ?").let {
-            val r = term.run(this)
+            val r = reduce(term.run(this))
             println("[↓]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${r.prettyPrint()}")
             r
         }

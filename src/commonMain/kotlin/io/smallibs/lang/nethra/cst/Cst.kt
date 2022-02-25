@@ -40,6 +40,7 @@ object Cst {
         data class Couple(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Disjunction(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
+        data class Rec(val v: String, val body: Localised<Term>) : Term
         enum class Operation { inl, inr, fst, snd }
         data class SpecialApp(val operation: Operation, val term: Localised<Term>) : Term
 
@@ -80,6 +81,8 @@ object Cst {
                 "${lhd.prettyTerm(true)} | ${rhd.prettyTerm(true)}"
             is Case ->
                 "case ${term.prettyTerm(true)} ${lhd.prettyTerm(true)} ${rhd.prettyTerm(true)}"
+            is Rec ->
+                "rec($v).${body.prettyTerm(true)}"
             is SpecialApp ->
                 "$operation ${term.prettyTerm(true)}"
         }
@@ -100,6 +103,7 @@ object Cst {
             is Couple -> false
             is Disjunction -> false
             is Case -> true
+            is Rec -> true
             is SpecialApp -> true
         }
 

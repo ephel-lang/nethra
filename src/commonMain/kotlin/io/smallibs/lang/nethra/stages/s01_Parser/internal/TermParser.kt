@@ -16,6 +16,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.LACC
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.LPAR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.PRODUCT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RACC
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.REC
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RPAR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SKIP
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SND
@@ -166,8 +167,14 @@ object TermParser {
     private fun aterm(): Parser<Char, Localised<Cst.Term>> =
         localise(localise(apply() bind TermParser::mayBeDisjunction) bind TermParser::mayBeProductOrCouple)
 
+    private val recursive: Parser<Char, Localised<Cst.Term>>
+        get() =
+            localise(REC thenRight LPAR thenRight ID thenLeft RPAR thenLeft DOT then lazy(::sterm) map {
+                Cst.Term.Rec(it.first, it.second)
+            })
+
     private fun term(): Parser<Char, Localised<Cst.Term>> =
-        forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)
+        recursive or forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)
 
     operator fun invoke(): Parser<Char, Localised<Cst.Term>> = SKIP thenRight term()
 }

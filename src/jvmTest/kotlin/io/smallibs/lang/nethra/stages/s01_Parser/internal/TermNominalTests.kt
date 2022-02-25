@@ -165,6 +165,10 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("inr 1")).get()?.prettyTerm() shouldBe "inr 1"
     }
 
+    "[parse] rec(x).x " {
+        (TermParser() thenLeft eos())(string("rec(x).x")).get()?.prettyTerm() shouldBe "rec(x).x"
+    }
+
     "[parse] {e:True|False} -> case e Int Char" {
         (TermParser() thenLeft eos())(string("{e:True|False} -> case e Int Char")).get()
             ?.prettyTerm() shouldBe "{e:True | False} -> case e Int Char"

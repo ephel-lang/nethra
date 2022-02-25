@@ -25,6 +25,7 @@ class AbstractionStage<C>(
         is Cst.Term.Couple -> pair(lhd.value.compile(), rhd.value.compile())
         is Cst.Term.Disjunction -> or(lhd.value.compile(), rhd.value.compile())
         is Cst.Term.Case -> case(term.value.compile(), lhd.value.compile(), rhd.value.compile())
+        is Cst.Term.Rec -> rec(v, body.value.compile())
         is Cst.Term.SpecialApp ->
             when (operation) {
                 Cst.Term.Operation.inl -> inl(term.value.compile())

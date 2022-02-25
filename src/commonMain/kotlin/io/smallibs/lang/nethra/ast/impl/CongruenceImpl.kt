@@ -11,20 +11,18 @@ import io.smallibs.lang.nethra.ast.Ast.Term.Type
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
 import io.smallibs.lang.nethra.ast.Printer
+import io.smallibs.lang.nethra.ast.Reducer
 import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.ast.Visitor
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
-
-//
-// Stupid version based on strict equality for the moment
-//
 
 class CongruenceImpl<C>(
     private val substitution: Substitution<C> = Substitution(),
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
+    private val reducer: Reducer<C> = Reducer(),
 ) : Visitor<C, Pair<Bindings<C>, Ast.Term<C>>, Boolean>, Congruence<C>, Printer<C> by printer,
-    Substitution<C> by substitution {
+    Substitution<C> by substitution, Reducer<C> by reducer {
 
     override fun Bindings<C>.congruent(lhd: Ast.Term<C>, rhd: Ast.Term<C>) =
         (reduce(lhd) to reduce(rhd)).let { (lhd, rhd) ->
@@ -35,8 +33,6 @@ class CongruenceImpl<C>(
                 r
             }
         }
-
-    private fun Ast.Term<C>.isHole(): Boolean = this is Hole<C>
 
     /**
      * Interpret implementation
@@ -117,36 +113,6 @@ class CongruenceImpl<C>(
             congruent(lhd.second.substitute(lhd.first, id(n)), rhd.second.substitute(rhd.first, id(n)))
         }
 
-    private fun Bindings<C>.reduce(t: Ast.Term<C>): Ast.Term<C> =
-        println("[?] ${t.prettyPrint()} *→ ?").let {
-            when (t) {
-                is Hole -> t.term?.let { reduce(it) } ?: t
-                is Id -> this.getDefinition(t.value)?.let { reduce(it) } ?: t
-                is Apply -> when (val abstraction = reduce(t.abstraction)) {
-                    is Ast.Term.Lambda -> reduce(abstraction.body.substitute(abstraction.n, t.argument))
-                    else -> t
-                }
-                is Ast.Term.Case ->
-                    when (val proj = reduce(t.term)) {
-                        is Inl -> reduce(builder.apply(t.left, proj.term))
-                        is Inr -> reduce(builder.apply(t.right, proj.term))
-                        else -> t
-                    }
-                is Ast.Term.Fst ->
-                    when (val t =reduce(t.term)) {
-                        is Ast.Term.Sigma -> reduce(t.bound)
-                        else -> t
-                    }
-                is Ast.Term.Snd ->
-                    when (val t =reduce(t.term)) {
-                        is Ast.Term.Sigma -> reduce(t.body.substitute(t.n,t.bound))
-                        else -> t
-                    }
-                else -> t
-            }
-        }.let {
-            println("[?] ${t.prettyPrint()} *→ ${it.prettyPrint()}")
-            it
-        }
+    private fun Ast.Term<C>.isHole(): Boolean = this is Hole<C>
 
 }
