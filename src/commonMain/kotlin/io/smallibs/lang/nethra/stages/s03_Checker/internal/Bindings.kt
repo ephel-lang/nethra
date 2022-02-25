@@ -15,7 +15,7 @@ class Bindings<C>(
     fun setSignature(id: String, term: Ast.Term<C>): Bindings<C> = Bindings(mapOf(id to term) + gamma)
 
     fun prettyPrint(): String = with(printer) {
-        " Γ"
-        //gamma.entries.joinToString(",", transform = { e -> " ${e.key} : ${e.value.prettyPrint()}" })
+        // " Γ"
+        gamma.entries.joinToString(",", transform = { e -> " ${e.key} : ${e.value.prettyPrint()}" })
     }
 }

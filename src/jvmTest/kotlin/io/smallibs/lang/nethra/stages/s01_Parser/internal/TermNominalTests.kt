@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.stages.s01_Parser
+package io.smallibs.lang.nethra.stages.s01_Parser.internal
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -44,11 +44,13 @@ class TermNominalSpec : StringSpec({
     }
 
     "[parse] {e:Type} -> {v:e} -> v" {
-        (TermParser() thenLeft eos())(string("{e:Type} -> {v:e} -> v")).get()?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
+        (TermParser() thenLeft eos())(string("{e:Type} -> {v:e} -> v")).get()
+            ?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
     }
 
     "[parse] {e:Type} -> ({v:e} -> v)" {
-        (TermParser() thenLeft eos())(string("{e:Type} -> ({v:e} -> v)")).get()?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
+        (TermParser() thenLeft eos())(string("{e:Type} -> ({v:e} -> v)")).get()
+            ?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
     }
 
     "[parse] ({e:Type} -> e) -> v" {
@@ -128,11 +130,11 @@ class TermNominalSpec : StringSpec({
     }
 
     "[parse] e f | g -> h" {
-        (TermParser() thenLeft eos())(string("e f | g -> h")).get()?.prettyTerm() shouldBe "e f | g -> h"
+        (TermParser() thenLeft eos())(string("e f | g -> h")).get()?.prettyTerm() shouldBe "(e f) | g -> h"
     }
 
     "[parse] ((e f) | g) -> h" {
-        (TermParser() thenLeft eos())(string("((e f) | g) -> h")).get()?.prettyTerm() shouldBe "e f | g -> h"
+        (TermParser() thenLeft eos())(string("((e f) | g) -> h")).get()?.prettyTerm() shouldBe "(e f) | g -> h"
     }
 
     "[parse] e (f | g) -> h" {
@@ -143,6 +145,14 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("e | (f -> g)")).get()?.prettyTerm() shouldBe "e | (f -> g)"
     }
 
+    "[parse] e , f | g" {
+        (TermParser() thenLeft eos())(string("e , f | g")).get()?.prettyTerm() shouldBe "e , (f | g)"
+    }
+
+    "[parse] (e , f) | g" {
+        (TermParser() thenLeft eos())(string("(e , f) | g")).get()?.prettyTerm() shouldBe "(e , f) | g"
+    }
+
     "[parse] case True Int Char" {
         (TermParser() thenLeft eos())(string("case True Int Char")).get()?.prettyTerm() shouldBe "case True Int Char"
     }
@@ -151,7 +161,7 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("inl 1")).get()?.prettyTerm() shouldBe "inl 1"
     }
 
-    "[parse] inl 1" {
+    "[parse] inr 1" {
         (TermParser() thenLeft eos())(string("inr 1")).get()?.prettyTerm() shouldBe "inr 1"
     }
 

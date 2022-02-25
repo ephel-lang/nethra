@@ -98,8 +98,8 @@ class InferenceImpl<C>(
             else -> throw Exception("Cannot infer type for ${this.prettyPrint()}")
         }
 
-    // Γ ⊢ A : T   Γ,x : A ⊢ B : T
-    // ---------------------------
+    // Γ,x : A ⊢ B : T
+    // ----------------
     // Γ ⊢ Σ(x:A).B : T
     override fun Ast.Term.Sigma<C>.run(i: Bindings<C>): Ast.Term<C> =
         i.setSignature(n, bound).infer(body)

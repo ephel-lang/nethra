@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.stages.s01_Parser
+package io.smallibs.lang.nethra.stages.s01_Parser.internal
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

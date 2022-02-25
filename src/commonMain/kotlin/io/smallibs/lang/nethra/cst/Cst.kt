@@ -35,18 +35,19 @@ object Cst {
         ) : Term
 
         data class Apply(val lhd: Localised<Term>, val rhd: Localised<Term>, val implicit: Boolean) : Term
-        data class Exists(val v: String?, val bound: Localised<Term>, val body: Localised<Term>) : Term
         data class Lambda(val v: String, val body: Localised<Term>, val implicit: Boolean) : Term
+        data class Exists(val v: String?, val bound: Localised<Term>, val body: Localised<Term>) : Term
+        data class Couple(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Disjunction(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
-        enum class Side { Left, Right }
-        data class Proj(val term: Localised<Term>, val side: Side) : Term
+        enum class Operation { inl, inr, fst, snd }
+        data class SpecialApp(val operation: Operation, val term: Localised<Term>) : Term
 
         private fun pretty(): String = when (this) {
-            is Type -> "Type$level"
-            IntTypeLiteral -> "Int"
-            CharTypeLiteral -> "Char"
-            StringTypeLiteral -> "String"
+            is Type -> "type$level"
+            IntTypeLiteral -> "int"
+            CharTypeLiteral -> "char"
+            StringTypeLiteral -> "string"
             is IntLiteral -> "$value"
             is CharLiteral ->
                 if (value == '\'') {
@@ -69,21 +70,18 @@ object Cst {
                 if (implicit) "${lhd.prettyTerm()} {${rhd.prettyTerm()}}"
                 else "${lhd.prettyTerm()} ${rhd.prettyTerm(true)}"
             }
-            is Exists -> if (v == null) "${bound.prettyTerm()} * ${body.prettyTerm(true)}"
-            else "($v:${bound.prettyTerm()}) * ${body.prettyTerm()}"
             is Lambda ->
                 if (implicit) "{$v}.${body.prettyTerm(true)}"
                 else "($v).${body.prettyTerm(true)}"
+            is Exists -> if (v == null) "${bound.prettyTerm()} * ${body.prettyTerm(true)}"
+            else "($v:${bound.prettyTerm()}) * ${body.prettyTerm()}"
+            is Couple -> "${lhd.prettyTerm(true)} , ${rhd.prettyTerm(true)}"
             is Disjunction ->
-                "${lhd.prettyTerm()} | ${rhd.prettyTerm(true)}"
+                "${lhd.prettyTerm(true)} | ${rhd.prettyTerm(true)}"
             is Case ->
                 "case ${term.prettyTerm(true)} ${lhd.prettyTerm(true)} ${rhd.prettyTerm(true)}"
-            is Proj ->
-                if (side == Side.Left) {
-                    "inl ${term.prettyTerm(true)}"
-                } else {
-                    "inr ${term.prettyTerm(true)}"
-                }
+            is SpecialApp ->
+                "$operation ${term.prettyTerm(true)}"
         }
 
         private fun isAtom(): Boolean = when (this) {
@@ -97,11 +95,12 @@ object Cst {
             is Var -> true
             is Forall -> false
             is Apply -> false
-            is Exists -> false
             is Lambda -> true
+            is Exists -> false
+            is Couple -> false
             is Disjunction -> false
             is Case -> true
-            is Proj -> true
+            is SpecialApp -> true
         }
 
         fun pretty(atom: Boolean = false): String = if (atom && !isAtom()) "(${pretty()})" else pretty()

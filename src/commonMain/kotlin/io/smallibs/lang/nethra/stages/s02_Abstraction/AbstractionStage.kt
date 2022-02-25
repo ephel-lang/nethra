@@ -22,13 +22,16 @@ class AbstractionStage<C>(
         is Cst.Term.Apply -> apply(lhd.value.compile(), rhd.value.compile(), implicit)
         is Cst.Term.Lambda -> lambda(v, body.value.compile(), implicit)
         is Cst.Term.Exists -> sigma(this.v ?: "_", bound.value.compile(), body.value.compile())
+        is Cst.Term.Couple -> pair(lhd.value.compile(), rhd.value.compile())
         is Cst.Term.Disjunction -> or(lhd.value.compile(), rhd.value.compile())
         is Cst.Term.Case -> case(term.value.compile(), lhd.value.compile(), rhd.value.compile())
-        is Cst.Term.Proj -> if (this.side == Cst.Term.Side.Left) {
-            inl(term.value.compile())
-        } else {
-            inr(term.value.compile())
-        }
+        is Cst.Term.SpecialApp ->
+            when (operation) {
+                Cst.Term.Operation.inl -> inl(term.value.compile())
+                Cst.Term.Operation.inr -> inr(term.value.compile())
+                Cst.Term.Operation.fst -> fst(term.value.compile())
+                Cst.Term.Operation.snd -> snd(term.value.compile())
+            }
     }
 
     private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<C> = when (val binding = i.value) {

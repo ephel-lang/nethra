@@ -5,8 +5,10 @@ import io.smallibs.lang.nethra.cst.Cst.Localised
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ARROW
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.CASE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COLON
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FST
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ID
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.INL
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.INR
@@ -16,6 +18,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.PRODUCT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RACC
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RPAR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SKIP
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SND
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.localise
 import io.smallibs.parsec.parser.Core.`try`
 import io.smallibs.parsec.parser.Core.lazy
@@ -104,10 +107,16 @@ object TermParser {
             Cst.Term.Case(it.first.first, it.first.second, it.second)
         })
 
-    private val projection: Parser<Char, Localised<Cst.Term>>
+    private val operations: Parser<Char, Localised<Cst.Term>>
         get() = localise(INL thenRight lazy(::sterm) map {
-            Cst.Term.Proj(it, Cst.Term.Side.Left)
-        } or (INR thenRight lazy(::sterm) map { Cst.Term.Proj(it, Cst.Term.Side.Right) }))
+            Cst.Term.SpecialApp(Cst.Term.Operation.inl, it)
+        } or (INR thenRight lazy(::sterm) map {
+            Cst.Term.SpecialApp(Cst.Term.Operation.inr, it)
+        }) or (FST thenRight lazy(::sterm) map {
+            Cst.Term.SpecialApp(Cst.Term.Operation.fst, it)
+        }) or (SND thenRight lazy(::sterm) map {
+            Cst.Term.SpecialApp(Cst.Term.Operation.snd, it)
+        }))
 
     private val nativeTypes: Parser<Char, Localised<Cst.Term>>
         get() = KIND_TYPE or INT_TYPE or CHAR_TYPE or STRING_TYPE
@@ -120,11 +129,13 @@ object TermParser {
     private val block: Parser<Char, Localised<Cst.Term>> get() = LPAR thenRight lazy(TermParser::term) thenLeft RPAR
 
     private fun sterm(): Parser<Char, Localised<Cst.Term>> =
-        lambda or case or projection or nativeTypes or nativeValues or variables or block
+        lambda or case or operations or nativeTypes or nativeValues or variables or block
 
-    private fun mayBeProduct(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
+    private fun mayBeProductOrCouple(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
         (PRODUCT thenRight lazy(::aterm) map {
             Cst.Term.Exists(null, left, it)
+        }) or (COUPLE thenRight lazy(::aterm) map {
+            Cst.Term.Couple(left, it)
         }) or returns(left.value)
 
     private fun mayBeDisjunction(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
@@ -153,7 +164,7 @@ object TermParser {
         })
 
     private fun aterm(): Parser<Char, Localised<Cst.Term>> =
-        localise(localise(apply() bind TermParser::mayBeProduct) bind TermParser::mayBeDisjunction)
+        localise(localise(apply() bind TermParser::mayBeDisjunction) bind TermParser::mayBeProductOrCouple)
 
     private fun term(): Parser<Char, Localised<Cst.Term>> =
         forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)

@@ -4,7 +4,6 @@ import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.parsec.parser.Core
 import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.or
-import io.smallibs.parsec.parser.Flow.rep
 import io.smallibs.parsec.parser.Flow.then
 import io.smallibs.parsec.parser.Flow.thenLeft
 import io.smallibs.parsec.parser.Literal
@@ -24,7 +23,7 @@ object Commons {
         get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=")
 
     private val keywords: List<String>
-        get() = listOf("sig", "def", "type", "int", "char", "string", "case", "inl", "inr")
+        get() = listOf("sig", "def", "type", "int", "char", "string", "case", "inl", "inr", "fst", "snd")
 
     val LETTER
         get() = Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")
@@ -44,11 +43,15 @@ object Commons {
     val RACC get() = token(Literal.char('}')) map { it.toString() }
     val COLON get() = token(Literal.char(':')) map { it.toString() }
     val PRODUCT get() = token(Literal.char('*')) map { it.toString() }
+    val COUPLE get() = token(Literal.char(',')) map { it.toString() }
     val DISJUNCTION get() = token(Literal.char('|')) map { it.toString() }
     val EQUAL get() = token(Literal.char('=')) map { it.toString() }
+
+    val SIG get() = token(Literal.string("sig"))
+    val DEF get() = token(Literal.string("def"))
     val CASE get() = token(Literal.string("case"))
     val INL get() = token(Literal.string("inl"))
     val INR get() = token(Literal.string("inr"))
-    val SIG get() = token(Literal.string("sig"))
-    val DEF get() = token(Literal.string("def"))
+    val FST get() = token(Literal.string("fst"))
+    val SND get() = token(Literal.string("snd"))
 }

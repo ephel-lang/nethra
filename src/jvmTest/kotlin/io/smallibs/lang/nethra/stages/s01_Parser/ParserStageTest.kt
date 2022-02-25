@@ -5,9 +5,9 @@ import io.kotest.matchers.shouldBe
 
 class ParserStageTest : StringSpec({
 
-    "[compile/decompile] sig t : Int def t = 1" {
+    "[compile/decompile] sig t : int def t = 1" {
         with(ParserStage()) {
-            decompile(compile("sig t : Int def t = 1")) shouldBe "sig t : Int\ndef t = 1"
+            decompile(compile("sig t : int def t = 1")) shouldBe "sig t : int\ndef t = 1"
         }
     }
 

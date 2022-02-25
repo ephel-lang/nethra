@@ -132,6 +132,16 @@ class CongruenceImpl<C>(
                         is Inr -> reduce(builder.apply(t.right, proj.term))
                         else -> t
                     }
+                is Ast.Term.Fst ->
+                    when (val t =reduce(t.term)) {
+                        is Ast.Term.Sigma -> reduce(t.bound)
+                        else -> t
+                    }
+                is Ast.Term.Snd ->
+                    when (val t =reduce(t.term)) {
+                        is Ast.Term.Sigma -> reduce(t.body.substitute(t.n,t.bound))
+                        else -> t
+                    }
                 else -> t
             }
         }.let {

@@ -69,6 +69,13 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
+    "[checker] exist" {
+        """
+        sig A : (X:type) * X
+        def A = (char , 'c')
+        """.trimIndent().let { check(it) }
+    }
+
 }) {
     companion object {
         fun check(program: String) =
