@@ -245,8 +245,7 @@ def combineInt = add
 
 In this example with first define a function returning a type depending on the parameter.
 
-Then if the parameter is a `int` it returns the type `char` and if it's a char it returns
-a `ìnt`.
+Then if the parameter is an `int` it returns the type `char` and if it's a `char` it returns an `int`.
 
 ```
 sig ic : int | char -> type
