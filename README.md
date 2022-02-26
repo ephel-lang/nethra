@@ -14,6 +14,7 @@ Nethra is an experiment based on well know theories and constructions like:
 n in Ident
 i in Int
 c in Char
+s in String
 
 e ::=
     Type_i                -- Type at level i
@@ -21,6 +22,7 @@ e ::=
     
     i                     -- Integer literal
     c                     -- Character literal
+    s                     -- String literal
     
     Π(n:e).e   Π{n:e}.e   -- Dependant function type
     λ(n).e     λ{n}.e     -- Function
