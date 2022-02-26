@@ -20,12 +20,10 @@ object Cst {
 
     sealed interface Term {
         data class Type(val level: Int) : Term
-        object IntTypeLiteral : Term
-        object CharTypeLiteral : Term
-        object StringTypeLiteral : Term
         data class IntLiteral(val value: Int) : Term
         data class CharLiteral(val value: Char) : Term
         data class StringLiteral(val value: String) : Term
+        data class Data(val id: String, val type: Localised<Term>) : Term
         data class Var(val v: String, val hole: Boolean = false) : Term
         data class Forall(
             val v: String?,
@@ -46,9 +44,6 @@ object Cst {
 
         private fun pretty(): String = when (this) {
             is Type -> "type$level"
-            IntTypeLiteral -> "int"
-            CharTypeLiteral -> "char"
-            StringTypeLiteral -> "string"
             is IntLiteral -> "$value"
             is CharLiteral ->
                 if (value == '\'') {
@@ -57,6 +52,7 @@ object Cst {
                     "'$value'"
                 }
             is StringLiteral -> "\"$value\""
+            is Data -> "data $id: ${type.prettyTerm(true)}"
             is Var -> if (hole) {
                 "?$v"
             } else {
@@ -89,12 +85,10 @@ object Cst {
 
         private fun isAtom(): Boolean = when (this) {
             is Type -> true
-            IntTypeLiteral -> true
-            CharTypeLiteral -> true
-            StringTypeLiteral -> true
             is IntLiteral -> true
             is CharLiteral -> true
             is StringLiteral -> true
+            is Data -> true
             is Var -> true
             is Forall -> false
             is Apply -> false

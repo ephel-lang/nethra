@@ -13,6 +13,16 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
+    "[checker] data" {
+        """
+        sig list  : type -> type
+        def list  = (X).rec(l).(data nil: l | data cons: (X -> l -> l))
+        
+        sig isEmpty : {X:type} -> list X -> int
+        def isEmpty = {_}.(l).case (unfold l) (_).0 (_).1
+        """.trimIndent().let { check(it) }
+    }
+
     "[checker] combine/add" {
         """
         sig combine : {t:type} -> t -> t -> t
@@ -115,6 +125,12 @@ class CheckerStageTest : StringSpec({
         sig unit  : type        
         sig value : A_T unit -> int
         def value = (x).((snd (A_n x)) (snd (A_m x)))        
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] rec" {
+        """
+        sig list : rec(l).({X:type} -> l | (X -> l x -> l x))       
         """.trimIndent().let { check(it) }
     }
 

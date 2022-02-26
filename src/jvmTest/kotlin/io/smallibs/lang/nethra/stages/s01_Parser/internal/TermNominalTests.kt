@@ -3,7 +3,6 @@ package io.smallibs.lang.nethra.stages.s01_Parser.internal
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.smallibs.lang.nethra.cst.Cst.prettyTerm
-import io.smallibs.lang.nethra.stages.s01_Parser.internal.TermParser
 import io.smallibs.parsec.io.Reader.Companion.string
 import io.smallibs.parsec.parser.Common.get
 import io.smallibs.parsec.parser.Flow.eos
@@ -11,50 +10,54 @@ import io.smallibs.parsec.parser.Flow.thenLeft
 
 class TermNominalSpec : StringSpec({
 
-    "[parser] Type" {
-        (TermParser() thenLeft eos())(string("Type")).get()?.prettyTerm() shouldBe "Type"
+    "[parser] type" {
+        (TermParser() thenLeft eos())(string("type")).get()?.prettyTerm() shouldBe "type0"
     }
 
-    "[parser] Int" {
-        (TermParser() thenLeft eos())(string("Int")).get()?.prettyTerm() shouldBe "Int"
+    "[parser] int" {
+        (TermParser() thenLeft eos())(string("int")).get()?.prettyTerm() shouldBe "int"
     }
 
-    "[parser] Char" {
-        (TermParser() thenLeft eos())(string("Char")).get()?.prettyTerm() shouldBe "Char"
+    "[parser] char" {
+        (TermParser() thenLeft eos())(string("char")).get()?.prettyTerm() shouldBe "char"
     }
 
-    "[parser] String" {
-        (TermParser() thenLeft eos())(string("String")).get()?.prettyTerm() shouldBe "String"
+    "[parser] string" {
+        (TermParser() thenLeft eos())(string("string")).get()?.prettyTerm() shouldBe "string"
     }
 
-    "[parser] (Char)" {
-        (TermParser() thenLeft eos())(string("(Char)")).get()?.prettyTerm() shouldBe "Char"
+    "[parser] data nil: (list x)" {
+        (TermParser() thenLeft eos())(string("data nil:list x")).get()?.prettyTerm() shouldBe "data nil: (list x)"
     }
 
-    "[parser] Char -> Int" {
-        (TermParser() thenLeft eos())(string("Char -> Int")).get()?.prettyTerm() shouldBe "Char -> Int"
+    "[parser] (char)" {
+        (TermParser() thenLeft eos())(string("(char)")).get()?.prettyTerm() shouldBe "char"
     }
 
-    "[parse] (e:Char) -> e" {
-        (TermParser() thenLeft eos())(string("(e:Char) -> e")).get()?.prettyTerm() shouldBe "(e:Char) -> e"
+    "[parser] char -> int" {
+        (TermParser() thenLeft eos())(string("char -> int")).get()?.prettyTerm() shouldBe "char -> int"
     }
 
-    "[parse] {e:Char} -> e" {
-        (TermParser() thenLeft eos())(string("{e:Char} -> e")).get()?.prettyTerm() shouldBe "{e:Char} -> e"
+    "[parse] (e:char) -> e" {
+        (TermParser() thenLeft eos())(string("(e:char) -> e")).get()?.prettyTerm() shouldBe "(e:char) -> e"
     }
 
-    "[parse] {e:Type} -> {v:e} -> v" {
-        (TermParser() thenLeft eos())(string("{e:Type} -> {v:e} -> v")).get()
-            ?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
+    "[parse] {e:char} -> e" {
+        (TermParser() thenLeft eos())(string("{e:char} -> e")).get()?.prettyTerm() shouldBe "{e:char} -> e"
     }
 
-    "[parse] {e:Type} -> ({v:e} -> v)" {
-        (TermParser() thenLeft eos())(string("{e:Type} -> ({v:e} -> v)")).get()
-            ?.prettyTerm() shouldBe "{e:Type} -> {v:e} -> v"
+    "[parse] {e:type} -> {v:e} -> v" {
+        (TermParser() thenLeft eos())(string("{e:type} -> {v:e} -> v")).get()
+            ?.prettyTerm() shouldBe "{e:type0} -> {v:e} -> v"
     }
 
-    "[parse] ({e:Type} -> e) -> v" {
-        (TermParser() thenLeft eos())(string("({e:Type} -> e) -> v")).get()?.prettyTerm() shouldBe "{e:Type} -> e -> v"
+    "[parse] {e:type} -> ({v:e} -> v)" {
+        (TermParser() thenLeft eos())(string("{e:type} -> ({v:e} -> v)")).get()
+            ?.prettyTerm() shouldBe "{e:type0} -> {v:e} -> v"
+    }
+
+    "[parse] ({e:type} -> e) -> v" {
+        (TermParser() thenLeft eos())(string("({e:type} -> e) -> v")).get()?.prettyTerm() shouldBe "{e:type0} -> e -> v"
     }
 
     "[parse] e f" {
@@ -153,8 +156,8 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("(e , f) | g")).get()?.prettyTerm() shouldBe "(e , f) | g"
     }
 
-    "[parse] case True Int Char" {
-        (TermParser() thenLeft eos())(string("case True Int Char")).get()?.prettyTerm() shouldBe "case True Int Char"
+    "[parse] case True int char" {
+        (TermParser() thenLeft eos())(string("case True int char")).get()?.prettyTerm() shouldBe "case True int char"
     }
 
     "[parse] inl 1" {
@@ -169,9 +172,13 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("rec(x).x")).get()?.prettyTerm() shouldBe "rec(x).x"
     }
 
-    "[parse] {e:True|False} -> case e Int Char" {
-        (TermParser() thenLeft eos())(string("{e:True|False} -> case e Int Char")).get()
-            ?.prettyTerm() shouldBe "{e:True | False} -> case e Int Char"
+    "[parse] rec(x).({X:type} -> x X) " {
+        (TermParser() thenLeft eos())(string("rec(x).({X:type} -> x X)")).get()?.prettyTerm() shouldBe "rec(x).({X:type0} -> x X)"
+    }
+
+    "[parse] {e:True|False} -> case e int char" {
+        (TermParser() thenLeft eos())(string("{e:True|False} -> case e int char")).get()
+            ?.prettyTerm() shouldBe "{e:True | False} -> case e int char"
     }
 
     "[parser] 42" {

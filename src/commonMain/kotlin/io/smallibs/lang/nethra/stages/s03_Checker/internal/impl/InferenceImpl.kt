@@ -7,8 +7,8 @@ import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Reducer
 import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.ast.Visitor
-import io.smallibs.lang.nethra.stages.s03_Checker.internal.Checker
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.Checker
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Inference
 
 //
@@ -21,7 +21,7 @@ class InferenceImpl<C>(
     private val substitution: Substitution<C> = Substitution(),
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
-    private val reducer: Reducer<C> = Reducer()
+    private val reducer: Reducer<C> = Reducer(),
 ) : Visitor<C, Bindings<C>, Ast.Term<C>>, Inference<C>, Builder<C> by builder, Congruence<C> by congruence,
     Checker<C> by checker, Printer<C> by printer, Substitution<C> by substitution, Reducer<C> by reducer {
 
@@ -42,11 +42,11 @@ class InferenceImpl<C>(
     override fun Ast.Term.Type<C>.run(i: Bindings<C>): Ast.Term<C> =
         type(level + 1)
 
-    //
+    // Γ ⊢ l : T
     // -----------------
-    // Γ ⊢ data(n:T) : T
+    // Γ ⊢ data(n:l) : T
     override fun Ast.Term.Data<C>.run(i: Bindings<C>): Ast.Term<C> =
-        type
+        i.infer(type)
 
     //
     // ----------------
@@ -59,9 +59,9 @@ class InferenceImpl<C>(
     // Γ ⊢ l : int     Γ ⊢ l : char      Γ ⊢ l : string
     override fun Ast.Term.Lit<C>.run(i: Bindings<C>): Ast.Term<C> =
         when (this.literal) {
-            is Ast.Term.Literal.IntLit -> data("int", type())
-            is Ast.Term.Literal.CharLit -> data("char", type())
-            is Ast.Term.Literal.StringLit -> data("string", type())
+            is Ast.Term.Literal.IntLit -> id("int")
+            is Ast.Term.Literal.CharLit -> id("char")
+            is Ast.Term.Literal.StringLit -> id("string")
         }
 
     // Γ ⊢ M : T   Γ, x : M ⊢ N : T

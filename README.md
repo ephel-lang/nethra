@@ -181,7 +181,7 @@ binding ::=
 ```
 
 ```
-term ::=
+term ::=     
     "rec" "(" id ")" "." sterm
     "(" id ":" term ")" ("->" | "*") term    
     "{" id ":" term "}" ("->") term    
@@ -199,9 +199,9 @@ sterm ::=
     "{" id "}" "." sterm
     
     "type" int?
-    "int"
-    "char"
-    "string"
+    
+    id
+    "data" id ":" sterm
     
     "case" sterm sterm sterm
     "inl" sterm
@@ -215,7 +215,6 @@ sterm ::=
     
     "(" term ")"
     
-    id
     ?id
     
     int 

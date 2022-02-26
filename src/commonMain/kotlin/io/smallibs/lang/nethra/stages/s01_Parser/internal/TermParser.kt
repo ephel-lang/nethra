@@ -6,6 +6,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ARROW
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.CASE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COLON
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DATA
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FOLD
@@ -48,9 +49,6 @@ object TermParser {
         get() = localise(`try`(string("type") thenRight integer.opt) map {
             Cst.Term.Type(it ?: 0)
         })
-    private val INT_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("int")) map { Cst.Term.IntTypeLiteral })
-    private val CHAR_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("char")) map { Cst.Term.CharTypeLiteral })
-    private val STRING_TYPE: Parser<Char, Localised<Cst.Term>> get() = localise(`try`(string("string")) map { Cst.Term.StringTypeLiteral })
     private val VAR: Parser<Char, Localised<Cst.Term>> get() = localise(ID map { Cst.Term.Var(it) })
     private val HOLE: Parser<Char, Localised<Cst.Term>>
         get() = localise(char('?') thenRight ID map {
@@ -101,6 +99,11 @@ object TermParser {
             }
         }
 
+    private val data: Parser<Char, Localised<Cst.Term>>
+        get() = localise(DATA thenRight ID thenLeft COLON then lazy(::apply) map {
+            Cst.Term.Data(it.first, it.second)
+        })
+
     private val lambda: Parser<Char, Localised<Cst.Term>>
         get() = pterm(LACC, RACC) { n, t -> Cst.Term.Lambda(n, t, true) } or pterm(LPAR,
             RPAR) { n, t -> Cst.Term.Lambda(n, t, false) }
@@ -119,14 +122,14 @@ object TermParser {
             Cst.Term.SpecialApp(Cst.Term.Operation.fst, it)
         }) or (SND thenRight lazy(::sterm) map {
             Cst.Term.SpecialApp(Cst.Term.Operation.snd, it)
-        })or (FOLD thenRight lazy(::sterm) map {
+        }) or (FOLD thenRight lazy(::sterm) map {
             Cst.Term.SpecialApp(Cst.Term.Operation.fold, it)
         }) or (UNFOLD thenRight lazy(::sterm) map {
             Cst.Term.SpecialApp(Cst.Term.Operation.unfold, it)
         }))
 
-    private val nativeTypes: Parser<Char, Localised<Cst.Term>>
-        get() = KIND_TYPE or INT_TYPE or CHAR_TYPE or STRING_TYPE
+    private val nativeType: Parser<Char, Localised<Cst.Term>>
+        get() = KIND_TYPE
 
     private val nativeValues: Parser<Char, Localised<Cst.Term>>
         get() = INT or CHAR or STRING
@@ -136,7 +139,7 @@ object TermParser {
     private val block: Parser<Char, Localised<Cst.Term>> get() = LPAR thenRight lazy(TermParser::term) thenLeft RPAR
 
     private fun sterm(): Parser<Char, Localised<Cst.Term>> =
-        lambda or case or operations or nativeTypes or nativeValues or variables or block
+        data or recursive or lambda or case or operations or nativeType or nativeValues or variables or block
 
     private fun mayBeProductOrCouple(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
         (PRODUCT thenRight lazy(::aterm) map {
@@ -180,7 +183,7 @@ object TermParser {
             })
 
     private fun term(): Parser<Char, Localised<Cst.Term>> =
-        recursive or forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)
+        forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)
 
     operator fun invoke(): Parser<Char, Localised<Cst.Term>> = SKIP thenRight term()
 }

@@ -26,9 +26,6 @@ object Commons {
         get() = listOf("sig",
             "def",
             "type",
-            "int",
-            "char",
-            "string",
             "case",
             "inl",
             "inr",
@@ -36,7 +33,8 @@ object Commons {
             "snd",
             "rec",
             "fold",
-            "unfold")
+            "unfold",
+            "data")
 
     val LETTER
         get() = Literal.charIn('A'..'Z') or Literal.charIn('a'..'z') or Literal.charIn("_")
@@ -70,4 +68,5 @@ object Commons {
     val FOLD get() = token(Literal.string("fold"))
     val UNFOLD get() = token(Literal.string("unfold"))
     val REC get() = token(Literal.string("rec"))
+    val DATA get() = token(Literal.string("data"))
 }

@@ -11,9 +11,7 @@ class AbstractionStage<C>(
 ) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<C>>, Builder<C> by builder {
     private fun Cst.Term.compile(): Ast.Term<C> = when (this) {
         is Cst.Term.Type -> type(level)
-        Cst.Term.IntTypeLiteral -> data("int", type())
-        Cst.Term.CharTypeLiteral -> data("char", type())
-        Cst.Term.StringTypeLiteral -> data("string", type())
+        is Cst.Term.Data -> data(id, type.value.compile())
         is Cst.Term.Var -> id(v)
         is Cst.Term.CharLiteral -> char(value)
         is Cst.Term.IntLiteral -> int(value)
@@ -43,8 +41,10 @@ class AbstractionStage<C>(
     }
 
     override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): Bindings<C> = i.map(::compile).let { bindings ->
-        Bindings(bindings.filterIsInstance<Ast.Binding.Signature<C>>().associate { it.name to it.value },
-            bindings.filterIsInstance<Ast.Binding.Definition<C>>().associate { it.name to it.value })
+        Bindings(
+            bindings.filterIsInstance<Ast.Binding.Signature<C>>().associate { it.name to it.value },
+            bindings.filterIsInstance<Ast.Binding.Definition<C>>().associate { it.name to it.value }
+        )
     }
 
     override infix fun decompile(o: Bindings<C>): List<Cst.Localised<Cst.Binding>> {
