@@ -13,16 +13,6 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] data" {
-        """
-        sig list  : type -> type
-        def list  = (X).rec(l).(data nil: l | data cons: (X -> l -> l))
-        
-        sig isEmpty : {X:type} -> list X -> int
-        def isEmpty = {_}.(l).case (unfold l) (_).0 (_).1
-        """.trimIndent().let { check(it) }
-    }
-
     "[checker] combine/add" {
         """
         sig combine : {t:type} -> t -> t -> t
@@ -86,7 +76,7 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] trait denotation" {
+    "[checker] trait/denotation" {
         """
         sig A_T  : type
         def A_T  = (t:type) * (t * (t -> int))
@@ -105,7 +95,7 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] trait with extension denotation"  {
+    "[checker] trait/extension/denotation"  {
         """
         sig A_T  : type -> type
         def A_T  = (X).((t:type) * (t * (t -> int) * X))
@@ -128,9 +118,38 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] rec" {
+    "[checker] list/deconstruction/isEmpty" {
         """
-        sig list : rec(l).({X:type} -> l | (X -> l x -> l x))       
+        sig unit : type
+        sig Unit : unit
+        
+        sig list : type -> type
+        
+        sig nil  : {X:type} -> list X
+        def nil  = {_}.fold inl Unit
+        
+        sig cons : {X:type} -> X -> list X -> list X
+        def cons = {_}.(head).(tail).fold inr (head,tail)
+
+        def list = (X).rec(l).(unit | (X * l)) 
+        
+        sig head : {X:type} -> X * list X -> X
+        def head = {_}.(c).fst c
+
+        sig tail : {X:type} -> X * list X -> list X
+        def tail = {_}.(c).snd c
+                
+        sig bool : type
+        def bool = true | false
+
+        sig true : type
+        sig True : true
+
+        sig false : type
+        sig False : false
+        
+        sig isEmpty : {X:type} -> list X -> bool
+        def isEmpty = {_}.(l).case (unfold l) (_).(inl True) (_).(inr False)
         """.trimIndent().let { check(it) }
     }
 
