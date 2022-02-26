@@ -100,6 +100,8 @@ def m = (char , 'c')
 
 #### Trait denotation
 
+##### Naive approach
+
 This can be used to encode modules and records. Then for instance:
 
 ```
@@ -130,3 +132,32 @@ def empty = (x).(fst x, fst (snd x))
 sig compose : Monoid_T -> Compose_T
 def compose = (x).(fst x, snd (snd x))
 ```
+
+With this denotation the implementation can't be done using internal functions.
+
+##### Extensible approach
+
+For this purpose we can review it adding a polymorphic parameter in order to mimic the row polymorphism.
+
+```
+sig Monoid_T : type -> type
+def Monoid_T = (X).((t:type) * (t * (t -> t -> t) * X))
+
+sig Empty_T : type
+def Empty_T = (t:type) * t
+    
+sig Compose_T : type
+def Compose_T = (t:type) * (t -> t -> t)
+```
+
+Then we can propose the functions accessing trait elements. 
+
+```
+sig empty : {X:type} -> Monoid_T X -> Empty_T
+def empty = {_}.(x).(fst x, fst (snd x))
+
+sig compose : {X:type} -> Monoid_T X -> Compose_T
+def compose = {_}.(x).(fst x, fst snd (snd x))
+```
+
+With such approach `X` cannot capture the existential type which is not really satisfactory. 

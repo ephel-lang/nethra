@@ -99,7 +99,7 @@ class CheckerImpl<C>(
     // Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
     // ----------------------------      ----------------------------      ---------------------------------------
     // Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]                Γ ⊢ f e : N
-    override fun Ast.Term.Apply<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
+    override fun Ast.Term.Apply<C>.run(i: CheckerImpl.Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(abstraction)) {
             is Ast.Term.Pi -> if (implicit == type.implicit) {
                 i.gamma.congruent(type.body.substitute(type.n, argument), i.type) && i.gamma.check(argument, type.bound)
@@ -116,12 +116,12 @@ class CheckerImpl<C>(
     // Γ,x : A ⊢ B : T
     // ----------------
     // Γ ⊢ Σ(x:A).B : T
-    override fun Ast.Term.Sigma<C>.run(i: Context<C>) = i.gamma.setSignature(n, bound).check(body, i.type)
+    override fun Ast.Term.Sigma<C>.run(i: CheckerImpl.Context<C>) = i.gamma.setSignature(n, bound).check(body, i.type)
 
     // Γ ⊢ A : M   Γ ⊢ B : N[x=A]
     // --------------------------
     // Γ ⊢ A,B : Σ(x:M).N
-    override fun Ast.Term.Couple<C>.run(i: Context<C>) = when (i.type) {
+    override fun Ast.Term.Couple<C>.run(i: CheckerImpl.Context<C>) = when (i.type) {
         is Ast.Term.Sigma -> i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd,
             i.type.body.substitute(i.type.n, lhd))
         else -> false
@@ -130,7 +130,7 @@ class CheckerImpl<C>(
     // Γ ⊢ p : Σ(x:M).N
     // ----------------
     // Γ ⊢ fst p : M
-    override fun Ast.Term.Fst<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
+    override fun Ast.Term.Fst<C>.run(i: CheckerImpl.Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Ast.Term.Sigma -> i.gamma.congruent(type.bound, i.type)
             else -> false
@@ -140,7 +140,7 @@ class CheckerImpl<C>(
     // Γ ⊢ p : Σ(x:M).N
     // ----------------------
     // Γ ⊢ snd p : N[x=fst p]
-    override fun Ast.Term.Snd<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
+    override fun Ast.Term.Snd<C>.run(i: CheckerImpl.Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Ast.Term.Sigma -> i.gamma.congruent(type.body.substitute(type.n, fst(term)), i.type)
             else -> false
@@ -150,12 +150,13 @@ class CheckerImpl<C>(
     // Γ ⊢ A : T   Γ ⊢ B : T
     // ---------------------
     // Γ ⊢ A + B : T
-    override fun Ast.Term.Disjunction<C>.run(i: Context<C>) = i.gamma.check(lhd, i.type) && i.gamma.check(rhd, i.type)
+    override fun Ast.Term.Disjunction<C>.run(i: CheckerImpl.Context<C>) =
+        i.gamma.check(lhd, i.type) && i.gamma.check(rhd, i.type)
 
     // Γ ⊢ A : M
     // -----------------
     // Γ ⊢ inl A : M + N
-    override fun Ast.Term.Inl<C>.run(i: Context<C>) = when (i.type) {
+    override fun Ast.Term.Inl<C>.run(i: CheckerImpl.Context<C>) = when (i.type) {
         is Ast.Term.Disjunction -> i.gamma.check(this.term, i.type.lhd)
         else -> false
     }
@@ -163,7 +164,7 @@ class CheckerImpl<C>(
     // Γ ⊢ A : N
     // -----------------
     // Γ ⊢ inr A : M + N
-    override fun Ast.Term.Inr<C>.run(i: Context<C>) = when (i.type) {
+    override fun Ast.Term.Inr<C>.run(i: CheckerImpl.Context<C>) = when (i.type) {
         is Ast.Term.Disjunction -> i.gamma.check(this.term, i.type.rhd)
         else -> false
     }

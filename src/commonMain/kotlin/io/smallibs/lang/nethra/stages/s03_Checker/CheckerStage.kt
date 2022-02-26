@@ -17,10 +17,12 @@ class CheckerStage<C>(
 
     override infix fun compile(bindings: Bindings<C>): Bindings<C> = with(Inference(checker)) {
         bindings.gamma.map { (_, type) ->
+            println("-----------------------------------")
             bindings.infer(type)
         }.let {
             bindings.delta.map { (name, definition) ->
                 val type = bindings.getSignature(name) ?: throw Exception("No specification for $name")
+                println("-----------------------------------")
                 if (!bindings.check(definition, type)) {
                     throw Exception("${definition.prettyPrint()} not a ${type.prettyPrint()}")
                 }

@@ -70,9 +70,9 @@ class InferenceImpl<C>(
     override fun Ast.Term.Pi<C>.run(i: Bindings<C>): Ast.Term<C> =
         i.setSignature(n, bound).infer(body)
 
-    // Γ, x : A ⊢ B : T
-    // ---------------------
-    // Γ ⊢ λ(x).B : Π(x:A).T
+    // Γ, x : A ⊢ B : T          Γ, x : A ⊢ B : T
+    // ---------------------     ---------------------
+    // Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
     override fun Ast.Term.Lambda<C>.run(i: Bindings<C>): Ast.Term<C> =
         hole(newVariable()).let { hole ->
             pi(n, hole, i.setSignature(hole.value, hole).infer(body.substitute(n, hole)), implicit)

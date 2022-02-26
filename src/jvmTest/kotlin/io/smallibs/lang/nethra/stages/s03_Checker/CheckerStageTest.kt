@@ -76,7 +76,7 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] exist/fst/snd" {
+    "[checker] trait denotation" {
         """
         sig A_T  : type
         def A_T  = (t:type) * (t * (t -> int))
@@ -92,6 +92,29 @@ class CheckerStageTest : StringSpec({
 
         sig A_n : A_T -> An_T
         def A_n = (x).(fst x, snd snd x)
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] trait with extension denotation"  {
+        """
+        sig A_T  : type -> type
+        def A_T  = (X).((t:type) * (t * (t -> int) * X))
+        
+        sig Am_T : type
+        def Am_T = (t:type) * t
+            
+        sig A_m : {X:type} -> A_T X -> Am_T
+        def A_m = {_}.(x).(fst x, fst snd x)
+
+        sig An_T : type
+        def An_T = (t:type) * (t -> int)
+
+        sig A_n : {X:type} -> A_T X -> An_T
+        def A_n = {_}.(x).(fst x, fst snd snd x)
+              
+        sig unit  : type        
+        sig value : A_T unit -> int
+        def value = (x).((snd (A_n x)) (snd (A_m x)))        
         """.trimIndent().let { check(it) }
     }
 

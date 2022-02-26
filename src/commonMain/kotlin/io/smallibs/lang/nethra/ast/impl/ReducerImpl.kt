@@ -6,6 +6,7 @@ import io.smallibs.lang.nethra.ast.Ast.Term.Hole
 import io.smallibs.lang.nethra.ast.Ast.Term.Id
 import io.smallibs.lang.nethra.ast.Ast.Term.Inl
 import io.smallibs.lang.nethra.ast.Ast.Term.Inr
+import io.smallibs.lang.nethra.ast.Ast.Term.Pi
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Reducer
@@ -18,7 +19,8 @@ class ReducerImpl<C>(
     private val printer: Printer<C> = Printer(),
 ) : Reducer<C>, Printer<C> by printer, Substitution<C> by substitution {
 
-    override fun Bindings<C>.reduce(t: Ast.Term<C>): Ast.Term<C> = println("[?] ${t.prettyPrint()} *→ ?").let {
+    override fun Bindings<C>.reduce(t: Ast.Term<C>): Ast.Term<C> = //println("[?] ${t.prettyPrint()} *→ ?").let {
+        Unit.let {
         when (t) {
             is Hole -> t.term?.let { reduce(it) } ?: t
             is Id -> this.getDefinition(t.value)?.let { reduce(it) } ?: t
@@ -42,7 +44,7 @@ class ReducerImpl<C>(
             else -> t
         }
     }.let {
-        println("[?] ${t.prettyPrint()} *→ ${it.prettyPrint()}")
+        // println("[?] ${t.prettyPrint()} *→ ${it.prettyPrint()}")
         it
     }
 
