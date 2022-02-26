@@ -1,10 +1,10 @@
 # Nethra
 
-Nethra is an experiment based on well know theory and constructions:
+Nethra is an experiment based on well know theory and constructions like:
 - dependent function type,
 - dependent pair type,
 - recursive type and
-- basic lambda calculus
+- core lambda calculus
 
 ## Terms
 
