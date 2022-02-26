@@ -60,9 +60,9 @@ class SubstitutionImpl<C>(
     override fun Ast.Term.Rec<C>.run(i: Pair<String, Ast.Term<C>>) =
         if (self == i.first) this@run else rec(self, body.run(i))
 
-    override fun Ast.Term.Fold<C>.run(i: Pair<String, Ast.Term<C>>) = fold(term.run(i), type)
+    override fun Ast.Term.Fold<C>.run(i: Pair<String, Ast.Term<C>>) = fold(term.run(i))
 
-    override fun Ast.Term.Unfold<C>.run(i: Pair<String, Ast.Term<C>>) = unfold(term.run(i), type)
+    override fun Ast.Term.Unfold<C>.run(i: Pair<String, Ast.Term<C>>) = unfold(term.run(i))
 
     override fun Ast.Term.Inhabit<C>.run(i: Pair<String, Ast.Term<C>>) = inhabit(term.run(i), type.run(i))
 

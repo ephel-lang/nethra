@@ -1,7 +1,5 @@
 package io.smallibs.lang.nethra.ast
 
-import io.smallibs.lang.nethra.cst.Cst
-
 object Ast {
 
     sealed class Binding<C>(open var context: C? = null) {
@@ -40,8 +38,8 @@ object Ast {
         data class Case<C>(val term: Term<C>, val left: Term<C>, val right: Term<C>) : Term<C>()
 
         data class Rec<C>(val self: String, val body: Term<C>) : Term<C>()
-        data class Fold<C>(val type: Rec<C>, val term: Term<C>) : Term<C>()
-        data class Unfold<C>(val type: Rec<C>, val term: Term<C>) : Term<C>()
+        data class Fold<C>(val term: Term<C>) : Term<C>()
+        data class Unfold<C>(val term: Term<C>) : Term<C>()
 
         data class Inhabit<C>(val term: Term<C>, val type: Term<C>) : Term<C>()
 

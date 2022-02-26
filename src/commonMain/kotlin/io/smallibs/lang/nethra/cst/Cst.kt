@@ -41,7 +41,7 @@ object Cst {
         data class Disjunction(val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Case(val term: Localised<Term>, val lhd: Localised<Term>, val rhd: Localised<Term>) : Term
         data class Rec(val v: String, val body: Localised<Term>) : Term
-        enum class Operation { inl, inr, fst, snd }
+        enum class Operation { inl, inr, fst, snd, fold, unfold }
         data class SpecialApp(val operation: Operation, val term: Localised<Term>) : Term
 
         private fun pretty(): String = when (this) {

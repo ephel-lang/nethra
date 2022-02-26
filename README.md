@@ -36,8 +36,8 @@ e ::=
     case e e e            -- Catamorphism
     
     μ(n).e                -- Recursion
-    fold (μ(n).e) e       -- Fold recursive type
-    unfold (μ(n).e) e     -- Unfold recursive type
+    fold e                -- Fold recursive type
+    unfold e              -- Unfold recursive type
     
     e ∈ e                 -- Term inhabits Type
     
@@ -129,12 +129,12 @@ l ∈ int         l ∈ char
 Γ ⊢ μ(x).A : T
 
 Γ ⊢ A : N[x=μ(x).N]
----------------------------
-Γ ⊢ fold(μ(x).N) A : μ(x).N
+-------------------
+Γ ⊢ fold A : μ(x).N
 
 Γ ⊢ A : μ(x).N
-----------------------------------
-Γ ⊢ unfold(μ(x).N) A : N[x=μ(x).N]
+--------------------------
+Γ ⊢ unfold A : N[x=μ(x).N]
 ```
 ### Term inhabitation
 

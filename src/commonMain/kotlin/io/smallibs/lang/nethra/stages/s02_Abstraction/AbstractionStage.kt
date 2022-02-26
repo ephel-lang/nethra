@@ -32,6 +32,8 @@ class AbstractionStage<C>(
                 Cst.Term.Operation.inr -> inr(term.value.compile())
                 Cst.Term.Operation.fst -> fst(term.value.compile())
                 Cst.Term.Operation.snd -> snd(term.value.compile())
+                Cst.Term.Operation.fold -> fold(term.value.compile())
+                Cst.Term.Operation.unfold -> unfold(term.value.compile())
             }
     }
 

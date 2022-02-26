@@ -36,6 +36,8 @@ sterm ::=
     "inl" sterm
     "inr" sterm
     "fst" sterm
+    "fold" sterm
+    "unfold" sterm
     "snd" sterm
     "(" term ")"
     id

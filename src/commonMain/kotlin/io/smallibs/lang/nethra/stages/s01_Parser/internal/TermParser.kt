@@ -8,6 +8,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COLON
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FOLD
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FST
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ID
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.INL
@@ -20,6 +21,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.REC
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RPAR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SKIP
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SND
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.UNFOLD
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.localise
 import io.smallibs.parsec.parser.Core.`try`
 import io.smallibs.parsec.parser.Core.lazy
@@ -117,6 +119,10 @@ object TermParser {
             Cst.Term.SpecialApp(Cst.Term.Operation.fst, it)
         }) or (SND thenRight lazy(::sterm) map {
             Cst.Term.SpecialApp(Cst.Term.Operation.snd, it)
+        })or (FOLD thenRight lazy(::sterm) map {
+            Cst.Term.SpecialApp(Cst.Term.Operation.fold, it)
+        }) or (UNFOLD thenRight lazy(::sterm) map {
+            Cst.Term.SpecialApp(Cst.Term.Operation.unfold, it)
         }))
 
     private val nativeTypes: Parser<Char, Localised<Cst.Term>>

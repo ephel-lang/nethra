@@ -80,6 +80,14 @@ class PrinterTest : StringSpec({
                     lambda("y", apply(id("x"), id("y")))).prettyPrint() shouldBe "μ(x).(λ(y).(x (y)))"
             }
 
+            "should pretty fold" {
+                fold(id("x")).prettyPrint() shouldBe "fold x"
+            }
+
+            "should pretty unfold" {
+                unfold(id("x")).prettyPrint() shouldBe "unfold x"
+            }
+
             "should pretty inhabitation" {
                 inhabit(type(), type(1)).prettyPrint() shouldBe "(Type_0 ∈ Type_1)"
             }

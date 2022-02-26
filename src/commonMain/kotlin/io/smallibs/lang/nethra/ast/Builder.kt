@@ -28,8 +28,8 @@ interface Builder<C> {
     fun case(e: Ast.Term<C>, l: Ast.Term<C>, r: Ast.Term<C>): Ast.Term.Case<C>
 
     fun rec(self: String, value: Ast.Term<C>): Ast.Term.Rec<C>
-    fun fold(e: Ast.Term<C>, t: Ast.Term.Rec<C>): Ast.Term.Fold<C>
-    fun unfold(e: Ast.Term<C>, t: Ast.Term.Rec<C>): Ast.Term.Unfold<C>
+    fun fold(e: Ast.Term<C>): Ast.Term.Fold<C>
+    fun unfold(e: Ast.Term<C>): Ast.Term.Unfold<C>
 
     fun inhabit(term: Ast.Term<C>, type: Ast.Term<C>): Ast.Term.Inhabit<C>
 

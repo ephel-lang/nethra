@@ -65,9 +65,9 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
 
     override fun Ast.Term.Rec<C>.run(i: Unit) = "μ(${self}).(${body.prettyPrint()})"
 
-    override fun Ast.Term.Fold<C>.run(i: Unit) = "fold(${type.prettyPrint()}) ${term.prettyPrint()}"
+    override fun Ast.Term.Fold<C>.run(i: Unit) = "fold ${term.prettyPrint()}"
 
-    override fun Ast.Term.Unfold<C>.run(i: Unit) = "unfold(${type.prettyPrint()}) ${term.prettyPrint()}"
+    override fun Ast.Term.Unfold<C>.run(i: Unit) = "unfold ${term.prettyPrint()}"
 
     override fun Ast.Term.Inhabit<C>.run(i: Unit) = "(${term.prettyPrint()} ∈ ${type.prettyPrint()})"
 

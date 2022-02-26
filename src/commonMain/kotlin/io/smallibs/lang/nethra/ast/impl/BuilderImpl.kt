@@ -27,8 +27,8 @@ class BuilderImpl<C> : Builder<C> {
     override fun case(e: Ast.Term<C>, l: Ast.Term<C>, r: Ast.Term<C>): Ast.Term.Case<C> = Ast.Term.Case(e, l, r)
 
     override fun rec(self: String, value: Ast.Term<C>) = Ast.Term.Rec(self, value)
-    override fun fold(e: Ast.Term<C>, t: Ast.Term.Rec<C>) = Ast.Term.Fold(t, e)
-    override fun unfold(e: Ast.Term<C>, t: Ast.Term.Rec<C>) = Ast.Term.Unfold(t, e)
+    override fun fold(e: Ast.Term<C>) = Ast.Term.Fold(e)
+    override fun unfold(e: Ast.Term<C>) = Ast.Term.Unfold(e)
 
     override fun inhabit(term: Ast.Term<C>, type: Ast.Term<C>) = Ast.Term.Inhabit(term, type)
 

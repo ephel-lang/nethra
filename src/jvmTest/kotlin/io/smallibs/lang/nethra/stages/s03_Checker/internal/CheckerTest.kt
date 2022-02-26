@@ -241,14 +241,14 @@ class CheckerTest : StringSpec({
                 val int = data("int", type())
                 val rec = rec("x", id("x") arrow int)
                 val unfolded = rec arrow int
-                Bindings<Nothing>().setSignature("a", unfolded).check(fold(id("a"), rec), rec) shouldBe true
+                Bindings<Nothing>().setSignature("a", unfolded).check(fold(id("a")), rec) shouldBe true
             }
 
             " ✅ Γ, a : μ(x).(x -> int) |- unfold μ(x).(x -> int) a  : μ(x).(x -> int) -> int" {
                 val int = data("int", type())
                 val rec = rec("x", id("x") arrow int)
                 val unfolded = rec arrow int
-                Bindings<Nothing>().setSignature("a", rec).check(unfold(id("a"), rec), unfolded) shouldBe true
+                Bindings<Nothing>().setSignature("a", rec).check(unfold(id("a")), unfolded) shouldBe true
             }
         }
     }

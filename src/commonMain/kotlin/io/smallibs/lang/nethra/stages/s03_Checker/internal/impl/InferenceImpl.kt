@@ -176,23 +176,18 @@ class InferenceImpl<C>(
         }
 
     // Γ ⊢ A : N[x=rec(x).N]
-    // -------------------------------
-    // Γ ⊢ fold(rec(x).N) A : rec(x).N
+    // ---------------------
+    // Γ ⊢ fold A : rec(x).N
     override fun Ast.Term.Fold<C>.run(i: Bindings<C>): Ast.Term<C> =
-        if (i.check(term, type.body.substitute(type.self, type))) {
-            type
-        } else {
-            throw Exception("Cannot infer type for ${this.prettyPrint()}")
-        }
+        throw Exception("Cannot infer type for ${this.prettyPrint()}")
 
     // Γ ⊢ A : rec(x).N
-    // --------------------------------------
-    // Γ ⊢ unfold(rec(x).N) A : N[x=rec(x).N]
+    // ----------------------------
+    // Γ ⊢ unfold A : N[x=rec(x).N]
     override fun Ast.Term.Unfold<C>.run(i: Bindings<C>): Ast.Term<C> =
-        if (i.check(term, type)) {
-            type.body.substitute(type.self, type)
-        } else {
-            throw Exception("Cannot infer type for ${this.prettyPrint()}")
+        when (val type = i.infer(this@run.term)) {
+            is Ast.Term.Rec -> type.body.substitute(type.self, type)
+            else -> throw Exception("Cannot infer type for ${this.prettyPrint()}")
         }
 
     // Γ ⊢ x : T
