@@ -336,4 +336,40 @@ sig compose : {X:type} -> Monoid_T X -> Compose_T
 def compose = {_}.(x).(fst x, fst snd (snd x))
 ```
 
-With such approach `X` cannot capture the existential type which is not really satisfactory. 
+With such approach `X` cannot capture the existential type which is not really satisfactory.
+
+#### Recursive and disjunctive types
+
+```
+sig unit : type
+sig Unit : unit
+```
+
+```
+sig bool : type
+
+sig true : type
+sig True : true
+
+sig false : type
+sig False : false
+
+def bool = true | false
+```
+
+```
+sig list : type -> type
+
+sig nil  : {X:type} -> list X
+def nil  = {_}.(fold (inl Unit))
+
+sig cons : {X:type} -> X -> list X -> list X
+def cons = {_}.(head).(tail).(fold (inr (head,tail)))
+
+def list = (X).rec(l).(unit | (X * l)) 
+```
+
+```
+sig isEmpty : {X:type} -> list X -> bool
+def isEmpty = {_}.(l).case (unfold l) (_).(inl True) (_).(inr False)
+```
