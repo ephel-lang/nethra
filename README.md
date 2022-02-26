@@ -72,9 +72,9 @@ l ∈ char
 ------------
 Γ ⊢ l : char
 
-Γ ⊢
------------------
-Γ ⊢ data(n:T) : T
+l ∈ string
+--------------
+Γ ⊢ l : string
 ```
 
 #### Dependant function type
