@@ -23,7 +23,6 @@ object Cst {
         data class IntLiteral(val value: Int) : Term
         data class CharLiteral(val value: Char) : Term
         data class StringLiteral(val value: String) : Term
-        data class Data(val id: String, val type: Localised<Term>) : Term
         data class Var(val v: String, val hole: Boolean = false) : Term
         data class Forall(
             val v: String?,
@@ -52,7 +51,6 @@ object Cst {
                     "'$value'"
                 }
             is StringLiteral -> "\"$value\""
-            is Data -> "data $id: ${type.prettyTerm(true)}"
             is Var -> if (hole) {
                 "?$v"
             } else {
@@ -88,7 +86,6 @@ object Cst {
             is IntLiteral -> true
             is CharLiteral -> true
             is StringLiteral -> true
-            is Data -> true
             is Var -> true
             is Forall -> false
             is Apply -> false

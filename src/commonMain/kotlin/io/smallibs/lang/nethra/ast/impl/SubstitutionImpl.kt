@@ -24,8 +24,6 @@ class SubstitutionImpl<C>(
 
     override fun Ast.Term.Type<C>.run(i: Pair<String, Ast.Term<C>>) = this
 
-    override fun Ast.Term.Data<C>.run(i: Pair<String, Ast.Term<C>>) = this
-
     override fun Ast.Term.Lit<C>.run(i: Pair<String, Ast.Term<C>>) = this
 
     override fun Ast.Term.Id<C>.run(i: Pair<String, Ast.Term<C>>) = if (this.value == i.first) i.second else this

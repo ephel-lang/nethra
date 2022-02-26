@@ -2,7 +2,6 @@ package io.smallibs.lang.nethra.ast
 
 interface Visitor<C, I, O> {
     fun Ast.Term.Type<C>.run(i: I): O
-    fun Ast.Term.Data<C>.run(i: I): O
     fun Ast.Term.Id<C>.run(i: I): O
 
     fun Ast.Term.Lit<C>.run(i: I): O
@@ -32,7 +31,6 @@ interface Visitor<C, I, O> {
     fun Ast.Term<C>.run(i: I): O =
         when (this) {
             is Ast.Term.Type -> run(i)
-            is Ast.Term.Data -> run(i)
             is Ast.Term.Id -> run(i)
 
             is Ast.Term.Lit -> run(i)

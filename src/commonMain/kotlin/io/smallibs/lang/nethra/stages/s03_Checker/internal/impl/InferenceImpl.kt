@@ -42,12 +42,6 @@ class InferenceImpl<C>(
     override fun Ast.Term.Type<C>.run(i: Bindings<C>): Ast.Term<C> =
         type(level + 1)
 
-    // Γ ⊢ l : T
-    // -----------------
-    // Γ ⊢ data(n:l) : T
-    override fun Ast.Term.Data<C>.run(i: Bindings<C>): Ast.Term<C> =
-        i.infer(type)
-
     //
     // ----------------
     // Γ, x : T ⊢ x : T

@@ -26,10 +26,6 @@ class TermNominalSpec : StringSpec({
         (TermParser() thenLeft eos())(string("string")).get()?.prettyTerm() shouldBe "string"
     }
 
-    "[parser] data nil: (list x)" {
-        (TermParser() thenLeft eos())(string("data nil:list x")).get()?.prettyTerm() shouldBe "data nil: (list x)"
-    }
-
     "[parser] (char)" {
         (TermParser() thenLeft eos())(string("(char)")).get()?.prettyTerm() shouldBe "char"
     }

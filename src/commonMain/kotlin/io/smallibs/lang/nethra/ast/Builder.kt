@@ -4,7 +4,6 @@ import io.smallibs.lang.nethra.ast.impl.BuilderImpl
 
 interface Builder<C> {
     fun type(level: Int = 0): Ast.Term.Type<C>
-    fun data(value: String, type: Ast.Term<C>): Ast.Term.Data<C>
     fun id(value: String): Ast.Term.Id<C>
 
     fun int(value: Int): Ast.Term.Lit<C>

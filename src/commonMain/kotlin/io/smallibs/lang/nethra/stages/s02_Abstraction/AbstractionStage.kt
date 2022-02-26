@@ -11,7 +11,6 @@ class AbstractionStage<C>(
 ) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<C>>, Builder<C> by builder {
     private fun Cst.Term.compile(): Ast.Term<C> = when (this) {
         is Cst.Term.Type -> type(level)
-        is Cst.Term.Data -> data(id, type.value.compile())
         is Cst.Term.Var -> id(v)
         is Cst.Term.CharLiteral -> char(value)
         is Cst.Term.IntLiteral -> int(value)

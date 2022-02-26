@@ -2,7 +2,6 @@ package io.smallibs.lang.nethra.ast.impl
 
 import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Ast.Term.Apply
-import io.smallibs.lang.nethra.ast.Ast.Term.Data
 import io.smallibs.lang.nethra.ast.Ast.Term.Hole
 import io.smallibs.lang.nethra.ast.Ast.Term.Id
 import io.smallibs.lang.nethra.ast.Ast.Term.Inl
@@ -39,7 +38,6 @@ class CongruenceImpl<C>(
      */
 
     override fun Type<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i.second
-    override fun Data<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i.second
     override fun Id<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i.second
     override fun Ast.Term.Lit<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = this == i.second
 

@@ -2,8 +2,8 @@ package io.smallibs.lang.nethra.stages.s03_Checker.internal
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.extension.Multi
+import io.smallibs.lang.nethra.ast.Builder
 
 class CheckerTest : StringSpec({
     Multi.with(Builder<Nothing>(), Checker<Nothing>()) {
@@ -14,14 +14,6 @@ class CheckerTest : StringSpec({
 
             " ❌ Γ |- Type_i : Type_{j} (with j != i+1)" {
                 Bindings<Nothing>().check(type(3), type(5)) shouldBe false
-            }
-
-            " ✅ Γ |- (data x : int) : type" {
-                Bindings<Nothing>().check(data("x", id("int")), type()) shouldBe true
-            }
-
-            " ❌ Γ |- (data x : type) : type" {
-                Bindings<Nothing>().check(data("x", type()), type()) shouldBe false
             }
 
             " ✅ Γ, x : T |- x : T" {
@@ -150,7 +142,8 @@ class CheckerTest : StringSpec({
             }
 
             " ✅ Γ, x : Σ(x:Type_0).x |- fst x : Type_0" {
-                Bindings<Nothing>().setSignature("x", sigma("x", type(), id("x"))).check(fst(id("x")), type()) shouldBe true
+                Bindings<Nothing>().setSignature("x", sigma("x", type(), id("x")))
+                    .check(fst(id("x")), type()) shouldBe true
             }
 
             " ❌ Γ |- fst 1 : T" {
@@ -163,7 +156,8 @@ class CheckerTest : StringSpec({
             }
 
             " ✅ Γ, y : Σ(x:Type_0).x |- snd y : fst y" {
-                Bindings<Nothing>().setSignature("y", sigma("x", type(), id("x"))).check(snd(id("y")), fst(id("y"))) shouldBe true
+                Bindings<Nothing>().setSignature("y", sigma("x", type(), id("x")))
+                    .check(snd(id("y")), fst(id("y"))) shouldBe true
             }
 
             " ❌ Γ |- snd 1 : T" {
@@ -208,7 +202,7 @@ class CheckerTest : StringSpec({
             " ✅ Γ, e : A + B |- case e λ(_).0 λ(_).1 : int" {
                 val int = id("int")
                 val term = id("e")
-                val type = or(data("A", type()), data("B", type()))
+                val type = or(id("A"), id("B"))
                 val left = lambda("_", int(0))
                 val right = lambda("_", int(1))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int) shouldBe true
@@ -217,7 +211,7 @@ class CheckerTest : StringSpec({
             " ❌ Γ, e : A + B |- case e λ(_).0 λ(_).'1' : int" {
                 val int = id("int")
                 val term = id("e")
-                val type = or(data("A", type()), data("B", type()))
+                val type = or(id("A"), id("B"))
                 val left = lambda("_", int(0))
                 val right = lambda("_", char('1'))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int) shouldBe false
@@ -226,7 +220,7 @@ class CheckerTest : StringSpec({
             " ✅ Γ, e : A + B |- case e λ(_).(inl 0) λ(_).(inr '1') : int + char" {
                 val intOrChar = or(id("int"), id("char"))
                 val term = id("e")
-                val type = or(data("A", type()), data("B", type()))
+                val type = or(id("A"), id("B"))
                 val left = lambda("_", inl(int(0)))
                 val right = lambda("_", inr(char('1')))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), intOrChar) shouldBe true

@@ -5,7 +5,6 @@ import io.smallibs.lang.nethra.ast.Builder
 
 class BuilderImpl<C> : Builder<C> {
     override fun type(level: Int) = Ast.Term.Type<C>(level)
-    override fun data(value: String, type: Ast.Term<C>) = Ast.Term.Data(value, type)
     override fun id(value: String) = Ast.Term.Id<C>(value)
 
     override fun int(value: Int) = Ast.Term.Lit<C>(Ast.Term.Literal.IntLit(value))

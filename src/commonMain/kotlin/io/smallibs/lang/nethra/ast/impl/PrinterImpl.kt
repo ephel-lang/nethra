@@ -14,7 +14,6 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
 
     override fun Ast.Term.Type<C>.run(i: Unit) = "Type_$level"
 
-    override fun Ast.Term.Data<C>.run(i: Unit) = "data($value:${type.prettyPrint()})"
     override fun Ast.Term.Id<C>.run(i: Unit) = value
 
     override fun Ast.Term.Lit<C>.run(i: Unit) =

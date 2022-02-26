@@ -16,7 +16,6 @@ object Ast {
         }
 
         data class Type<C>(val level: Int = 0) : Term<C>()
-        data class Data<C>(val value: String, val type: Term<C>) : Term<C>()
         data class Id<C>(val value: String) : Term<C>()
 
         data class Lit<C>(val literal: Literal) : Term<C>()

@@ -6,7 +6,6 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ARROW
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.CASE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COLON
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
-import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DATA
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FOLD
@@ -99,11 +98,6 @@ object TermParser {
             }
         }
 
-    private val data: Parser<Char, Localised<Cst.Term>>
-        get() = localise(DATA thenRight ID thenLeft COLON then lazy(::apply) map {
-            Cst.Term.Data(it.first, it.second)
-        })
-
     private val lambda: Parser<Char, Localised<Cst.Term>>
         get() = pterm(LACC, RACC) { n, t -> Cst.Term.Lambda(n, t, true) } or pterm(LPAR,
             RPAR) { n, t -> Cst.Term.Lambda(n, t, false) }
@@ -139,7 +133,7 @@ object TermParser {
     private val block: Parser<Char, Localised<Cst.Term>> get() = LPAR thenRight lazy(TermParser::term) thenLeft RPAR
 
     private fun sterm(): Parser<Char, Localised<Cst.Term>> =
-        data or recursive or lambda or case or operations or nativeType or nativeValues or variables or block
+        recursive or lambda or case or operations or nativeType or nativeValues or variables or block
 
     private fun mayBeProductOrCouple(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
         (PRODUCT thenRight lazy(::aterm) map {

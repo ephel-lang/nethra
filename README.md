@@ -19,7 +19,6 @@ e ::=
     Type_i                -- Type at level i
     n                     -- Variable
     
-    data(n:e)             -- Constructor ???
     i                     -- Integer literal
     c                     -- Character literal
     
@@ -182,7 +181,6 @@ binding ::=
 
 ```
 term ::=     
-    "rec" "(" id ")" "." sterm
     "(" id ":" term ")" ("->" | "*") term    
     "{" id ":" term "}" ("->") term    
     aterm ("->" term)?
@@ -195,13 +193,14 @@ aterm ::=
 
 ```
 sterm ::=
+    "rec" "(" id ")" "." sterm
+ 
     "(" id ")" "." sterm    
     "{" id "}" "." sterm
     
     "type" int?
     
     id
-    "data" id ":" sterm
     
     "case" sterm sterm sterm
     "inl" sterm

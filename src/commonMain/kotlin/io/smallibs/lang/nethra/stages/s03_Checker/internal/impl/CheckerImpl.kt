@@ -55,20 +55,15 @@ class CheckerImpl<C>(
     // Γ ⊢ Type_i : Type_i+1
     override fun Ast.Term.Type<C>.run(i: Context<C>) = i.gamma.congruent(Ast.Term.Type(level + 1), i.type)
 
-    // Γ ⊢ t : T
-    // -----------------
-    // Γ ⊢ data(n:t) : T
-    override fun Ast.Term.Data<C>.run(i: Context<C>) = i.gamma.check(type, i.type)
-
     //
     // ----------------
     // Γ, x : T ⊢ x : T
     override fun Ast.Term.Id<C>.run(i: Context<C>) =
         i.gamma.getSignature(this@run.value)?.let { type -> i.gamma.congruent(type, i.type) } ?: false
 
-    // l ∈ int         l ∈ char
-    // -----------     -------------
-    // Γ ⊢ l : int     Γ ⊢ l : char
+    // l ∈ int         l ∈ char          l ∈ string
+    // -----------     -------------     --------------
+    // Γ ⊢ l : int     Γ ⊢ l : char      Γ ⊢ l : string
     override fun Ast.Term.Lit<C>.run(i: Context<C>) = when (this.literal) {
         is Ast.Term.Literal.IntLit -> i.gamma.congruent(id("int"), i.type)
         is Ast.Term.Literal.CharLit -> i.gamma.congruent(id("char"), i.type)
