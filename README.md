@@ -61,7 +61,7 @@ e ::=
 Γ, x : T ⊢ x : T
 ```
 
-#### Literals and constructors
+#### Literals
 
 ```
 l ∈ int    
