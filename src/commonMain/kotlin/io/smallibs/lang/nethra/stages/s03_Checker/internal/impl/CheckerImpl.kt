@@ -189,7 +189,6 @@ class CheckerImpl<C>(
     // ---------------------
     // Γ ⊢ fold A : rec(x).N
     override fun Ast.Term.Fold<C>.run(i: Context<C>) =
-        // i.gamma.congruent(type, i.type) && i.gamma.check(term, type.body.substitute(type.self, i.type))
         when (i.type) {
             is Ast.Term.Rec -> i.gamma.check(term, i.type.body.substitute(i.type.self, i.type))
             else -> false

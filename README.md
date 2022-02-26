@@ -197,23 +197,30 @@ aterm ::=
 sterm ::=
     "(" id ")" "." sterm    
     "{" id "}" "." sterm
+    
     "type" int?
     "int"
     "char"
     "string"
+    
     "case" sterm sterm sterm
     "inl" sterm
     "inr" sterm
+    
     "fst" sterm
+    "snd" sterm
+    
     "fold" sterm
     "unfold" sterm
-    "snd" sterm
+    
     "(" term ")"
+    
     id
     ?id
-    Int 
-    Char
-    String
+    
+    int 
+    char
+    string
 ```
 
 ### Some examples
