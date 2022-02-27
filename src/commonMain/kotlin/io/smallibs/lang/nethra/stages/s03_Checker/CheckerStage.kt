@@ -31,6 +31,4 @@ class CheckerStage<C>(
             bindings
         }
     }
-
-    override infix fun decompile(o: Bindings<C>): Bindings<C> = o
 }

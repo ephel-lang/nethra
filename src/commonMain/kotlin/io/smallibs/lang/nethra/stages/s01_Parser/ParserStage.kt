@@ -15,6 +15,6 @@ class ParserStage : Stage<String, List<Cst.Localised<Cst.Binding>>> {
             throw Exception("Parse error at ${it.location.line}:${it.location.column}")
         })
 
-    override infix fun decompile(o: List<Cst.Localised<Cst.Binding>>): String =
+    infix fun decompile(o: List<Cst.Localised<Cst.Binding>>): String =
         o.joinToString(separator = "\n", transform = { it.prettyBinding() })
 }

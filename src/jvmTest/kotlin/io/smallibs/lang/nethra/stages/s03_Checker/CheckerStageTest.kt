@@ -104,13 +104,13 @@ class CheckerStageTest : StringSpec({
         def Am_T = (t:type) * t
             
         sig A_m : {X:type} -> A_T X -> Am_T
-        def A_m = {_}.(x).(fst x, fst snd x)
+        def A_m = (x).(fst x, fst snd x)
 
         sig An_T : type
         def An_T = (t:type) * (t -> int)
 
         sig A_n : {X:type} -> A_T X -> An_T
-        def A_n = {_}.(x).(fst x, fst snd snd x)
+        def A_n = (x).(fst x, fst snd snd x)
               
         sig unit  : type        
         sig value : A_T unit -> int
@@ -126,18 +126,18 @@ class CheckerStageTest : StringSpec({
         sig list : type -> type
         
         sig nil  : {X:type} -> list X
-        def nil  = {_}.fold inl Unit
+        def nil  = fold (inl Unit)
         
         sig cons : {X:type} -> X -> list X -> list X
-        def cons = {_}.(head).(tail).fold inr (head,tail)
+        def cons = (head).(tail).fold inr (head,tail)
 
         def list = (X).rec(l).(unit | (X * l)) 
         
         sig head : {X:type} -> X * list X -> X
-        def head = {_}.(c).fst c
+        def head = (c).fst c
 
         sig tail : {X:type} -> X * list X -> list X
-        def tail = {_}.(c).snd c
+        def tail = (c).snd c
                 
         sig bool : type
         def bool = true | false
@@ -149,7 +149,25 @@ class CheckerStageTest : StringSpec({
         sig False : false
         
         sig isEmpty : {X:type} -> list X -> bool
-        def isEmpty = {_}.(l).case (unfold l) (_).(inl True) (_).(inr False)
+        def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] refl/sym/trans [wip]" {
+        """
+        sig refl : {A:type} -> (x:A) -> (y:A) -> type       
+        sig Refl : {A:type} -> {x:A} -> refl x x
+         
+        sig sym : {A:type} -> {x:A} -> {y:A}
+            -> refl x y 
+               --------
+            -> refl y x 
+                       
+        sig trans : {A:type} -> {x:A} -> {y:A} -> {z:A}
+            -> refl x y
+            -> refl y z
+               --------
+            -> refl x z            
         """.trimIndent().let { check(it) }
     }
 

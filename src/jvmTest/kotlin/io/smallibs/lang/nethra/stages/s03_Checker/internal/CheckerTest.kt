@@ -64,31 +64,38 @@ class CheckerTest : StringSpec({
                 Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
             }
 
-            " ✅ Γ |- (λ(_)(x).x :: Π(t:Type).t -> t) int 1 : int" {
+            " ✅ Γ |- (λ(_).λ(x).x :: Π(t:Type).t -> t) int 1 : int" {
                 val int = id("int")
                 val func = lambda("_", lambda("x", id("x")))
                 val type = pi("t", type(), id("t") arrow id("t"))
                 Bindings<Nothing>().check(apply(apply(inhabit(func, type), int), int(1)), int) shouldBe true
             }
 
-            " ✅ Γ |- (λ{_}(x).x :: Π{t:Type}.t -> t) {int} 1 : int" {
+            " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) {int} 1 : int" {
                 val int = id("int")
                 val func = lambda("_", lambda("x", id("x")), true)
                 val type = pi("t", type(), id("t") arrow id("t"), true)
                 Bindings<Nothing>().check(apply(apply(inhabit(func, type), int, true), int(1)), int) shouldBe true
             }
 
-            " ✅ Γ |- (λ{_}(x).x :: Π{t:Type}.t -> t) 1 : int" {
+            " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) 1 : int" {
                 val int = id("int")
                 val func = lambda("_", lambda("x", id("x")), true)
                 val type = pi("t", type(), id("t") arrow id("t"), true)
                 Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
             }
 
-            " ✅ Γ |- (λ{_}(x).x :: Π{t1:Type}.Π{t2:Type}.t2 -> t2) 1 : int" {
+            " ✅ Γ |- (λ{_}.λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("_", lambda("x", id("x")), true), true)
-                val type = pi("t1", type(), pi("t2", type(), id("t2") arrow id("t2"), true), true)
+                val func = lambda("_", lambda("x", id("x")), true)
+                val type = pi("t2", type(), id("t2") arrow id("t2"), true)
+                Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
+            }
+
+            " ✅ Γ |- (λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
+                val int = id("int")
+                val func = lambda("x", id("x"))
+                val type = pi("t2", type(), id("t2") arrow id("t2"), true)
                 Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
             }
 

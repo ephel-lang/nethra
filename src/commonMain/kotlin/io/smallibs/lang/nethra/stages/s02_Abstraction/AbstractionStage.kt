@@ -46,8 +46,4 @@ class AbstractionStage<C>(
         )
     }
 
-    override infix fun decompile(o: Bindings<C>): List<Cst.Localised<Cst.Binding>> {
-        TODO("Not yet implemented")
-    }
-
 }

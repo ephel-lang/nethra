@@ -53,7 +53,8 @@ class CheckerImpl<C>(
     //
     // ---------------------
     // Γ ⊢ Type_i : Type_i+1
-    override fun Ast.Term.Type<C>.run(i: Context<C>) = i.gamma.congruent(Ast.Term.Type(level + 1), i.type)
+    override fun Ast.Term.Type<C>.run(i: Context<C>) =
+        i.gamma.congruent(Ast.Term.Type(level + 1), i.type)
 
     //
     // ----------------
@@ -78,17 +79,21 @@ class CheckerImpl<C>(
         else -> false
     }
 
-    // Γ, x : A ⊢ B : T          Γ, x : A ⊢ B : T
-    // ---------------------     ---------------------
-    // Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
+    // Γ, x : A ⊢ B : T          Γ, x : A ⊢ B : T          Γ ⊢ λ{y}.λ(x).B : Π{y:A}.T
+    // ---------------------     ---------------------     --------------------------
+    // Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T     Γ ⊢ λ(x).B : Π{y:A}.T
     override fun Ast.Term.Lambda<C>.run(i: Context<C>) = when (i.type) {
         is Ast.Term.Pi -> {
-            val variable = substitution.newVariable()
-            val body = body.substitute(n, id(variable))
-            val type = i.type.body.substitute(i.type.n, id(variable))
-            implicit == i.type.implicit && i.gamma.setSignature(variable, i.type.bound).check(body, type)
+            if (implicit == i.type.implicit) {
+                val variable = substitution.newVariable()
+                val type = i.type.body.substitute(i.type.n, id(variable))
+                val body = body.substitute(n, id(variable))
+                i.gamma.setSignature(variable, i.type.bound).check(body, type)
+            } else {
+                fallback(i)
+            }
         }
-        else -> false
+        else -> fallback(i)
     }
 
     // Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
@@ -102,9 +107,9 @@ class CheckerImpl<C>(
                 val v = substitution.newVariable()
                 i.gamma.setSignature(v, type.bound).check(apply(apply(abstraction, hole(v), true), argument), i.type)
             } else {
-                false
+                fallback(i)
             }
-            else -> false
+            else -> fallback(i)
         }
     }
 
@@ -117,9 +122,9 @@ class CheckerImpl<C>(
     // --------------------------
     // Γ ⊢ A,B : Σ(x:M).N
     override fun Ast.Term.Couple<C>.run(i: Context<C>) = when (i.type) {
-        is Ast.Term.Sigma -> i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd,
-            i.type.body.substitute(i.type.n, lhd))
-        else -> false
+        is Ast.Term.Sigma ->
+            i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd, i.type.body.substitute(i.type.n, lhd))
+        else -> fallback(i)
     }
 
     // Γ ⊢ p : Σ(x:M).N
@@ -128,7 +133,7 @@ class CheckerImpl<C>(
     override fun Ast.Term.Fst<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Ast.Term.Sigma -> i.gamma.congruent(type.bound, i.type)
-            else -> false
+            else -> fallback(i)
         }
     }
 
@@ -138,7 +143,7 @@ class CheckerImpl<C>(
     override fun Ast.Term.Snd<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
             is Ast.Term.Sigma -> i.gamma.congruent(type.body.substitute(type.n, fst(term)), i.type)
-            else -> false
+            else -> fallback(i)
         }
     }
 
@@ -153,7 +158,7 @@ class CheckerImpl<C>(
     // Γ ⊢ inl A : M + N
     override fun Ast.Term.Inl<C>.run(i: Context<C>) = when (i.type) {
         is Ast.Term.Disjunction -> i.gamma.check(this.term, i.type.lhd)
-        else -> false
+        else -> fallback(i)
     }
 
     // Γ ⊢ A : N
@@ -161,7 +166,7 @@ class CheckerImpl<C>(
     // Γ ⊢ inr A : M + N
     override fun Ast.Term.Inr<C>.run(i: Context<C>) = when (i.type) {
         is Ast.Term.Disjunction -> i.gamma.check(this.term, i.type.rhd)
-        else -> false
+        else -> fallback(i)
     }
 
     // Γ ⊢ a : A + B   Γ ⊢ l : A -> C   Γ ⊢ r : B -> C
@@ -171,14 +176,15 @@ class CheckerImpl<C>(
         when (val type = i.gamma.infer(term)) {
             is Ast.Term.Disjunction -> i.gamma.check(left, type.lhd arrow i.type) && i.gamma.check(right,
                 type.rhd arrow i.type)
-            else -> false
+            else -> fallback(i)
         }
     }
 
     // Γ,x : T ⊢ A : T
     // ----------------
     // Γ ⊢ rec(x).A : T
-    override fun Ast.Term.Rec<C>.run(i: Context<C>) = i.gamma.setSignature(self, i.type).check(body, i.type)
+    override fun Ast.Term.Rec<C>.run(i: Context<C>) =
+        i.gamma.setSignature(self, i.type).check(body, i.type)
 
     // Γ ⊢ A : N[x=rec(x).N]
     // ---------------------
@@ -186,7 +192,7 @@ class CheckerImpl<C>(
     override fun Ast.Term.Fold<C>.run(i: Context<C>) =
         when (i.type) {
             is Ast.Term.Rec -> i.gamma.check(term, i.type.body.substitute(i.type.self, i.type))
-            else -> false
+            else -> fallback(i)
         }
 
     // Γ ⊢ A : rec(x).N
@@ -195,7 +201,7 @@ class CheckerImpl<C>(
     override fun Ast.Term.Unfold<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(this@run.term)) {
             is Ast.Term.Rec -> i.gamma.congruent(type.body.substitute(type.self, type), i.type)
-            else -> false
+            else -> fallback(i)
         }
     }
 
@@ -209,6 +215,17 @@ class CheckerImpl<C>(
     // Γ, x : T ⊢ x : T
     override fun Ast.Term.Hole<C>.run(i: Context<C>) =
         i.gamma.getSignature(this@run.value)?.let { type -> i.gamma.congruent(type, i.type) } ?: false
+
+    //
+    // Fallback for implicit lambda term
+    //
+
+    private fun Ast.Term<C>.fallback(i: Context<C>) =
+        when (i.type) {
+            is Ast.Term.Pi ->
+                i.type.implicit && i.gamma.check(lambda("_", this, true), i.type)
+            else -> false
+        }
 
     /**
      * Static behavior

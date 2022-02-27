@@ -6,6 +6,7 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DEF
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.EQUAL
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ID
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SIG
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.SKIP
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.localise
 import io.smallibs.parsec.parser.Flow.or
 import io.smallibs.parsec.parser.Flow.then
@@ -22,6 +23,6 @@ object BindingParser {
     private val def: Parser<Char, Cst.Localised<Cst.Binding>> =
         localise(DEF thenRight ID thenLeft EQUAL then TermParser() map { Cst.Binding.Definition(it.first, it.second) })
 
-    operator fun invoke(): Parser<Char, Cst.Localised<Cst.Binding>> = sig or def
+    operator fun invoke(): Parser<Char, Cst.Localised<Cst.Binding>> = SKIP thenRight (sig or def)
 
 }
