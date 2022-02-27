@@ -155,13 +155,21 @@ class CheckerStageTest : StringSpec({
 
     "[checker] refl/sym/trans [wip]" {
         """
-        sig refl : {A:type} -> (x:A) -> (y:A) -> type       
-        sig Refl : {A:type} -> {x:A} -> refl x x
+        sig unit : type
+        sig Unit : unit
+
+        sig refl : {A:type} -> (x:A) -> (y:A) -> type
+        
+        sig Refl : {A:type} -> {x:A} -> refl {A} x x
+               
+        def refl = {A}.(x).(y).unit
          
         sig sym : {A:type} -> {x:A} -> {y:A}
             -> refl x y 
                --------
             -> refl y x 
+            
+        -- TODO def sym = (r).Refl
                        
         sig trans : {A:type} -> {x:A} -> {y:A} -> {z:A}
             -> refl x y

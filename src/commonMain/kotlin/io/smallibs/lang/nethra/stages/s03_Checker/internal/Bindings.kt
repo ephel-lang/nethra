@@ -17,7 +17,7 @@ class Bindings<C>(
     fun prettyPrint(): String = with(printer) {
         " Γ"
         // gamma.entries.joinToString(",", transform = { e -> " ${e.key} : ${e.value.prettyPrint()}" })
-        delta.entries.joinToString(",", transform = { e -> " ${e.key} = ${e.value.prettyPrint()}" })
+        // delta.entries.joinToString(",", transform = { e -> " ${e.key} = ${e.value.prettyPrint()}" })
     }
 
     companion object {
