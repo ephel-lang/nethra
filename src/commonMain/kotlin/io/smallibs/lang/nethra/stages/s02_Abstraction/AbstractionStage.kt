@@ -5,45 +5,51 @@ import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.stages.common.Stage
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
+import io.smallibs.parsec.parser.Region
 
-class AbstractionStage<C>(
-    val builder: Builder<C> = Builder(),
-) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<C>>, Builder<C> by builder {
-    private fun Cst.Term.compile(): Ast.Term<C> = when (this) {
+class AbstractionStage(
+    val builder: Builder<Region.T> = Builder(),
+) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<Region.T>>, Builder<Region.T> by builder {
+    private fun Cst.Localised<Cst.Term>.compile(): Ast.Term<Region.T> =
+        this.value.compile().set(this.region)
+
+    private fun Cst.Term.compile(): Ast.Term<Region.T> = when (this) {
         is Cst.Term.Type -> type(level)
         is Cst.Term.Var -> id(v)
+        is Cst.Term.Data -> TODO()
         is Cst.Term.CharLiteral -> char(value)
         is Cst.Term.IntLiteral -> int(value)
         is Cst.Term.StringLiteral -> string(value)
-        is Cst.Term.Forall -> pi(this.v ?: "_", bound.value.compile(), body.value.compile(), implicit)
-        is Cst.Term.Apply -> apply(lhd.value.compile(), rhd.value.compile(), implicit)
-        is Cst.Term.Lambda -> lambda(v, body.value.compile(), implicit)
-        is Cst.Term.Exists -> sigma(this.v ?: "_", bound.value.compile(), body.value.compile())
-        is Cst.Term.Couple -> pair(lhd.value.compile(), rhd.value.compile())
-        is Cst.Term.Disjunction -> or(lhd.value.compile(), rhd.value.compile())
-        is Cst.Term.Case -> case(term.value.compile(), lhd.value.compile(), rhd.value.compile())
-        is Cst.Term.Rec -> rec(v, body.value.compile())
+        is Cst.Term.Forall -> pi(this.v ?: "_", bound.compile(), body.compile(), implicit)
+        is Cst.Term.Apply -> apply(lhd.compile(), rhd.compile(), implicit)
+        is Cst.Term.Lambda -> lambda(v, body.compile(), implicit)
+        is Cst.Term.Exists -> sigma(this.v ?: "_", bound.compile(), body.compile())
+        is Cst.Term.Couple -> pair(lhd.compile(), rhd.compile())
+        is Cst.Term.Disjunction -> or(lhd.compile(), rhd.compile())
+        is Cst.Term.Case -> case(term.compile(), lhd.compile(), rhd.compile())
+        is Cst.Term.Rec -> rec(v, body.compile())
         is Cst.Term.SpecialApp ->
             when (operation) {
-                Cst.Term.Operation.inl -> inl(term.value.compile())
-                Cst.Term.Operation.inr -> inr(term.value.compile())
-                Cst.Term.Operation.fst -> fst(term.value.compile())
-                Cst.Term.Operation.snd -> snd(term.value.compile())
-                Cst.Term.Operation.fold -> fold(term.value.compile())
-                Cst.Term.Operation.unfold -> unfold(term.value.compile())
+                Cst.Term.Operation.inl -> inl(term.compile())
+                Cst.Term.Operation.inr -> inr(term.compile())
+                Cst.Term.Operation.fst -> fst(term.compile())
+                Cst.Term.Operation.snd -> snd(term.compile())
+                Cst.Term.Operation.fold -> fold(term.compile())
+                Cst.Term.Operation.unfold -> unfold(term.compile())
             }
     }
 
-    private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<C> = when (val binding = i.value) {
-        is Cst.Binding.Signature -> Ast.Binding.Signature(binding.name, binding.value.value.compile())
-        is Cst.Binding.Definition -> Ast.Binding.Definition(binding.name, binding.value.value.compile())
+    private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<Region.T> = when (val binding = i.value) {
+        is Cst.Binding.Signature -> Ast.Binding.Signature(binding.name, binding.value.compile())
+        is Cst.Binding.Definition -> Ast.Binding.Definition(binding.name, binding.value.compile())
     }
 
-    override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): Bindings<C> = i.map(::compile).let { bindings ->
-        Bindings(
-            bindings.filterIsInstance<Ast.Binding.Signature<C>>().associate { it.name to it.value },
-            bindings.filterIsInstance<Ast.Binding.Definition<C>>().associate { it.name to it.value }
-        )
-    }
+    override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): Bindings<Region.T> =
+        i.map { compile(it).set(it.region) }.let { bindings ->
+            Bindings(
+                bindings.filterIsInstance<Ast.Binding.Signature<Region.T>>().associate { it.name to it.value },
+                bindings.filterIsInstance<Ast.Binding.Definition<Region.T>>().associate { it.name to it.value }
+            )
+        }
 
 }

@@ -70,5 +70,5 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
 
     override fun Ast.Term.Inhabit<C>.run(i: Unit) = "(${term.prettyPrint()} ∈ ${type.prettyPrint()})"
 
-    override fun Ast.Term.Hole<C>.run(i: Unit): String = "?$value" + (term?.let { "/(${it.prettyPrint()})" } ?: "")
+    override fun Ast.Term.Hole<C>.run(i: Unit): String = "?$value" + (ref.value?.let { "/(${it.prettyPrint()})" } ?: "")
 }

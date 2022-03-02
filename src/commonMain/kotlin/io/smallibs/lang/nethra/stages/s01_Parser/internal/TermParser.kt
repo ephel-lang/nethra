@@ -1,11 +1,13 @@
 package io.smallibs.lang.nethra.stages.s01_Parser.internal
 
+import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.cst.Cst.Localised
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ARROW
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.CASE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COLON
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DATA
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FOLD
@@ -132,8 +134,17 @@ object TermParser {
 
     private val block: Parser<Char, Localised<Cst.Term>> get() = LPAR thenRight lazy(TermParser::term) thenLeft RPAR
 
-    private fun sterm(): Parser<Char, Localised<Cst.Term>> =
-        recursive or lambda or case or operations or nativeType or nativeValues or variables or block
+    private val data: Parser<Char, Localised<Cst.Term>>
+        get() =
+            localise(DATA thenRight ID thenLeft COLON then lazy(::sterm) map {
+                Cst.Term.Data(it.first, it.second)
+            })
+
+    private val recursive: Parser<Char, Localised<Cst.Term>>
+        get() =
+            localise(REC thenRight LPAR thenRight ID thenLeft RPAR thenLeft DOT then lazy(::sterm) map {
+                Cst.Term.Rec(it.first, it.second)
+            })
 
     private fun mayBeProductOrCouple(left: Localised<Cst.Term>): Parser<Char, Cst.Term> =
         (PRODUCT thenRight lazy(::aterm) map {
@@ -167,14 +178,11 @@ object TermParser {
             }
         })
 
+    private fun sterm(): Parser<Char, Localised<Cst.Term>> =
+        data or recursive or lambda or case or operations or nativeType or nativeValues or variables or block
+
     private fun aterm(): Parser<Char, Localised<Cst.Term>> =
         localise(localise(apply() bind TermParser::mayBeDisjunction) bind TermParser::mayBeProductOrCouple)
-
-    private val recursive: Parser<Char, Localised<Cst.Term>>
-        get() =
-            localise(REC thenRight LPAR thenRight ID thenLeft RPAR thenLeft DOT then lazy(::sterm) map {
-                Cst.Term.Rec(it.first, it.second)
-            })
 
     private fun term(): Parser<Char, Localised<Cst.Term>> =
         forallOrExists or forallImplicit or localise(aterm() bind TermParser::mayBeArrow)

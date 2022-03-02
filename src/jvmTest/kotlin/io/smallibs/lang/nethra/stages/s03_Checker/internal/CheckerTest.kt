@@ -1,9 +1,11 @@
 package io.smallibs.lang.nethra.stages.s03_Checker.internal
 
+import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.smallibs.lang.extension.Multi
 import io.smallibs.lang.nethra.ast.Builder
+import io.smallibs.lang.nethra.stages.errors.CompilationException
 
 class CheckerTest : StringSpec({
     Multi.with(Builder<Nothing>(), Checker<Nothing>()) {
@@ -13,7 +15,9 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- Type_i : Type_{j} (with j != i+1)" {
-                Bindings<Nothing>().check(type(3), type(5)) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    Bindings<Nothing>().check(type(3), type(5))
+                }
             }
 
             " ✅ Γ, x : T |- x : T" {
@@ -21,7 +25,9 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ, x : T |- x : S" {
-                Bindings<Nothing>().setSignature("x", id("T")).check(id("x"), id("S")) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    Bindings<Nothing>().setSignature("x", id("T")).check(id("x"), id("S"))
+                }
             }
 
             " ✅ Γ |- 1 : int" {
@@ -29,7 +35,9 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- 1 : char" {
-                Bindings<Nothing>().check(int(1), id("char")) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    Bindings<Nothing>().check(int(1), id("char"))
+                }
             }
 
             " ✅ Γ |- Π(x:int).int : Type_0" {
@@ -38,8 +46,10 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- Π(x:int).type : Type_0" {
-                val int = id("int")
-                Bindings<Nothing>().check(pi("x", int, type()), type()) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    Bindings<Nothing>().check(pi("x", int, type()), type())
+                }
             }
 
             " ✅ Γ |- λ(x).x : Π(x:int).int" {
@@ -112,10 +122,12 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- (λ(x).x :: int -> char) 1 : int" {
-                val int = id("int")
-                val char = id("char")
-                Bindings<Nothing>().check(apply(inhabit(lambda("x", id("x")), pi("_", int, char)), int(1)),
-                    int) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    val char = id("char")
+                    Bindings<Nothing>().check(apply(inhabit(lambda("x", id("x")), pi("_", int, char)), int(1)),
+                        int)
+                }
             }
 
             " ✅ Γ |- Σ(x:int).int : Type_0" {
@@ -124,8 +136,10 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- Σ(x:int).Type_0 : Type_0" {
-                val int = id("int")
-                Bindings<Nothing>().check(sigma("x", int, type()), type()) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    Bindings<Nothing>().check(sigma("x", int, type()), type())
+                }
             }
 
             " ✅ Γ |- int,2 : Σ(x:Type_0).x" {
@@ -139,8 +153,10 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- char,2 : Σ(x:Type_0).x" {
-                val char = id("char")
-                Bindings<Nothing>().check(pair(char, int(2)), sigma("x", type(), id("x"))) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val char = id("char")
+                    Bindings<Nothing>().check(pair(char, int(2)), sigma("x", type(), id("x")))
+                }
             }
 
             " ✅ Γ |- fst (int,2) : Type_0" {
@@ -154,7 +170,9 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- fst 1 : T" {
-                Bindings<Nothing>().check(fst(int(1)), id("T")) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    Bindings<Nothing>().check(fst(int(1)), id("T"))
+                }
             }
 
             " ✅ Γ |- snd (int,2) : int" {
@@ -168,7 +186,9 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- snd 1 : T" {
-                Bindings<Nothing>().check(snd(int(1)), id("T")) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    Bindings<Nothing>().check(snd(int(1)), id("T"))
+                }
             }
 
             " ✅ Γ |- int + char : Type_0" {
@@ -178,8 +198,10 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- 1 + char : Type_0" {
-                val char = id("char")
-                Bindings<Nothing>().check(or(int(1), char), type()) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val char = id("char")
+                    Bindings<Nothing>().check(or(int(1), char), type())
+                }
             }
 
             " ✅ Γ |- inl 1 : int + char" {
@@ -189,9 +211,11 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- inl 1 : char + int" {
-                val int = id("int")
-                val char = id("char")
-                Bindings<Nothing>().check(inl(int(1)), or(char, int)) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    val char = id("char")
+                    Bindings<Nothing>().check(inl(int(1)), or(char, int))
+                }
             }
 
             " ✅ Γ |- inr 'a' : int + char" {
@@ -201,9 +225,11 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ |- inr 'a' : char + int" {
-                val int = id("int")
-                val char = id("char")
-                Bindings<Nothing>().check(inr(char('1')), or(char, int)) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    val char = id("char")
+                    Bindings<Nothing>().check(inr(char('1')), or(char, int))
+                }
             }
 
             " ✅ Γ, e : A + B |- case e λ(_).0 λ(_).1 : int" {
@@ -216,12 +242,14 @@ class CheckerTest : StringSpec({
             }
 
             " ❌ Γ, e : A + B |- case e λ(_).0 λ(_).'1' : int" {
-                val int = id("int")
-                val term = id("e")
-                val type = or(id("A"), id("B"))
-                val left = lambda("_", int(0))
-                val right = lambda("_", char('1'))
-                Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int) shouldBe false
+                shouldThrowExactly<CompilationException.CannotCheck> {
+                    val int = id("int")
+                    val term = id("e")
+                    val type = or(id("A"), id("B"))
+                    val left = lambda("_", int(0))
+                    val right = lambda("_", char('1'))
+                    Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int)
+                }
             }
 
             " ✅ Γ, e : A + B |- case e λ(_).(inl 0) λ(_).(inr '1') : int + char" {

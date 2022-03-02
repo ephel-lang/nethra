@@ -80,8 +80,8 @@ l ∈ string
 #### Dependant function type
 
 ```
-Γ, x : M ⊢ N : T
-----------------
+Γ ⊢ M : S   Γ, x : M ⊢ N : T
+----------------------------
 Γ ⊢ Π(x:M).N : T
 
 Γ, x : A ⊢ B : T     

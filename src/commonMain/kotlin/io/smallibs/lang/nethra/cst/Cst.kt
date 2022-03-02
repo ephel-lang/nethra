@@ -24,6 +24,7 @@ object Cst {
         data class CharLiteral(val value: Char) : Term
         data class StringLiteral(val value: String) : Term
         data class Var(val v: String, val hole: Boolean = false) : Term
+        data class Data(val name: String, val type: Localised<Term>): Term
         data class Forall(
             val v: String?,
             val bound: Localised<Term>,
@@ -56,6 +57,8 @@ object Cst {
             } else {
                 v
             }
+            is Data ->
+                "data $name : ${type.value.pretty(true)}"
             is Forall -> {
                 if (v == null) "${bound.prettyTerm()} -> ${body.prettyTerm(true)}"
                 else if (implicit) "{$v:${bound.prettyTerm()}} -> ${body.prettyTerm()}"
@@ -87,6 +90,7 @@ object Cst {
             is CharLiteral -> true
             is StringLiteral -> true
             is Var -> true
+            is Data -> true
             is Forall -> false
             is Apply -> false
             is Lambda -> true

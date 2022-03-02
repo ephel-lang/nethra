@@ -16,7 +16,7 @@ class SubstitutionImpl<C>(
 
     override fun newVariable(): String = index.let { "\$${index++}" }
 
-    override fun Ast.Term<C>.substitute(name: String, term: Ast.Term<C>) = this.run(name to term)
+    override fun Ast.Term<C>.substitute(param: Pair<String, Ast.Term<C>>) = this.run(param).set(this.context)
 
     /**
      * Interpret implementation
@@ -26,43 +26,48 @@ class SubstitutionImpl<C>(
 
     override fun Ast.Term.Lit<C>.run(i: Pair<String, Ast.Term<C>>) = this
 
-    override fun Ast.Term.Id<C>.run(i: Pair<String, Ast.Term<C>>) = if (this.value == i.first) i.second else this
+    override fun Ast.Term.Id<C>.run(i: Pair<String, Ast.Term<C>>) =
+        if (this.value == i.first) i.second.set(this.context) else this
 
     override fun Ast.Term.Pi<C>.run(i: Pair<String, Ast.Term<C>>) =
-        if (n == i.first) pi(n, bound.run(i), body, implicit) else pi(n, bound.run(i), body.run(i), implicit)
+        if (n == i.first) pi(n, bound.substitute(i), body, implicit) else pi(n,
+            bound.substitute(i),
+            body.substitute(i),
+            implicit)
 
     override fun Ast.Term.Lambda<C>.run(i: Pair<String, Ast.Term<C>>) =
-        if (n == i.first) this@run else lambda(n, body.run(i), implicit)
+        if (n == i.first) this@run else lambda(n, body.substitute(i), implicit)
 
     override fun Ast.Term.Apply<C>.run(i: Pair<String, Ast.Term<C>>) =
-        apply(abstraction.run(i), argument.run(i), implicit)
+        apply(abstraction.substitute(i), argument.substitute(i), implicit)
 
     override fun Ast.Term.Sigma<C>.run(i: Pair<String, Ast.Term<C>>) =
-        if (n == i.first) sigma(n, bound, body.run(i)) else sigma(n, bound.run(i), body.run(i))
+        if (n == i.first) sigma(n, bound, body.substitute(i)) else sigma(n, bound.substitute(i), body.substitute(i))
 
-    override fun Ast.Term.Couple<C>.run(i: Pair<String, Ast.Term<C>>) = pair(lhd.run(i), rhd.run(i))
+    override fun Ast.Term.Couple<C>.run(i: Pair<String, Ast.Term<C>>) = pair(lhd.substitute(i), rhd.substitute(i))
 
-    override fun Ast.Term.Fst<C>.run(i: Pair<String, Ast.Term<C>>) = fst(term.run(i))
+    override fun Ast.Term.Fst<C>.run(i: Pair<String, Ast.Term<C>>) = fst(term.substitute(i))
 
-    override fun Ast.Term.Snd<C>.run(i: Pair<String, Ast.Term<C>>) = snd(term.run(i))
+    override fun Ast.Term.Snd<C>.run(i: Pair<String, Ast.Term<C>>) = snd(term.substitute(i))
 
-    override fun Ast.Term.Disjunction<C>.run(i: Pair<String, Ast.Term<C>>) = or(lhd.run(i), rhd.run(i))
+    override fun Ast.Term.Disjunction<C>.run(i: Pair<String, Ast.Term<C>>) = or(lhd.substitute(i), rhd.substitute(i))
 
-    override fun Ast.Term.Inl<C>.run(i: Pair<String, Ast.Term<C>>) = inl(term.run(i))
+    override fun Ast.Term.Inl<C>.run(i: Pair<String, Ast.Term<C>>) = inl(term.substitute(i))
 
-    override fun Ast.Term.Inr<C>.run(i: Pair<String, Ast.Term<C>>) = inr(term.run(i))
+    override fun Ast.Term.Inr<C>.run(i: Pair<String, Ast.Term<C>>) = inr(term.substitute(i))
 
     override fun Ast.Term.Case<C>.run(i: Pair<String, Ast.Term<C>>): Ast.Term<C> =
-        case(term.run(i), left.run(i), right.run(i))
+        case(term.substitute(i), left.substitute(i), right.substitute(i))
 
     override fun Ast.Term.Rec<C>.run(i: Pair<String, Ast.Term<C>>) =
-        if (self == i.first) this@run else rec(self, body.run(i))
+        if (self == i.first) this@run else rec(self, body.substitute(i))
 
-    override fun Ast.Term.Fold<C>.run(i: Pair<String, Ast.Term<C>>) = fold(term.run(i))
+    override fun Ast.Term.Fold<C>.run(i: Pair<String, Ast.Term<C>>) = fold(term.substitute(i))
 
-    override fun Ast.Term.Unfold<C>.run(i: Pair<String, Ast.Term<C>>) = unfold(term.run(i))
+    override fun Ast.Term.Unfold<C>.run(i: Pair<String, Ast.Term<C>>) = unfold(term.substitute(i))
 
-    override fun Ast.Term.Inhabit<C>.run(i: Pair<String, Ast.Term<C>>) = inhabit(term.run(i), type.run(i))
+    override fun Ast.Term.Inhabit<C>.run(i: Pair<String, Ast.Term<C>>) = inhabit(term.substitute(i), type.substitute(i))
 
     override fun Ast.Term.Hole<C>.run(i: Pair<String, Ast.Term<C>>): Ast.Term<C> = this
+
 }

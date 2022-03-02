@@ -3,11 +3,11 @@ package io.smallibs.lang.nethra.stages.s01_Parser.internal
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.parsec.parser.Core
 import io.smallibs.parsec.parser.Core.not
+import io.smallibs.parsec.parser.Flow.opt
 import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.or
 import io.smallibs.parsec.parser.Flow.then
 import io.smallibs.parsec.parser.Flow.thenLeft
-import io.smallibs.parsec.parser.Flow.thenRight
 import io.smallibs.parsec.parser.Literal.char
 import io.smallibs.parsec.parser.Literal.charIn
 import io.smallibs.parsec.parser.Literal.string
@@ -18,8 +18,8 @@ import io.smallibs.parsec.parser.Region.locate
 
 object Commons {
 
-    private val LINE_COMMENT get() = string("--") then not(char('\n')).optrep then char('\n')
-    private val BLOCK_COMMENT get() = string("-{") then not(char('}')).optrep then char('}')
+    private val LINE_COMMENT get() = string("--") then not(char('\n')).optrep then char('\n').opt
+    private val BLOCK_COMMENT get() = string("-{") then not(string("}-")).optrep then string("}-")
 
     val SKIP get() = (BLOCK_COMMENT or LINE_COMMENT or charIn(" \t\n\r")).optrep map {}
 
@@ -27,7 +27,7 @@ object Commons {
     fun <T> localise(p: Parser<Char, T>) = token(p.locate() map { Cst.Localised(it.second, it.first) })
 
     val operators: List<String>
-        get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=", "--", "—{")
+        get() = listOf("->", ".", "(", ")", "{", "}", ":", "*", "|", "=", "--", "—{", "}-")
 
     private val keywords: List<String>
         get() = listOf("sig",
@@ -40,7 +40,8 @@ object Commons {
             "snd",
             "rec",
             "fold",
-            "unfold")
+            "unfold",
+            "data")
 
     val LETTER
         get() = charIn('A'..'Z') or charIn('a'..'z') or charIn("_")
@@ -74,4 +75,5 @@ object Commons {
     val FOLD get() = token(string("fold"))
     val UNFOLD get() = token(string("unfold"))
     val REC get() = token(string("rec"))
+    val DATA get() = token(string("data"))
 }

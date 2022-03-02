@@ -1,15 +1,18 @@
 package io.smallibs.lang.nethra.stages.s03_Checker
 
 import io.kotest.core.spec.style.StringSpec
+import io.smallibs.lang.nethra.stages.errors.ErrorReporter
+import io.smallibs.lang.nethra.stages.errors.ErrorReporter.Companion.invoke
 import io.smallibs.lang.nethra.stages.s01_Parser.ParserStage
 import io.smallibs.lang.nethra.stages.s02_Abstraction.AbstractionStage
+import io.smallibs.parsec.parser.Region
 
 class CheckerStageTest : StringSpec({
 
     "[checker] zero" {
         """
         sig zero : int
-        def zero = 0  
+        def zero = 1
         """.trimIndent().let { check(it) }
     }
 
@@ -72,7 +75,7 @@ class CheckerStageTest : StringSpec({
     "[checker] exist" {
         """
         sig A : (t:type) * t
-        def A = (char, 'c')
+        def A = (char, '1')
         """.trimIndent().let { check(it) }
     }
 
@@ -118,6 +121,22 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
+
+    "[checker] list/sample" {
+        """
+        sig unit : type
+        sig Unit  : unit
+
+        sig list : type -> type
+        def list = (X).rec(l).(unit | X * l)
+        sig nil  : {X:type} -> list X
+        sig cons : {X:type} -> X -> list X -> list X
+        
+        sig test : list int
+        def test = cons 1 nil
+        """.trimIndent().let { check(it) }
+    }
+
     "[checker] list/deconstruction/isEmpty" {
         """
         sig unit : type
@@ -126,25 +145,20 @@ class CheckerStageTest : StringSpec({
         sig list : type -> type
         
         sig nil  : {X:type} -> list X
-        def nil  = fold (inl Unit)
-        
+        def nil  = fold (inl Unit)        
         sig cons : {X:type} -> X -> list X -> list X
         def cons = (head).(tail).fold inr (head,tail)
-
         def list = (X).rec(l).(unit | (X * l)) 
-        
+                
         sig head : {X:type} -> X * list X -> X
         def head = (c).fst c
-
         sig tail : {X:type} -> X * list X -> list X
         def tail = (c).snd c
                 
         sig bool : type
         def bool = true | false
-
         sig true : type
         sig True : true
-
         sig false : type
         sig False : false
         
@@ -155,27 +169,106 @@ class CheckerStageTest : StringSpec({
 
     "[checker] refl/sym/trans [wip]" {
         """
-        sig unit : type
-        sig Unit : unit
+        -{
+        In Agda the reflexivity is expressed thanks to the GADT:
+        ```agda
+        data _≡_ {A : Set} (x : A) : A → Set where
+            refl : x ≡ x
+        ```            
+        }-
 
         sig refl : {A:type} -> (x:A) -> (y:A) -> type
-        
         sig Refl : {A:type} -> {x:A} -> refl {A} x x
-               
-        def refl = {A}.(x).(y).unit
          
         sig sym : {A:type} -> {x:A} -> {y:A}
-            -> refl x y 
-               --------
-            -> refl y x 
+                -> refl x y 
+                   --------
+                -> refl y x 
             
-        -- TODO def sym = (r).Refl
-                       
-        sig trans : {A:type} -> {x:A} -> {y:A} -> {z:A}
-            -> refl x y
-            -> refl y z
-               --------
-            -> refl x z            
+        -- def sym = (r).Refl                   
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] nat" {
+        """
+        sig unit : type
+        sig Unit : unit
+        
+        -- Natural definition
+        sig zeroT : type
+        sig Zero  : zeroT
+        
+        sig succT : type
+        sig Succ  : succT
+        
+        sig nat  : type
+        def nat  = rec(l).(zeroT | succT * l)       
+
+        sig nat2 : type
+        def nat2 = nat -> nat
+
+        sig zero : nat
+        def zero = fold (inl Zero)
+        sig succ : nat2
+        def succ = (pred).fold inr (Succ, pred)
+                
+        sig incr : nat2
+        def incr = succ
+        
+        sig add  : nat -> nat2
+        def add  = (p1).(p2).(case (unfold p1) (_).p2 (s).(succ (add (snd s) p2)))
+         
+        sig two  : nat
+        def two  = add (succ zero) (succ zero)
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] vector [wip]" {
+        """
+        sig unit : type
+        sig Unit : unit
+        
+        -- Natural definition
+        
+        sig zeroT : type
+        sig Zero  : zeroT
+        
+        sig succT : type
+        sig Succ  : succT
+        
+        sig nat  : type
+        def nat  = rec(l).(zeroT | succT * l)       
+
+        sig nat2 : type
+        def nat2 = nat -> nat
+
+        sig zero : nat
+        def zero = fold (inl Zero)
+        sig succ : nat2
+        def succ = (pred).fold inr (Succ, pred)
+
+        sig add  : nat -> nat -> nat
+        def add  = (p1).(p2).case unfold p1 (_).p2 (s).(succ (add snd s p2))
+
+        -- Vector definition
+        
+        sig nilT : type
+        sig Nil  : nilT
+        
+        sig consT : type
+        sig Cons  : consT
+
+        sig vect : type -> nat -> type
+        def vect = (X).(s).rec(l).(nilT | consT * X * l)
+
+        sig nil  : {X:type} -> vect X zero
+        def nil  = fold (inl Nil)        
+
+        sig cons : {X:type} -> {n:nat} -> X -> vect X n -> vect X (succ n)
+        def cons = (head).(tail).fold inr (Cons,head,tail)
+        
+        sig comb : {X:type} -> {n:nat} -> {m:nat} -> vect X n -> vect X m -> vect X (add n m)
+        def comb = (v1).(v2).case unfold v1 (_).v2 (v1).(cons fst snd v1 (comb snd snd v1 v2))
         """.trimIndent().let { check(it) }
     }
 
@@ -183,9 +276,9 @@ class CheckerStageTest : StringSpec({
     companion object {
         fun check(program: String) =
             (ParserStage() compile program).let { bindings ->
-                AbstractionStage<Nothing>() compile bindings
+                AbstractionStage() compile bindings
             }.let { bindings ->
-                CheckerStage<Nothing>() compile bindings
+                CheckerStage<Region.T>(invoke(program)) compile bindings
             }
     }
 }
