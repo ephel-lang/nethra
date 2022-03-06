@@ -336,10 +336,10 @@ Then we can propose the functions accessing trait elements.
 
 ```
 sig empty : {X:type} -> Monoid_T X -> Empty_T
-def empty = {_}.(x).(fst x, fst (snd x))
+def empty = (x).(fst x, fst (snd x))
 
 sig compose : {X:type} -> Monoid_T X -> Compose_T
-def compose = {_}.(x).(fst x, fst snd (snd x))
+def compose = (x).(fst x, fst snd (snd x))
 ```
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.
@@ -367,15 +367,15 @@ def bool = true | false
 sig list : type -> type
 
 sig nil  : {X:type} -> list X
-def nil  = {_}.(fold (inl Unit))
+def nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
-def cons = {_}.(head).(tail).(fold (inr (head,tail)))
+def cons = (head).(tail).(fold (inr (head,tail)))
 
 def list = (X).rec(l).(unit | (X * l)) 
 ```
 
 ```
 sig isEmpty : {X:type} -> list X -> bool
-def isEmpty = {_}.(l).case (unfold l) (_).(inl True) (_).(inr False)
+def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 ```
