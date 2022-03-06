@@ -47,7 +47,7 @@ e ::=
 
 ### Typing rules
 
-#### Stratified types
+#### Stratified and cumulative types
 
 ```
 Γ ⊢
