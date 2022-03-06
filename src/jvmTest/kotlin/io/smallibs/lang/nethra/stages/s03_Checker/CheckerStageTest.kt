@@ -121,7 +121,6 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-
     "[checker] list/sample" {
         """
         sig unit : type
@@ -262,13 +261,23 @@ class CheckerStageTest : StringSpec({
         def vect = (X).(s).rec(l).(nilT | consT * X * l)
 
         sig nil  : {X:type} -> vect X zero
-        def nil  = fold (inl Nil)        
+        def nil  = let e = inl Nil in (fold e)        
 
         sig cons : {X:type} -> {n:nat} -> X -> vect X n -> vect X (succ n)
         def cons = (head).(tail).fold inr (Cons,head,tail)
         
         sig comb : {X:type} -> {n:nat} -> {m:nat} -> vect X n -> vect X m -> vect X (add n m)
         def comb = (v1).(v2).case unfold v1 (_).v2 (v1).(cons fst snd v1 (comb snd snd v1 v2))
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] term/inhabits/type" {
+        """
+            sig isA : (T:type) -> T -> T
+            def isA = (_).(a).a
+            
+            sig one : int | char
+            def one = inl (isA int 1)
         """.trimIndent().let { check(it) }
     }
 

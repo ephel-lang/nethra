@@ -27,7 +27,8 @@ class ReducerImpl<C>(
         //println("[?] ${t.prettyPrint()} *→ ?").let {
         Unit.let {
             when (t) {
-                is Hole -> t.ref.value?.let { reduce(it) } ?: t
+                is Hole ->
+                    t.ref.value?.let { reduce(it) } ?: t
                 is Id -> this.getDefinition(t.value)?.let { reduce(it) } ?: t
                 is Apply -> when (val abstraction = reduce(t.abstraction)) {
                     is Lambda -> reduce(abstraction.body.substitute(abstraction.n to t.argument))

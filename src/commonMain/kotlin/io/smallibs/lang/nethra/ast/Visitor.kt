@@ -24,8 +24,6 @@ interface Visitor<C, I, O> {
     fun Ast.Term.Fold<C>.run(i: I): O
     fun Ast.Term.Unfold<C>.run(i: I): O
 
-    fun Ast.Term.Inhabit<C>.run(i: I): O
-
     fun Ast.Term.Hole<C>.run(i: I): O
 
     fun Ast.Term<C>.run(i: I): O =
@@ -52,8 +50,6 @@ interface Visitor<C, I, O> {
             is Ast.Term.Rec -> run(i)
             is Ast.Term.Fold -> run(i)
             is Ast.Term.Unfold -> run(i)
-
-            is Ast.Term.Inhabit -> run(i)
 
             is Ast.Term.Hole -> run(i)
         }

@@ -1,6 +1,7 @@
 package io.smallibs.lang.nethra.ast.impl
 
 import io.smallibs.lang.nethra.ast.Ast
+import io.smallibs.lang.nethra.ast.Ast.Term.Companion.ANON
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Visitor
 
@@ -9,7 +10,7 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
     override fun Ast.Term<C>.prettyPrint(): String = this.run(Unit)
 
     /**
-     * Interpret implementation
+     * Visitor implementation
      */
 
     override fun Ast.Term.Type<C>.run(i: Unit) = "Type_$level"
@@ -27,7 +28,7 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
         when (implicit) {
             true -> "Π{${n}:${bound.prettyPrint()}}.(${body.prettyPrint()})"
             false ->
-                if (n == "_")
+                if (n == ANON)
                     "${bound.prettyPrint()} -> ${body.prettyPrint()}"
                 else
                     "Π(${n}:${bound.prettyPrint()}).(${body.prettyPrint()})"
@@ -67,8 +68,6 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
     override fun Ast.Term.Fold<C>.run(i: Unit) = "fold ${term.prettyPrint()}"
 
     override fun Ast.Term.Unfold<C>.run(i: Unit) = "unfold ${term.prettyPrint()}"
-
-    override fun Ast.Term.Inhabit<C>.run(i: Unit) = "(${term.prettyPrint()} ∈ ${type.prettyPrint()})"
 
     override fun Ast.Term.Hole<C>.run(i: Unit): String = "?$value" + (ref.value?.let { "/(${it.prettyPrint()})" } ?: "")
 }

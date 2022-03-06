@@ -4,6 +4,7 @@ import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.smallibs.lang.extension.Multi
+import io.smallibs.lang.nethra.ast.Ast.Term.Companion.ANON
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.stages.errors.CompilationException
 
@@ -70,43 +71,37 @@ class CheckerTest : StringSpec({
             " ✅ Γ |- (λ(x).x :: int -> int) 1 : int" {
                 val int = id("int")
                 val func = lambda("x", id("x"))
-                val type = int arrow int
-                Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
+                Bindings<Nothing>().check(apply(func, int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- (λ(_).λ(x).x :: Π(t:Type).t -> t) int 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("x", id("x")))
-                val type = pi("t", type(), id("t") arrow id("t"))
-                Bindings<Nothing>().check(apply(apply(inhabit(func, type), int), int(1)), int) shouldBe true
+                val func = lambda(ANON, lambda("x", id("x")))
+                Bindings<Nothing>().check(apply(apply(func, int), int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) {int} 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("x", id("x")), true)
-                val type = pi("t", type(), id("t") arrow id("t"), true)
-                Bindings<Nothing>().check(apply(apply(inhabit(func, type), int, true), int(1)), int) shouldBe true
+                val func = lambda(ANON, lambda("x", id("x")), true)
+                Bindings<Nothing>().check(apply(apply(func, int, true), int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("x", id("x")), true)
-                val type = pi("t", type(), id("t") arrow id("t"), true)
-                Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
+                val func = lambda(ANON, lambda("x", id("x")), true)
+                Bindings<Nothing>().check(apply(func, int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("x", id("x")), true)
-                val type = pi("t2", type(), id("t2") arrow id("t2"), true)
-                Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
+                val func = lambda(ANON, lambda("x", id("x")), true)
+                Bindings<Nothing>().check(apply(func, int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- (λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
                 val int = id("int")
                 val func = lambda("x", id("x"))
-                val type = pi("t2", type(), id("t2") arrow id("t2"), true)
-                Bindings<Nothing>().check(apply(inhabit(func, type), int(1)), int) shouldBe true
+                Bindings<Nothing>().check(apply(func, int(1)), int) shouldBe true
             }
 
             " ✅ Γ |- λ(x).x 1 : int" {
@@ -117,16 +112,14 @@ class CheckerTest : StringSpec({
 
             " ✅ Γ |- λ{_}.λ(x).x 1 : int" {
                 val int = id("int")
-                val func = lambda("_", lambda("x", id("x")), true)
+                val func = lambda(ANON, lambda("x", id("x")), true)
                 Bindings<Nothing>().check(apply(func, int(1)), int) shouldBe true
             }
 
-            " ❌ Γ |- (λ(x).x :: int -> char) 1 : int" {
+            " ❌ Γ |- λ(x).x 1 : char" {
                 shouldThrowExactly<CompilationException.CannotCheck> {
-                    val int = id("int")
                     val char = id("char")
-                    Bindings<Nothing>().check(apply(inhabit(lambda("x", id("x")), pi("_", int, char)), int(1)),
-                        int)
+                    Bindings<Nothing>().check(apply(lambda("x", id("x")), int(1)), char)
                 }
             }
 
@@ -236,8 +229,8 @@ class CheckerTest : StringSpec({
                 val int = id("int")
                 val term = id("e")
                 val type = or(id("A"), id("B"))
-                val left = lambda("_", int(0))
-                val right = lambda("_", int(1))
+                val left = lambda(ANON, int(0))
+                val right = lambda(ANON, int(1))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int) shouldBe true
             }
 
@@ -246,8 +239,8 @@ class CheckerTest : StringSpec({
                     val int = id("int")
                     val term = id("e")
                     val type = or(id("A"), id("B"))
-                    val left = lambda("_", int(0))
-                    val right = lambda("_", char('1'))
+                    val left = lambda(ANON, int(0))
+                    val right = lambda(ANON, char('1'))
                     Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int)
                 }
             }
@@ -256,8 +249,8 @@ class CheckerTest : StringSpec({
                 val intOrChar = or(id("int"), id("char"))
                 val term = id("e")
                 val type = or(id("A"), id("B"))
-                val left = lambda("_", inl(int(0)))
-                val right = lambda("_", inr(char('1')))
+                val left = lambda(ANON, inl(int(0)))
+                val right = lambda(ANON, inr(char('1')))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), intOrChar) shouldBe true
             }
 

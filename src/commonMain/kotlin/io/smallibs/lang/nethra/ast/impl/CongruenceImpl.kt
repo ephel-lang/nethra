@@ -44,7 +44,7 @@ class CongruenceImpl<C>(
         }
 
     /**
-     * Interpret implementation
+     * Visitor implementation
      */
 
     override fun Type<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = when (val t = i.second) {
@@ -134,15 +134,20 @@ class CongruenceImpl<C>(
         else -> i.first.fallback(this, i.second)
     }
 
-    override fun Ast.Term.Inhabit<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = when (val t = i.second) {
-        is Ast.Term.Inhabit -> i.first.congruent(term, t.term) && i.first.congruent(type, t.type)
-        else -> i.first.fallback(this, i.second)
-    }
-
     override fun Hole<C>.run(i: Pair<Bindings<C>, Ast.Term<C>>) = when (ref.value) {
         null -> {
-            ref.value = i.second
-            true
+            when (val t = i.second) {
+                is Hole -> if (value == t.value) {
+                    true
+                } else {
+                    ref.value = i.second
+                    true
+                }
+                else -> {
+                    ref.value = i.second
+                    true
+                }
+            }
         }
         else -> i.first.congruent(ref.value!!, i.second)
     }
@@ -167,5 +172,4 @@ class CongruenceImpl<C>(
         }
 
     private fun Ast.Term<C>.isHole(): Boolean = this is Hole<C> && this.ref.value == null
-
 }

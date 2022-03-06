@@ -83,10 +83,6 @@ class PrinterTest : StringSpec({
             "should pretty unfold" {
                 unfold(id("x")).prettyPrint() shouldBe "unfold x"
             }
-
-            "should pretty inhabitation" {
-                inhabit(type(), type(1)).prettyPrint() shouldBe "(Type_0 ∈ Type_1)"
-            }
         }
     }
 })

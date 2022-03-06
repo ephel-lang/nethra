@@ -29,7 +29,5 @@ class BuilderImpl<C> : Builder<C> {
     override fun fold(e: Ast.Term<C>) = Ast.Term.Fold(e)
     override fun unfold(e: Ast.Term<C>) = Ast.Term.Unfold(e)
 
-    override fun inhabit(term: Ast.Term<C>, type: Ast.Term<C>) = Ast.Term.Inhabit(term, type)
-
     override fun hole(name: String): Ast.Term.Hole<C> = Ast.Term.Hole(name)
 }

@@ -1,6 +1,7 @@
 package io.smallibs.lang.nethra.stages.s03_Checker.internal.impl
 
 import io.smallibs.lang.nethra.ast.Ast
+import io.smallibs.lang.nethra.ast.Ast.Term.Companion.ANON
 import io.smallibs.lang.nethra.ast.Ast.Term.Type
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
@@ -36,10 +37,10 @@ class CheckerImpl<C>(
         term: Ast.Term<C>,
         type: Ast.Term<C>,
     ) = reduce(type).let { type ->
-        // println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
-        Unit.let {
+        println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
+            // Unit.let {
             val r = term.run(Context(this, type)) || throw CompilationException.CannotCheck(term, type)
-            // println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
+            println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
             r
         }
     }
@@ -51,15 +52,14 @@ class CheckerImpl<C>(
     //
     // ---------------------
     // Γ ⊢ Type_i : Type_i+1
-    override fun Type<C>.run(i: Context<C>) =
-        i.gamma.congruent(Type(level + 1), i.type)
+    override fun Type<C>.run(i: Context<C>) = i.gamma.congruent(Type(level + 1), i.type)
 
     //
     // ----------------
     // Γ, x : T ⊢ x : T
     override fun Ast.Term.Id<C>.run(i: Context<C>) =
         i.gamma.getSignature(this@run.value)?.let { type -> i.gamma.congruent(type, i.type) }
-            ?: throw CompilationException.Unbound(this)
+            ?: fallback(i)
 
     // l ∈ int         l ∈ char          l ∈ string
     // -----------     -------------     --------------
@@ -102,11 +102,10 @@ class CheckerImpl<C>(
     override fun Ast.Term.Apply<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(abstraction)) {
             is Ast.Term.Pi -> if (implicit == type.implicit) {
-                (i.gamma.congruent(type.body.substitute(type.n to argument), i.type)
-                        || throw CompilationException.CannotCompare(abstraction,
+                (i.gamma.congruent(type.body.substitute(type.n to argument),
+                    i.type) || throw CompilationException.CannotCompare(abstraction,
                     i.type,
-                    type.body.substitute(type.n to argument)))
-                        && i.gamma.check(argument, type.bound)
+                    type.body.substitute(type.n to argument))) && i.gamma.check(argument, type.bound)
             } else if (type.implicit) {
                 val v = substitution.newVariable()
                 i.gamma.setSignature(v, type.bound).check(apply(apply(abstraction, hole(v), true), argument), i.type)
@@ -120,7 +119,7 @@ class CheckerImpl<C>(
     // Γ ⊢ M : S   Γ, x : M ⊢ N : T
     // ----------------------------
     // Γ ⊢ Σ(x:M).N : T
-    override fun Ast.Term.Sigma<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl))     {
+    override fun Ast.Term.Sigma<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         i.gamma.infer(bound)
         i.gamma.setSignature(n, bound).check(body, i.type)
     }
@@ -209,11 +208,6 @@ class CheckerImpl<C>(
         }
     }
 
-    // Γ ⊢ x : T
-    // ---------------
-    // Γ ⊢ (x ∈ T) : T
-    override fun Ast.Term.Inhabit<C>.run(i: Context<C>) = i.gamma.check(term, i.type) && i.gamma.congruent(type, i.type)
-
     //
     // ----------------
     // Γ, x : T ⊢ x : T
@@ -228,7 +222,7 @@ class CheckerImpl<C>(
     // --------------------
     // Γ ⊢ B : Π{y:A}.T
     private fun Ast.Term<C>.fallback(i: Context<C>) = when (i.type) {
-        is Ast.Term.Pi -> i.type.implicit && i.gamma.check(lambda("_", this, true).set(this.context), i.type)
+        is Ast.Term.Pi -> i.type.implicit && i.gamma.check(lambda(ANON, this, true).set(this.context), i.type)
         else -> false
     }
 

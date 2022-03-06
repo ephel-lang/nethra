@@ -1,6 +1,5 @@
 package io.smallibs.lang.nethra.stages.s01_Parser.internal
 
-import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.cst.Cst.Localised
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ARROW
@@ -10,12 +9,15 @@ import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.COUPLE
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DATA
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DISJUNCTION
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.DOT
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.EQUAL
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FOLD
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.FST
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.ID
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.IN
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.INL
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.INR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.LACC
+import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.LET
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.LPAR
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.PRODUCT
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.Commons.RACC
@@ -124,6 +126,11 @@ object TermParser {
             Cst.Term.SpecialApp(Cst.Term.Operation.unfold, it)
         }))
 
+    private val let: Parser<Char, Localised<Cst.Term>>
+        get() = localise(LET thenRight ID thenLeft EQUAL then lazy(::term) thenLeft IN then lazy(::sterm) map {
+            Cst.Term.LetBinding(it.first.first, it.first.second, it.second)
+        })
+
     private val nativeType: Parser<Char, Localised<Cst.Term>>
         get() = KIND_TYPE
 
@@ -179,7 +186,7 @@ object TermParser {
         })
 
     private fun sterm(): Parser<Char, Localised<Cst.Term>> =
-        data or recursive or lambda or case or operations or nativeType or nativeValues or variables or block
+        let or data or recursive or lambda or case or operations or nativeType or nativeValues or variables or block
 
     private fun aterm(): Parser<Char, Localised<Cst.Term>> =
         localise(localise(apply() bind TermParser::mayBeDisjunction) bind TermParser::mayBeProductOrCouple)

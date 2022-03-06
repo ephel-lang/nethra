@@ -19,7 +19,7 @@ class SubstitutionImpl<C>(
     override fun Ast.Term<C>.substitute(param: Pair<String, Ast.Term<C>>) = this.run(param).set(this.context)
 
     /**
-     * Interpret implementation
+     * Visitor implementation
      */
 
     override fun Ast.Term.Type<C>.run(i: Pair<String, Ast.Term<C>>) = this
@@ -65,8 +65,6 @@ class SubstitutionImpl<C>(
     override fun Ast.Term.Fold<C>.run(i: Pair<String, Ast.Term<C>>) = fold(term.substitute(i))
 
     override fun Ast.Term.Unfold<C>.run(i: Pair<String, Ast.Term<C>>) = unfold(term.substitute(i))
-
-    override fun Ast.Term.Inhabit<C>.run(i: Pair<String, Ast.Term<C>>) = inhabit(term.substitute(i), type.substitute(i))
 
     override fun Ast.Term.Hole<C>.run(i: Pair<String, Ast.Term<C>>): Ast.Term<C> = this
 

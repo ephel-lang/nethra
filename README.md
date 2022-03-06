@@ -42,8 +42,6 @@ e ::=
     fold e                -- Fold recursive type
     unfold e              -- Unfold recursive type
     
-    e ∈ e                 -- Term inhabits Type
-    
     ?n                    -- Hole for inference
 ```
 
@@ -164,13 +162,6 @@ l ∈ string
 --------------------------
 Γ ⊢ unfold A : N[x=μ(x).N]
 ```
-#### Term inhabitation
-
-```
-Γ ⊢ x : T
----------------
-Γ ⊢ (x ∈ T) : T
-```
 
 ## Nethra language in action
 
@@ -199,6 +190,8 @@ aterm ::=
 
 ```
 sterm ::=
+    "let" id "=" term "in" sterm
+
     "rec" "(" id ")" "." sterm
  
     "(" id ")" "." sterm    

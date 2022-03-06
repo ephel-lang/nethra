@@ -41,7 +41,9 @@ object Commons {
             "rec",
             "fold",
             "unfold",
-            "data")
+            "data",
+            "let",
+            "in")
 
     val LETTER
         get() = charIn('A'..'Z') or charIn('a'..'z') or charIn("_")
@@ -76,4 +78,6 @@ object Commons {
     val UNFOLD get() = token(string("unfold"))
     val REC get() = token(string("rec"))
     val DATA get() = token(string("data"))
+    val LET get() = token(string("let"))
+    val IN get() = token(string("in"))
 }

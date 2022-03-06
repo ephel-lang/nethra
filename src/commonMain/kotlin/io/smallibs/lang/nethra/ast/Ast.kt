@@ -110,16 +110,15 @@ object Ast {
             override fun set(context: C?): Term<C> = Unfold(term, context)
         }
 
-        data class Inhabit<C>(val term: Term<C>, val type: Term<C>, override val context: C? = null) :
-            Term<C>(context) {
-            override fun set(context: C?): Term<C> = Inhabit(term, type, context)
-        }
-
         data class Ref<A>(var value: A? = null)
 
         data class Hole<C>(val value: String, val ref: Ref<Term<C>> = Ref(), override val context: C? = null) :
             Term<C>(context) {
             override fun set(context: C?): Term<C> = Hole(value, ref, context)
+        }
+
+        companion object {
+            const val ANON = "_"
         }
     }
 

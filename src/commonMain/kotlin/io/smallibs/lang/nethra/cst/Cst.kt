@@ -41,6 +41,7 @@ object Cst {
         data class Rec(val v: String, val body: Localised<Term>) : Term
         enum class Operation { inl, inr, fst, snd, fold, unfold }
         data class SpecialApp(val operation: Operation, val term: Localised<Term>) : Term
+        data class LetBinding(val name: String, val value: Localised<Term>, val body: Localised<Term>): Term
 
         private fun pretty(): String = when (this) {
             is Type -> "type$level"
@@ -82,6 +83,8 @@ object Cst {
                 "rec($v).${body.prettyTerm(true)}"
             is SpecialApp ->
                 "$operation ${term.prettyTerm(true)}"
+            is LetBinding ->
+                "let $name = ${value.prettyTerm()} in ${body.prettyTerm(true)}"
         }
 
         private fun isAtom(): Boolean = when (this) {
@@ -100,6 +103,7 @@ object Cst {
             is Case -> true
             is Rec -> true
             is SpecialApp -> true
+            is LetBinding -> false
         }
 
         fun pretty(atom: Boolean = false): String = if (atom && !isAtom()) "(${pretty()})" else pretty()

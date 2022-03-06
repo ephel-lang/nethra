@@ -1,7 +1,9 @@
 package io.smallibs.lang.nethra.stages.s02_Abstraction
 
 import io.smallibs.lang.nethra.ast.Ast
+import io.smallibs.lang.nethra.ast.Ast.Term.Companion.ANON
 import io.smallibs.lang.nethra.ast.Builder
+import io.smallibs.lang.nethra.ast.Substitution
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.stages.common.Stage
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
@@ -9,7 +11,9 @@ import io.smallibs.parsec.parser.Region
 
 class AbstractionStage(
     val builder: Builder<Region.T> = Builder(),
-) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<Region.T>>, Builder<Region.T> by builder {
+    val substitution: Substitution<Region.T> = Substitution(),
+) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<Region.T>>, Substitution<Region.T> by substitution,
+    Builder<Region.T> by builder {
     private fun Cst.Localised<Cst.Term>.compile(): Ast.Term<Region.T> =
         this.value.compile().set(this.region)
 
@@ -20,10 +24,10 @@ class AbstractionStage(
         is Cst.Term.CharLiteral -> char(value)
         is Cst.Term.IntLiteral -> int(value)
         is Cst.Term.StringLiteral -> string(value)
-        is Cst.Term.Forall -> pi(this.v ?: "_", bound.compile(), body.compile(), implicit)
+        is Cst.Term.Forall -> pi(this.v ?: ANON, bound.compile(), body.compile(), implicit)
         is Cst.Term.Apply -> apply(lhd.compile(), rhd.compile(), implicit)
         is Cst.Term.Lambda -> lambda(v, body.compile(), implicit)
-        is Cst.Term.Exists -> sigma(this.v ?: "_", bound.compile(), body.compile())
+        is Cst.Term.Exists -> sigma(this.v ?: ANON, bound.compile(), body.compile())
         is Cst.Term.Couple -> pair(lhd.compile(), rhd.compile())
         is Cst.Term.Disjunction -> or(lhd.compile(), rhd.compile())
         is Cst.Term.Case -> case(term.compile(), lhd.compile(), rhd.compile())
@@ -37,6 +41,8 @@ class AbstractionStage(
                 Cst.Term.Operation.fold -> fold(term.compile())
                 Cst.Term.Operation.unfold -> unfold(term.compile())
             }
+        is Cst.Term.LetBinding ->
+            body.compile().substitute(name to value.compile())
     }
 
     private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<Region.T> = when (val binding = i.value) {
