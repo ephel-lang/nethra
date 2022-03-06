@@ -168,12 +168,8 @@ class InferenceImpl<C>(
     // Γ ⊢ A : N[x=rec(x).N]
     // ---------------------
     // Γ ⊢ fold A : rec(x).N
-    override fun Ast.Term.Fold<C>.run(i: Bindings<C>): Ast.Term<C> {
-        val unfold = i.infer(term)
-        val hole = hole(newVariable())
-
+    override fun Ast.Term.Fold<C>.run(i: Bindings<C>): Ast.Term<C> =
         throw CompilationException.CannotInfer(this)
-    }
 
     // Γ ⊢ A : rec(x).N
     // ----------------------------
