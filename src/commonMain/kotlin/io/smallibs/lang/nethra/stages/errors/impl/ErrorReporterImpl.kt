@@ -32,7 +32,7 @@ data class ErrorReporterImpl(private val source: String) : ErrorReporter {
                 }
                 is CompilationException.Unbound -> {
                     display(error.term as Ast.Term<Region.T>)
-                    println("| reason: unbound identifier")
+                    println("| reason: unbound identifier ${error.term.prettyPrint()}")
                 }
                 is CompilationException.CannotCompare -> {
                     display(error.term as Ast.Term<Region.T>)

@@ -17,7 +17,7 @@ import io.smallibs.lang.nethra.stages.errors.CompilationException
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Checker
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Inference
-import io.smallibs.lang.nethra.stages.s03_Checker.internal.impl.CheckerImpl.*
+import io.smallibs.lang.nethra.stages.s03_Checker.internal.impl.CheckerImpl.Context
 
 //
 // Stupid version returning a simple Bool
@@ -43,7 +43,7 @@ class CheckerImpl<C>(
         type: Ast.Term<C>,
     ): Boolean = reduce(type).let { type ->
         println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / ?").let {
-            // Unit.let {
+        // Unit.let {
             val i = Context(this, type)
             val r = term.run(i) || term.fallback(i) || throw CompilationException.CannotCheck(term, type)
             println("[↑]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${type.prettyPrint()} / $r")
@@ -130,8 +130,7 @@ class CheckerImpl<C>(
     // --------------------------
     // Γ ⊢ A,B : Σ(x:M).N
     override fun Ast.Term.Couple<C>.run(i: Context<C>) = when (i.type) {
-        is Sigma -> i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd,
-            i.type.body.substitute(i.type.n to lhd))
+        is Sigma -> i.gamma.check(lhd, i.type.bound) && i.gamma.check(rhd, i.type.body.substitute(i.type.n to lhd))
         else -> false
     }
 
@@ -181,8 +180,7 @@ class CheckerImpl<C>(
     // Γ ⊢ case a l r : C
     override fun Ast.Term.Case<C>.run(i: Context<C>) = with(inferenceGenerator(this@CheckerImpl)) {
         when (val type = i.gamma.infer(term)) {
-            is Disjunction -> i.gamma.check(left, type.lhd arrow i.type) && i.gamma.check(right,
-                type.rhd arrow i.type)
+            is Disjunction -> i.gamma.check(left, type.lhd arrow i.type) && i.gamma.check(right, type.rhd arrow i.type)
             else -> false
         }
     }

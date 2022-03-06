@@ -121,6 +121,30 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
+    "[checker] trait/parametric/extension/denotation"  {
+        """
+        sig A_T  : (type -> type) -> type
+        def A_T  = (X).((t:type) * (t * (t -> int) * X t))
+        
+        sig Am_T : type
+        def Am_T = (t:type) * t
+            
+        sig A_m : {X:type -> type} -> A_T X -> Am_T
+        def A_m = (x).(fst x, fst snd x)
+
+        sig An_T : type
+        def An_T = (t:type) * (t -> int)
+
+        sig A_n : {X:type -> type} -> A_T X -> An_T
+        def A_n = (x).(fst x, fst snd snd x)
+        
+        sig unit  : type
+        sig value : A_T (_).unit -> int
+        -- [WIP] Congruence in presence of reduction and HKT cannot be verified. Should be explicit  
+        def value = (x).((snd (A_n {(_).unit} x)) (snd (A_m {(_).unit} x)))
+        """.trimIndent().let { check(it) }
+    }
+
     "[checker] list/sample" {
         """
         sig unit : type
@@ -166,7 +190,7 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] refl/sym/trans [wip]" {
+    "[checker] refl/sym/trans [wip/requires eqElim application]" {
         """
         -{
         In Agda the reflexivity is expressed thanks to the GADT:
@@ -176,15 +200,20 @@ class CheckerStageTest : StringSpec({
         ```            
         }-
 
-        sig refl : {A:type} -> (x:A) -> (y:A) -> type
-        sig Refl : {A:type} -> {x:A} -> refl {A} x x
-         
-        sig sym : {A:type} -> {x:A} -> {y:A}
-                -> refl x y 
+        sig Eq   : (A:type) -> A -> A -> type
+        sig Refl : (A:type) -> (x:A) -> Eq A x x
+        
+        sig eqElim : (A:type) 
+                  -> (m:(x:A) -> (y:A) -> Eq A x y -> type) 
+                  -> ((z:A) -> m z z (Refl A z))
+                  -> (x:A) -> (y:A) -> (p:Eq A x y) -> m x y p                              
+                  
+        sig sym : (A:type) -> (x:A) -> (y:A)
+                -> Eq A x y 
                    --------
-                -> refl y x 
-            
-        -- def sym = (r).Refl                   
+                -> Eq A y x 
+        
+        -- def sym = TODO  
         """.trimIndent().let { check(it) }
     }
 
@@ -222,7 +251,7 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] vector [wip]" {
+    "[checker] vector [wip/requires natElim]" {
         """
         sig unit : type
         sig Unit : unit

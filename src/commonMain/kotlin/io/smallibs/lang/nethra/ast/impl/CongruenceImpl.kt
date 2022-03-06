@@ -32,13 +32,13 @@ class CongruenceImpl<C>(
 ) : Visitor<C, Pair<Bindings<C>, Ast.Term<C>>, Boolean>, Congruence<C>, Printer<C> by printer,
     Substitution<C> by substitution, Reducer<C> by reducer {
 
+    //[WIP] should be replaced by a specific set of rules where reduction is expressed
     override fun Bindings<C>.congruent(lhd: Ast.Term<C>, rhd: Ast.Term<C>) =
         (reduce(lhd) to reduce(rhd)).let { (lhd, rhd) ->
-            //println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / ?").let {
-            Unit.let {
-                val r = if (lhd.isHole() || !rhd.isHole()) lhd.run(this to rhd)
-                else rhd.run(this to lhd)
-                // println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / $r")
+            println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / ?").let {
+                //Unit.let {
+                val r = if (lhd.isHole() || !rhd.isHole()) lhd.run(this to rhd) else rhd.run(this to lhd)
+                println("[?] ${lhd.prettyPrint()} ≅ ${rhd.prettyPrint()} / $r")
                 r
             }
         }

@@ -32,7 +32,7 @@ class InferenceImpl<C>(
 
     override fun Bindings<C>.infer(term: Ast.Term<C>): Ast.Term<C> =
         println("[↓]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ?").let {
-            // Unit.let {
+        // Unit.let {
             val r = reduce(term.run(this))
             println("[↓]${this.prettyPrint()} ⊢ ${term.prettyPrint()} : ${r.prettyPrint()}")
             r
