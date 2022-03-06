@@ -47,13 +47,21 @@ e ::=
 
 ### Typing rules
 
-#### Hierarchy and hypothesis
+#### Stratified types
 
 ```
 Γ ⊢
----------------------
-Γ ⊢ Type_i : Type_i+1
+-----------------------
+Γ ⊢ Type_i : Type_{i+1}
 
+Γ ⊢ t : Type_i
+------------------
+Γ ⊢ t : Type_{i+1}
+```
+
+#### Hypothesis
+
+```
 Γ ⊢
 ----------------
 Γ, x : T ⊢ x : T
@@ -75,7 +83,7 @@ l ∈ string
 Γ ⊢ l : string
 ```
 
-#### Dependant function type
+#### Dependant function type and application
 
 ```
 Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -107,7 +115,7 @@ l ∈ string
 Γ ⊢ f e : N
 ```
 
-#### Dependant pair type
+#### Dependant pair type and deconstructions
 
 ```
 Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -127,7 +135,7 @@ l ∈ string
 Γ ⊢ snd p : N[x=fst p]
 ```
 
-#### Disjunction
+#### Disjunction and injections
 
 ```
 Γ ⊢ A : T   Γ ⊢ B : T
@@ -147,7 +155,7 @@ l ∈ string
 Γ ⊢ case a l r : C
 ```
 
-#### Recursion
+#### Equi-recursive type
 
 ```
 Γ, x : T ⊢ A : T

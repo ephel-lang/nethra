@@ -271,11 +271,24 @@ class CheckerStageTest : StringSpec({
         """.trimIndent().let { check(it) }
     }
 
-    "[checker] term/inhabits/type" {
+    "[checker] term/inhabits/type0" {
         """
-            sig isA : (T:type) -> T -> T
+            sig isA : (T:type0) -> T -> T
             def isA = (_).(a).a
             
+            sig one : int | char
+            def one = inl (isA int 1)
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] term/type0/inhabits/type1" {
+        """
+            sig isA : (T:type1) -> T -> T
+            def isA = (_).(a).a
+            
+            sig charT : type
+            def charT = isA type char
+
             sig one : int | char
             def one = inl (isA int 1)
         """.trimIndent().let { check(it) }

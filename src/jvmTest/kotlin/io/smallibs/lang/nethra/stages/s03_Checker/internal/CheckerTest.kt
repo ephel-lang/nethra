@@ -15,9 +15,9 @@ class CheckerTest : StringSpec({
                 Bindings<Nothing>().check(type(3), type(4)) shouldBe true
             }
 
-            " ❌ Γ |- Type_i : Type_{j} (with j != i+1)" {
+            " ❌ Γ |- Type_i : Type_{j} (with j <= i)" {
                 shouldThrowExactly<CompilationException.CannotCheck> {
-                    Bindings<Nothing>().check(type(3), type(5))
+                    Bindings<Nothing>().check(type(3), type(3))
                 }
             }
 
