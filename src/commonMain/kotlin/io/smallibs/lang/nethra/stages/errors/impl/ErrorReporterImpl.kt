@@ -12,6 +12,7 @@ data class ErrorReporterImpl(private val source: String) : ErrorReporter {
 
     private var errors = 0
 
+    @Suppress("UNCHECKED_CAST")
     override fun report(error: CompilationException) {
         errors += 1
         with(Printer<Region.T>()) {

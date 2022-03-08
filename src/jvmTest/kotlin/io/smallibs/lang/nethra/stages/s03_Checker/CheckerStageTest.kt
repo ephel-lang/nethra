@@ -2,7 +2,6 @@ package io.smallibs.lang.nethra.stages.s03_Checker
 
 import io.kotest.core.spec.style.StringSpec
 import io.smallibs.lang.nethra.stages.errors.ErrorReporter
-import io.smallibs.lang.nethra.stages.errors.ErrorReporter.Companion.invoke
 import io.smallibs.lang.nethra.stages.s01_Parser.ParserStage
 import io.smallibs.lang.nethra.stages.s02_Abstraction.AbstractionStage
 import io.smallibs.parsec.parser.Region
@@ -302,34 +301,53 @@ class CheckerStageTest : StringSpec({
 
     "[checker] term/inhabits/type0" {
         """
-            sig isA : (T:type0) -> T -> T
-            def isA = (_).(a).a
-            
-            sig one : int | char
-            def one = inl (isA int 1)
+        sig isA : (T:type0) -> T -> T
+        def isA = (_).(a).a
+        
+        sig one : int | char
+        def one = inl (isA int 1)
         """.trimIndent().let { check(it) }
     }
 
     "[checker] term/type0/inhabits/type1" {
         """
-            sig isA : (T:type1) -> T -> T
-            def isA = (_).(a).a
-            
-            sig charT : type
-            def charT = isA type char
+        sig isA : (T:type1) -> T -> T
+        def isA = (_).(a).a
+        
+        sig charT : type
+        def charT = isA type char
 
-            sig one : int | char
-            def one = inl (isA int 1)
+        sig one : int | char
+        def one = inl (isA int 1)
+        """.trimIndent().let { check(it) }
+    }
+
+    "[checker] nat/elimination" {
+        """           
+        sig nat  : type
+               
+        sig zero : nat
+        sig succ : nat -> nat
+       
+        sig natElim : (m:nat -> type) 
+                   -> m zero 
+                   -> ((l:nat) -> m l -> m (succ l))
+                   -> (k:nat) -> m k
+                                      
+        sig plus : nat -> nat -> nat
+        def plus = natElim (_).(nat -> nat) (x).x (_).(r).(n).(succ (r n))
         """.trimIndent().let { check(it) }
     }
 
 }) {
     companion object {
         fun check(program: String) =
-            (ParserStage() compile program).let { bindings ->
-                AbstractionStage() compile bindings
-            }.let { bindings ->
-                CheckerStage<Region.T>(invoke(program)) compile bindings
+            ErrorReporter(program).let { errorReporter ->
+                (ParserStage(errorReporter) compile program).let { bindings ->
+                    AbstractionStage() compile bindings
+                }.let { bindings ->
+                    CheckerStage<Region.T>(errorReporter) compile bindings
+                }
             }
     }
 }
