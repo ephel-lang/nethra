@@ -165,7 +165,7 @@ class CongruenceImpl<C>(
             }
         }
 
-    private fun Bindings<C>.withBindingEquals(lhd: Pair<String, Ast.Term<C>>, rhd: Pair<String, Ast.Term<C>>): Boolean =
+    private fun Bindings<C>.withBindingEquals(lhd: Pair<Id<C>, Ast.Term<C>>, rhd: Pair<Id<C>, Ast.Term<C>>): Boolean =
         with(builder) {
             val n = substitution.newVariable()
             congruent(lhd.second.substitute(lhd.first to id(n)), rhd.second.substitute(rhd.first to id(n)))

@@ -26,8 +26,8 @@ object Ast {
             override fun set(context: C?): Term<C> = Type(level, context)
         }
 
-        data class Id<C>(val value: String, override val context: C? = null) : Term<C>(context) {
-            override fun set(context: C?): Term<C> = Id(value, context)
+        data class Id<C>(val value: String, val initial: String?, override val context: C? = null) : Term<C>(context) {
+            override fun set(context: C?): Term<C> = Id(value, initial, context)
         }
 
         data class Lit<C>(val literal: Literal, override val context: C? = null) : Term<C>(context) {
@@ -35,7 +35,7 @@ object Ast {
         }
 
         data class Pi<C>(
-            val n: String,
+            val n: Id<C>,
             val bound: Term<C>,
             val body: Term<C>,
             val implicit: Boolean = false,
@@ -46,7 +46,7 @@ object Ast {
         }
 
         data class Lambda<C>(
-            val n: String,
+            val n: Id<C>,
             val body: Term<C>,
             val implicit: Boolean = false,
             override val context: C? = null,
@@ -63,7 +63,7 @@ object Ast {
             override fun set(context: C?): Term<C> = Apply(abstraction, argument, implicit, context)
         }
 
-        data class Sigma<C>(val n: String, val bound: Term<C>, val body: Term<C>, override val context: C? = null) :
+        data class Sigma<C>(val n: Id<C>, val bound: Term<C>, val body: Term<C>, override val context: C? = null) :
             Term<C>(context) {
             override fun set(context: C?): Term<C> = Sigma(n, bound, body, context)
         }
@@ -98,7 +98,7 @@ object Ast {
             override fun set(context: C?): Term<C> = Case(term, left, right, context)
         }
 
-        data class Rec<C>(val self: String, val body: Term<C>, override val context: C? = null) : Term<C>(context) {
+        data class Rec<C>(val self: Id<C>, val body: Term<C>, override val context: C? = null) : Term<C>(context) {
             override fun set(context: C?): Term<C> = Rec(self, body, context)
         }
 

@@ -7,7 +7,6 @@ import io.smallibs.lang.nethra.ast.Congruence
 import io.smallibs.lang.nethra.ast.Printer
 import io.smallibs.lang.nethra.ast.Reducer
 import io.smallibs.lang.nethra.ast.Substitution
-import io.smallibs.lang.nethra.ast.Variables
 import io.smallibs.lang.nethra.ast.Visitor
 import io.smallibs.lang.nethra.stages.report.CompilationException
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
@@ -22,10 +21,9 @@ class InferenceImpl<C>(
     private val builder: Builder<C> = Builder(),
     private val printer: Printer<C> = Printer(),
     private val reducer: Reducer<C> = Reducer(),
-    private val freeVariable: Variables<C> = Variables(),
 ) : Visitor<C, Bindings<C>, Pair<Ast.Term<C>?, List<Proof<C>>>>, Inference<C>, Builder<C> by builder,
     Congruence<C> by congruence, Checker<C> by checker, Printer<C> by printer, Substitution<C> by substitution,
-    Reducer<C> by reducer, Variables<C> by freeVariable {
+    Reducer<C> by reducer {
 
     override fun Bindings<C>.infer(term: Ast.Term<C>): Pair<Ast.Term<C>?, Proof<C>> =
         term.run(this).let { inferred -> inferred.first?.let { reduce(it) } to inferred.second }.let { inferred ->
@@ -62,7 +60,7 @@ class InferenceImpl<C>(
     // Γ ⊢ Π(x:M).N : T
     override fun Ast.Term.Pi<C>.run(i: Bindings<C>): Pair<Ast.Term<C>?, List<Proof<C>>> {
         val tbound = i.infer(bound)
-        val tbody = i.setSignature(n, bound).infer(body)
+        val tbody = i.setSignature(n.value, bound).infer(body)
         return tbody.first to listOf(tbound.second, tbody.second)
     }
 
@@ -104,7 +102,7 @@ class InferenceImpl<C>(
     // Γ ⊢ Σ(x:M).N : T
     override fun Ast.Term.Sigma<C>.run(i: Bindings<C>): Pair<Ast.Term<C>?, List<Proof<C>>> {
         val tbound = i.infer(bound)
-        val tbody = i.setSignature(n, bound).infer(body)
+        val tbody = i.setSignature(n.value, bound).infer(body)
         return tbody.first to listOf(tbound.second, tbody.second)
     }
 
@@ -116,7 +114,7 @@ class InferenceImpl<C>(
         val body = i.infer(rhd)
         return bound.first?.let { tbound ->
             body.first?.let { tbody ->
-                sigma(ANON, tbound, tbody)
+                sigma(id(ANON), tbound, tbody)
             }
         } to listOf(bound.second, body.second)
     }
@@ -203,7 +201,7 @@ class InferenceImpl<C>(
     // ---------------------
     // Γ ⊢ fold A : rec(x).N
     override fun Ast.Term.Fold<C>.run(i: Bindings<C>): Pair<Ast.Term<C>?, List<Proof<C>>> =
-        throw CompilationException.CannotInfer(this)
+        null to listOf(Proof.Failure())
 
     // Γ ⊢ A : rec(x).N
     // ----------------------------

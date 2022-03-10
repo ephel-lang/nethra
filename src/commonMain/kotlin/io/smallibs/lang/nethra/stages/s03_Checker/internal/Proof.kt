@@ -26,11 +26,14 @@ sealed interface Proof<C> {
         val computed: Term<C>,
     ) : Goal<C>
 
+    fun depth(): Int
+
     fun success(): Boolean
 
     fun error()
 
     data class Step<C>(val conclusion: Goal<C>, val premisses: List<Proof<C>> = listOf()) : Proof<C> {
+        override fun depth(): Int = 1 + (premisses.map { it.depth() }.reduceOrNull { a, b -> a + b } ?: 0)
         override fun success(): Boolean = premisses.all { it.success() }
         override fun error() {
             if (premisses.filter { it is Failure<C> }.isNotEmpty()) {
@@ -48,6 +51,7 @@ sealed interface Proof<C> {
     }
 
     data class Failure<C>(val reason: CompilationException? = null) : Proof<C> {
+        override fun depth(): Int = 1
         override fun success(): Boolean = false
         override fun error() {
             reason?.let { throw it }

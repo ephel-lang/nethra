@@ -23,7 +23,7 @@ class CongruenceTest : StringSpec({
         }
 
         "should compare Pi based on alpha conversion" {
-            pi("x", type(), id("x")) shouldBe pi("y", type(), id("y"))
+            pi(id("x"), type(), id("x")) shouldBe pi(id("y"), type(), id("y"))
         }
     }
 })

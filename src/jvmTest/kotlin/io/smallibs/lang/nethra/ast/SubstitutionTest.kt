@@ -8,10 +8,10 @@ class SubstitutionTest : StringSpec({
     Multi.with(Builder<Nothing>(), Substitution<Nothing>()) {
         {
             "substitute an id" {
-                id("x").substitute("x" to id("y")) shouldBe id("y")
+                id("x").substitute(id("x") to id("y")) shouldBe id("y")
             }
             "don't substitute an id" {
-                id("x").substitute("z" to id("y")) shouldBe id("x")
+                id("x").substitute(id("z") to id("y")) shouldBe id("x")
             }
         }
     }

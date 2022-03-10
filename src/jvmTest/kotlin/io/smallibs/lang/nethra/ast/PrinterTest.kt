@@ -20,19 +20,19 @@ class PrinterTest : StringSpec({
             }
 
             "should pretty Π" {
-                pi("x", type(), id("x")).prettyPrint() shouldBe "Π(x:Type_0).(x)"
+                pi(id("x"), type(), id("x")).prettyPrint() shouldBe "Π(x:Type_0).(x)"
             }
 
             "should pretty implicit Π" {
-                pi("x", type(), id("x"), true).prettyPrint() shouldBe "Π{x:Type_0}.(x)"
+                pi(id("x"), type(), id("x"), true).prettyPrint() shouldBe "Π{x:Type_0}.(x)"
             }
 
             "should pretty λ" {
-                lambda("x", id("x")).prettyPrint() shouldBe "λ(x).(x)"
+                lambda(id("x"), id("x")).prettyPrint() shouldBe "λ(x).(x)"
             }
 
             "should pretty implicit λ" {
-                lambda("x", id("x"), true).prettyPrint() shouldBe "λ{x}.(x)"
+                lambda(id("x"), id("x"), true).prettyPrint() shouldBe "λ{x}.(x)"
             }
 
             "should pretty apply" {
@@ -44,7 +44,7 @@ class PrinterTest : StringSpec({
             }
 
             "should pretty Σ" {
-                sigma("x", type(), id("x")).prettyPrint() shouldBe "Σ(x:Type_0).(x)"
+                sigma(id("x"), type(), id("x")).prettyPrint() shouldBe "Σ(x:Type_0).(x)"
             }
 
             "should pretty couple" {
@@ -72,8 +72,8 @@ class PrinterTest : StringSpec({
             }
 
             "should pretty recursion" {
-                rec("x",
-                    lambda("y", apply(id("x"), id("y")))).prettyPrint() shouldBe "μ(x).(λ(y).(x (y)))"
+                rec(id("x"),
+                    lambda(id("y"), apply(id("x"), id("y")))).prettyPrint() shouldBe "μ(x).(λ(y).(x (y)))"
             }
 
             "should pretty fold" {

@@ -34,7 +34,7 @@ class CheckerStage<C>(
         }.let {
             bindings.delta.map { (name, definition) ->
                 try {
-                    val type = bindings.getSignature(name) ?: throw CompilationException.Unbound(Ast.Term.Id<C>(name).set(definition.context))
+                    val type = bindings.getSignature(name) ?: throw CompilationException.Unbound(id(name).set(definition.context))
                     val check = bindings.check(definition, type)
                     if (!check.success()) {
                         ProofPrinter<C>().print(check)

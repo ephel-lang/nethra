@@ -55,15 +55,17 @@ class CheckerImpl<C>(
         type: Term<C>,
     ): Proof<C> = reduce(type).let { reducedType ->
         val i = Context(this, reducedType)
-        val r = term.run(i).let { r ->
-            if (r.all { it.success() }) {
-                Step(Proof.Check(i.gamma, term, reducedType), r)
+        val r = term.run(i).let { result ->
+            if (result.all { it.success() }) {
+                Step(Proof.Check(i.gamma, term, reducedType), result)
             } else {
                 val fallback = term.fallback(i)
                 if (fallback.all { it.success() }) {
                     Step(Proof.Check(i.gamma, term, reducedType), fallback)
                 } else {
-                    Step(Proof.Check(i.gamma, term, reducedType), r)
+                    Step(Proof.Check(i.gamma, term, reducedType), if (
+                        (fallback.map { it.depth() }.reduceOrNull { a, b -> a + b } ?: 0) > (result.map { it.depth() }
+                            .reduceOrNull { a, b -> a + b } ?: 0)) fallback else result)
                 }
             }
         }
@@ -116,7 +118,7 @@ class CheckerImpl<C>(
     // Γ ⊢ Π(x:M).N : T
     override fun Pi<C>.run(i: Context<C>): List<Proof<C>> = with(inferenceGenerator(this@CheckerImpl)) {
         i.gamma.infer(bound).let { infer ->
-            listOf(infer.second, i.gamma.setSignature(n, bound).check(body, i.type))
+            listOf(infer.second, i.gamma.setSignature(n.value, bound).check(body, i.type))
         }
     }
 
@@ -127,8 +129,8 @@ class CheckerImpl<C>(
         is Pi -> {
             if (implicit == i.type.implicit) {
                 val variable = substitution.newVariable()
-                val type = i.type.body.substitute(i.type.n to id(variable))
-                val body = body.substitute(n to id(variable))
+                val type = i.type.body.substitute(i.type.n to id(variable, i.type.n.value))
+                val body = body.substitute(n to id(variable, n.value))
                 listOf(i.gamma.setSignature(variable, i.type.bound).check(body, type))
             } else {
                 listOf(Failure())
@@ -146,7 +148,9 @@ class CheckerImpl<C>(
             is Pi -> if (implicit == type.implicit) {
                 val lhd = type.body.substitute(type.n to argument)
                 if (i.gamma.congruent(lhd, i.type)) {
-                    listOf(i.gamma.check(argument, type.bound))
+                    listOf(infer.second,
+                        Step(Congruent(i.gamma, argument, lhd, i.type)),
+                        i.gamma.check(argument, type.bound))
                 } else {
                     listOf(infer.second, Step(Congruent(i.gamma, argument, lhd, i.type), listOf(Failure())))
                 }
@@ -166,7 +170,7 @@ class CheckerImpl<C>(
     // Γ ⊢ Σ(x:M).N : T
     override fun Sigma<C>.run(i: Context<C>): List<Proof<C>> = with(inferenceGenerator(this@CheckerImpl)) {
         i.gamma.infer(bound) // TODO
-        listOf(i.gamma.setSignature(n, bound).check(body, i.type))
+        listOf(i.gamma.setSignature(n.value, bound).check(body, i.type))
     }
 
     // Γ ⊢ A : M   Γ ⊢ B : N[x=A]
@@ -253,7 +257,7 @@ class CheckerImpl<C>(
     // ----------------
     // Γ ⊢ rec(x).A : T
     override fun Rec<C>.run(i: Context<C>): List<Proof<C>> =
-        listOf(i.gamma.setSignature(self, i.type).check(body, i.type))
+        listOf(i.gamma.setSignature(self.value, i.type).check(body, i.type))
 
     // Γ ⊢ A : N[x=rec(x).N]
     // ---------------------
@@ -305,7 +309,7 @@ class CheckerImpl<C>(
             if (this is Lambda<C> && this.implicit) {
                 listOf(Failure())
             } else {
-                listOf(i.gamma.check(lambda(ANON, this, true).set(this.context), i.type))
+                listOf(i.gamma.check(lambda(id(ANON), this, true).set(this.context), i.type))
             }
         } else {
             listOf(Failure())

@@ -15,7 +15,7 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
 
     override fun Ast.Term.Type<C>.run(i: Unit) = "Type_$level"
 
-    override fun Ast.Term.Id<C>.run(i: Unit) = value
+    override fun Ast.Term.Id<C>.run(i: Unit) = initial ?: value
 
     override fun Ast.Term.Lit<C>.run(i: Unit) =
         when (this.literal) {
@@ -26,18 +26,18 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
 
     override fun Ast.Term.Pi<C>.run(i: Unit) =
         when (implicit) {
-            true -> "Π{${n}:${bound.prettyPrint()}}.(${body.prettyPrint()})"
+            true -> "Π{${n.prettyPrint()}:${bound.prettyPrint()}}.(${body.prettyPrint()})"
             false ->
-                if (n == ANON)
+                if (n.value == ANON)
                     "${bound.prettyPrint()} -> ${body.prettyPrint()}"
                 else
-                    "Π(${n}:${bound.prettyPrint()}).(${body.prettyPrint()})"
+                    "Π(${n.prettyPrint()}:${bound.prettyPrint()}).(${body.prettyPrint()})"
         }
 
     override fun Ast.Term.Lambda<C>.run(i: Unit) =
         when (implicit) {
-            true -> "λ{${n}}.(${body.prettyPrint()})"
-            false -> "λ(${n}).(${body.prettyPrint()})"
+            true -> "λ{${n.prettyPrint()}}.(${body.prettyPrint()})"
+            false -> "λ(${n.prettyPrint()}).(${body.prettyPrint()})"
         }
 
     override fun Ast.Term.Apply<C>.run(i: Unit) =
@@ -46,7 +46,7 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
             false -> "${abstraction.prettyPrint()} (${argument.prettyPrint()})"
         }
 
-    override fun Ast.Term.Sigma<C>.run(i: Unit) = "Σ(${n}:${bound.prettyPrint()}).(${body.prettyPrint()})"
+    override fun Ast.Term.Sigma<C>.run(i: Unit) = "Σ(${n.prettyPrint()}:${bound.prettyPrint()}).(${body.prettyPrint()})"
 
     override fun Ast.Term.Couple<C>.run(i: Unit) = "(${lhd.prettyPrint()},${rhd.prettyPrint()})"
 
@@ -63,7 +63,7 @@ class PrinterImpl<C> : Printer<C>, Visitor<C, Unit, String> {
     override fun Ast.Term.Case<C>.run(i: Unit) =
         "case ${term.prettyPrint()} ${left.prettyPrint()} ${right.prettyPrint()}"
 
-    override fun Ast.Term.Rec<C>.run(i: Unit) = "μ(${self}).(${body.prettyPrint()})"
+    override fun Ast.Term.Rec<C>.run(i: Unit) = "μ(${self.prettyPrint()}).(${body.prettyPrint()})"
 
     override fun Ast.Term.Fold<C>.run(i: Unit) = "fold ${term.prettyPrint()}"
 

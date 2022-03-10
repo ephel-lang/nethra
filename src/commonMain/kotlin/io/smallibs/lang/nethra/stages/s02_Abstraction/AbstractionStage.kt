@@ -24,14 +24,14 @@ class AbstractionStage(
         is Cst.Term.CharLiteral -> char(value)
         is Cst.Term.IntLiteral -> int(value)
         is Cst.Term.StringLiteral -> string(value)
-        is Cst.Term.Forall -> pi(this.v ?: ANON, bound.compile(), body.compile(), implicit)
+        is Cst.Term.Forall -> pi(id(this.v ?: ANON), bound.compile(), body.compile(), implicit)
         is Cst.Term.Apply -> apply(lhd.compile(), rhd.compile(), implicit)
-        is Cst.Term.Lambda -> lambda(v, body.compile(), implicit)
-        is Cst.Term.Exists -> sigma(this.v ?: ANON, bound.compile(), body.compile())
+        is Cst.Term.Lambda -> lambda(id(v), body.compile(), implicit)
+        is Cst.Term.Exists -> sigma(id(this.v ?: ANON), bound.compile(), body.compile())
         is Cst.Term.Couple -> pair(lhd.compile(), rhd.compile())
         is Cst.Term.Disjunction -> or(lhd.compile(), rhd.compile())
         is Cst.Term.Case -> case(term.compile(), lhd.compile(), rhd.compile())
-        is Cst.Term.Rec -> rec(v, body.compile())
+        is Cst.Term.Rec -> rec(id(v), body.compile())
         is Cst.Term.SpecialApp ->
             when (operation) {
                 Cst.Term.Operation.inl -> inl(term.compile())
@@ -42,7 +42,7 @@ class AbstractionStage(
                 Cst.Term.Operation.unfold -> unfold(term.compile())
             }
         is Cst.Term.LetBinding ->
-            body.compile().substitute(name to value.compile())
+            body.compile().substitute(id(name) to value.compile())
     }
 
     private fun compile(i: Cst.Localised<Cst.Binding>): Ast.Binding<Region.T> = when (val binding = i.value) {

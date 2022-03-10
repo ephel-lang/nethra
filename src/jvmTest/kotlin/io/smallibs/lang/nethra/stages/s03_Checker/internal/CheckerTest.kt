@@ -43,101 +43,101 @@ class CheckerTest : StringSpec({
 
             " ✅ Γ |- Π(x:int).int : Type_0" {
                 val int = id("int")
-                Bindings<Nothing>().check(pi("x", int, int), type()).success() shouldBe true
+                Bindings<Nothing>().check(pi(id("x"), int, int), type()).success() shouldBe true
             }
 
             " ❌ Γ |- Π(x:int).type : Type_0" {
                 shouldThrowExactly<CompilationException.CannotCompare> {
                     val int = id("int")
-                    Bindings<Nothing>().check(pi("x", int, type()), type()).error()
+                    Bindings<Nothing>().check(pi(id("x"), int, type()), type()).error()
                 }
             }
 
             " ✅ Γ |- λ(x).x : Π(x:int).int" {
                 val int = id("int")
-                Bindings<Nothing>().check(lambda("y", id("y")), pi("x", int, int)).success() shouldBe true
+                Bindings<Nothing>().check(lambda(id("y"), id("y")), pi(id("x"), int, int)).success() shouldBe true
             }
 
             " ✅ Γ |- λ(x).x : int → int" {
                 val int = id("int")
-                Bindings<Nothing>().check(lambda("y", id("y")), int arrow int).success() shouldBe true
+                Bindings<Nothing>().check(lambda(id("y"), id("y")), int arrow int).success() shouldBe true
             }
 
             " ✅ Γ |- λ(x).int : Π(x:int).Type_0" {
                 val int = id("int")
-                Bindings<Nothing>().check(lambda("x", int), pi("x", int, type())).success() shouldBe true
+                Bindings<Nothing>().check(lambda(id("x"), int), pi(id("x"), int, type())).success() shouldBe true
             }
 
             " ✅ Γ |- (λ(x).x :: int -> int) 1 : int" {
                 val int = id("int")
-                val func = lambda("x", id("x"))
+                val func = lambda(id("x"), id("x"))
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- (λ(_).λ(x).x :: Π(t:Type).t -> t) int 1 : int" {
                 val int = id("int")
-                val func = lambda(ANON, lambda("x", id("x")))
+                val func = lambda(id(ANON), lambda(id("x"), id("x")))
                 Bindings<Nothing>().check(apply(apply(func, int), int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) {int} 1 : int" {
                 val int = id("int")
-                val func = lambda(ANON, lambda("x", id("x")), true)
+                val func = lambda(id(ANON), lambda(id("x"), id("x")), true)
                 Bindings<Nothing>().check(apply(apply(func, int, true), int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t:Type}.t -> t) 1 : int" {
                 val int = id("int")
-                val func = lambda(ANON, lambda("x", id("x")), true)
+                val func = lambda(id(ANON), lambda(id("x"), id("x")), true)
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- (λ{_}.λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
                 val int = id("int")
-                val func = lambda(ANON, lambda("x", id("x")), true)
+                val func = lambda(id(ANON), lambda(id("x"), id("x")), true)
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- (λ(x).x :: Π{t2:Type}.t2 -> t2) 1 : int" {
                 val int = id("int")
-                val func = lambda("x", id("x"))
+                val func = lambda(id("x"), id("x"))
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- λ(x).x 1 : int" {
                 val int = id("int")
-                val func = lambda("x", id("x"))
+                val func = lambda(id("x"), id("x"))
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ✅ Γ |- λ{_}.λ(x).x 1 : int" {
                 val int = id("int")
-                val func = lambda(ANON, lambda("x", id("x")), true)
+                val func = lambda(id(ANON), lambda(id("x"), id("x")), true)
                 Bindings<Nothing>().check(apply(func, int(1)), int).success() shouldBe true
             }
 
             " ❌ Γ |- λ(x).x 1 : char" {
                 shouldThrowExactly<CompilationException.CannotCompare> {
                     val char = id("char")
-                    Bindings<Nothing>().check(apply(lambda("x", id("x")), int(1)), char).error()
+                    Bindings<Nothing>().check(apply(lambda(id("x"), id("x")), int(1)), char).error()
                 }
             }
 
             " ✅ Γ |- Σ(x:int).int : Type_0" {
                 val int = id("int")
-                Bindings<Nothing>().check(sigma("x", int, int), type()).success() shouldBe true
+                Bindings<Nothing>().check(sigma(id("x"), int, int), type()).success() shouldBe true
             }
 
             " ❌ Γ |- Σ(x:int).Type_0 : Type_0" {
                 shouldThrowExactly<CompilationException.CannotCompare> {
                     val int = id("int")
-                    Bindings<Nothing>().check(sigma("x", int, type()), type()).error()
+                    Bindings<Nothing>().check(sigma(id("x"), int, type()), type()).error()
                 }
             }
 
             " ✅ Γ |- int,2 : Σ(x:Type_0).x" {
                 val int = id("int")
-                Bindings<Nothing>().check(pair(int, int(2)), sigma("x", type(), id("x"))).success() shouldBe true
+                Bindings<Nothing>().check(pair(int, int(2)), sigma(id("x"), type(), id("x"))).success() shouldBe true
             }
 
             " ✅ Γ |- 1,2 : int*int" {
@@ -148,7 +148,7 @@ class CheckerTest : StringSpec({
             " ❌ Γ |- char,2 : Σ(x:Type_0).x" {
                 shouldThrowExactly<CompilationException.CannotCompare> {
                     val char = id("char")
-                    Bindings<Nothing>().check(pair(char, int(2)), sigma("x", type(), id("x"))).error()
+                    Bindings<Nothing>().check(pair(char, int(2)), sigma(id("x"), type(), id("x"))).error()
                 }
             }
 
@@ -158,7 +158,7 @@ class CheckerTest : StringSpec({
             }
 
             " ✅ Γ, x : Σ(x:Type_0).x |- fst x : Type_0" {
-                Bindings<Nothing>().setSignature("x", sigma("x", type(), id("x")))
+                Bindings<Nothing>().setSignature("x", sigma(id("x"), type(), id("x")))
                     .check(fst(id("x")), type()).success() shouldBe true
             }
 
@@ -174,7 +174,7 @@ class CheckerTest : StringSpec({
             }
 
             " ✅ Γ, y : Σ(x:Type_0).x |- snd y : fst y" {
-                Bindings<Nothing>().setSignature("y", sigma("x", type(), id("x")))
+                Bindings<Nothing>().setSignature("y", sigma(id("x"), type(), id("x")))
                     .check(snd(id("y")), fst(id("y"))).success() shouldBe true
             }
 
@@ -229,8 +229,8 @@ class CheckerTest : StringSpec({
                 val int = id("int")
                 val term = id("e")
                 val type = or(id("A"), id("B"))
-                val left = lambda(ANON, int(0))
-                val right = lambda(ANON, int(1))
+                val left = lambda(id(ANON), int(0))
+                val right = lambda(id(ANON), int(1))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int).success() shouldBe true
             }
 
@@ -239,8 +239,8 @@ class CheckerTest : StringSpec({
                     val int = id("int")
                     val term = id("e")
                     val type = or(id("A"), id("B"))
-                    val left = lambda(ANON, int(0))
-                    val right = lambda(ANON, char('1'))
+                    val left = lambda(id(ANON), int(0))
+                    val right = lambda(id(ANON), char('1'))
                     Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), int).error()
                 }
             }
@@ -249,26 +249,26 @@ class CheckerTest : StringSpec({
                 val intOrChar = or(id("int"), id("char"))
                 val term = id("e")
                 val type = or(id("A"), id("B"))
-                val left = lambda(ANON, inl(int(0)))
-                val right = lambda(ANON, inr(char('1')))
+                val left = lambda(id(ANON), inl(int(0)))
+                val right = lambda(id(ANON), inr(char('1')))
                 Bindings<Nothing>().setSignature("e", type).check(case(term, left, right), intOrChar).success() shouldBe true
             }
 
             " ✅ Γ |- μ(x).(x -> int) : Type_0" {
                 val int = id("int")
-                Bindings<Nothing>().check(rec("x", id("x") arrow int), type()).success() shouldBe true
+                Bindings<Nothing>().check(rec(id("x"), id("x") arrow int), type()).success() shouldBe true
             }
 
             " ✅ Γ, a : μ(x).(x -> int) -> int |- fold μ(x).(x -> int) a : μ(x).(x -> int)" {
                 val int = id("int")
-                val rec = rec("x", id("x") arrow int)
+                val rec = rec(id("x"), id("x") arrow int)
                 val unfolded = rec arrow int
                 Bindings<Nothing>().setSignature("a", unfolded).check(fold(id("a")), rec).success() shouldBe true
             }
 
             " ✅ Γ, a : μ(x).(x -> int) |- unfold μ(x).(x -> int) a  : μ(x).(x -> int) -> int" {
                 val int = id("int")
-                val rec = rec("x", id("x") arrow int)
+                val rec = rec(id("x"), id("x") arrow int)
                 val unfolded = rec arrow int
                 Bindings<Nothing>().setSignature("a", rec).check(unfold(id("a")), unfolded).success() shouldBe true
             }
