@@ -3,7 +3,7 @@ package io.smallibs.lang.nethra.stages.s03_Checker
 import io.kotest.core.spec.style.StringSpec
 import io.smallibs.lang.nethra.stages.report.ErrorReporter
 import io.smallibs.lang.nethra.stages.s01_Parser.ParserStage
-import io.smallibs.lang.nethra.stages.s02_Abstraction.AbstractionStage
+import io.smallibs.lang.nethra.stages.s02_Abstraction.BindingAbstractionStage
 import io.smallibs.parsec.parser.Region
 
 class CheckerStageTest : StringSpec({
@@ -116,7 +116,7 @@ class CheckerStageTest : StringSpec({
               
         sig unit  : type        
         sig value : A_T unit -> int
-        def value = (x).((snd (A_n x)) (snd (A_m x)))        
+        def value = (x).((snd (A_n x)) (snd (A_m x)))
         """.trimIndent().let { check(it) }
     }
 
@@ -185,7 +185,7 @@ class CheckerStageTest : StringSpec({
         sig False : false
         
         sig isEmpty : {X:type} -> list X -> bool
-        def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
+        def isEmpty = (l).case unfold l (_).inl True (_).inr False
         """.trimIndent().let { check(it) }
     }
 
@@ -343,10 +343,10 @@ class CheckerStageTest : StringSpec({
     companion object {
         fun check(program: String) =
             ErrorReporter(program).let { errorReporter ->
-                (ParserStage(errorReporter) compile program).let { bindings ->
-                    AbstractionStage() compile bindings
+                (ParserStage(errorReporter) act program).let { bindings ->
+                    BindingAbstractionStage() act bindings
                 }.let { bindings ->
-                    CheckerStage<Region.T>(errorReporter) compile bindings
+                    CheckerStage<Region.T>(errorReporter) act bindings
                 }
             }
     }

@@ -112,10 +112,9 @@ object Ast {
 
         data class Ref<A>(var value: A? = null)
 
-        // [WIP] This reference should be removed
-        data class Hole<C>(val value: String, val ref: Ref<Term<C>> = Ref(), override val context: C? = null) :
+        data class Hole<C>(val value: String, val external: String? = null, val ref: Ref<Term<C>> = Ref(), override val context: C? = null) :
             Term<C>(context) {
-            override fun set(context: C?): Term<C> = Hole(value, ref, context)
+            override fun set(context: C?): Term<C> = Hole(value, external, ref, context)
         }
 
         companion object {

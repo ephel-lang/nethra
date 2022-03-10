@@ -157,7 +157,7 @@ class CheckerImpl<C>(
             } else if (type.implicit) {
                 val variable = substitution.newVariable()
                 val gamma = i.gamma.setSignature(variable, type.bound)
-                listOf(gamma.check(apply(apply(abstraction, hole(variable), true), argument), i.type))
+                listOf(gamma.check(apply(apply(abstraction, hole(variable, type.n.initial ?: type.n.value), true), argument), i.type))
             } else {
                 listOf(infer.second, Failure())
             }
@@ -309,7 +309,7 @@ class CheckerImpl<C>(
             if (this is Lambda<C> && this.implicit) {
                 listOf(Failure())
             } else {
-                listOf(i.gamma.check(lambda(id(ANON), this, true).set(this.context), i.type))
+                listOf(i.gamma.check(lambda(i.type.n, this, true).set(this.context), i.type))
             }
         } else {
             listOf(Failure())

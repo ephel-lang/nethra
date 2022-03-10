@@ -1,9 +1,10 @@
 package io.smallibs.lang.nethra.stages.report.impl
 
 import io.smallibs.lang.nethra.ast.Ast
-import io.smallibs.lang.nethra.ast.Printer
+import io.smallibs.lang.nethra.cst.Cst.prettyPrint
 import io.smallibs.lang.nethra.stages.report.CompilationException
 import io.smallibs.lang.nethra.stages.report.ErrorReporter
+import io.smallibs.lang.nethra.stages.s02_Abstraction.TermConcretizationStage
 import io.smallibs.parsec.parser.Region
 import io.smallibs.parsec.utils.Location
 
@@ -14,7 +15,7 @@ data class ErrorReporterImpl(private val source: String) : ErrorReporter {
     @Suppress("UNCHECKED_CAST")
     override fun report(error: CompilationException) {
         errors += 1
-        with(Printer<Region.T>()) {
+        with(TermConcretizationStage()) {
             when (error) {
                 is CompilationException.SyntaxError -> {
                     println("| error $errors: line ${error.location.line}, character ${error.location.column}")
@@ -24,7 +25,7 @@ data class ErrorReporterImpl(private val source: String) : ErrorReporter {
                     display(error.term as Ast.Term<Region.T>)
 
                     val type = error.type as Ast.Term<Region.T>
-                    println("| reason: a ${type.prettyPrint()} is expected")
+                    println("| reason: a ${act(type).prettyPrint()} is expected")
                 }
                 is CompilationException.CannotInfer -> {
                     display(error.term as Ast.Term<Region.T>)
@@ -32,14 +33,14 @@ data class ErrorReporterImpl(private val source: String) : ErrorReporter {
                 }
                 is CompilationException.Unbound -> {
                     display(error.term as Ast.Term<Region.T>)
-                    println("| reason: unbound identifier ${error.term.prettyPrint()}")
+                    println("| reason: unbound identifier ${act(error.term).prettyPrint()}")
                 }
                 is CompilationException.CannotCompare -> {
                     display(error.term as Ast.Term<Region.T>)
 
                     val computed = error.computed as Ast.Term<Region.T>
                     val expected = error.expected as Ast.Term<Region.T>
-                    println("| reason: has type ${computed.prettyPrint()} but waiting for ${expected.prettyPrint()}")
+                    println("| reason: has type ${act(computed).prettyPrint()} but waiting for ${act(expected).prettyPrint()}")
                 }
             }
             println()

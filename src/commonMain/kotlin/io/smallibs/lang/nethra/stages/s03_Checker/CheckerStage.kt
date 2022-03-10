@@ -18,7 +18,7 @@ class CheckerStage<C>(
 ) : Stage<Bindings<C>, Bindings<C>>, Builder<C> by builder, Checker<C> by checker, Congruence<C> by congruence,
     ErrorReporter by reporter {
 
-    override infix fun compile(bindings: Bindings<C>): Bindings<C> = with(Inference(checker)) {
+    override infix fun act(bindings: Bindings<C>): Bindings<C> = with(Inference(checker)) {
         bindings.gamma.map { (_, type) ->
             try {
                 val check = bindings.check(type, type(2))

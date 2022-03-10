@@ -4,6 +4,8 @@ import io.smallibs.parsec.utils.Location
 
 object Region {
 
+    val none = T(Location(), Location())
+
     data class T(val begin: Location, val end: Location)
 
     fun <I, O> Parser<I, O>.locate(): Parser<I, Pair<T, O>> = { reader ->

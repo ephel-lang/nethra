@@ -9,7 +9,7 @@ class ParserStageTest : StringSpec({
     "[compile/decompile] sig t : int def t = 1" {
         "sig t : int def t = 1".let { source ->
             with(ParserStage(ErrorReporter(source))) {
-                decompile(compile(source)) shouldBe "sig t : int\ndef t = 1"
+                decompile(act(source)) shouldBe "sig t : int\ndef t = 1"
             }
         }
     }

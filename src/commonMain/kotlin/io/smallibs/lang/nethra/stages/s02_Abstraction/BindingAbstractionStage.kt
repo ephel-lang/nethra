@@ -9,11 +9,13 @@ import io.smallibs.lang.nethra.stages.common.Stage
 import io.smallibs.lang.nethra.stages.s03_Checker.internal.Bindings
 import io.smallibs.parsec.parser.Region
 
-class AbstractionStage(
-    val builder: Builder<Region.T> = Builder(),
-    val substitution: Substitution<Region.T> = Substitution(),
-) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<Region.T>>, Substitution<Region.T> by substitution,
+class BindingAbstractionStage(
+    private val builder: Builder<Region.T> = Builder(),
+    private val substitution: Substitution<Region.T> = Substitution(),
+) : Stage<List<Cst.Localised<Cst.Binding>>, Bindings<Region.T>>,
+    Substitution<Region.T> by substitution,
     Builder<Region.T> by builder {
+
     private fun Cst.Localised<Cst.Term>.compile(): Ast.Term<Region.T> =
         this.value.compile().set(this.region)
 
@@ -50,7 +52,7 @@ class AbstractionStage(
         is Cst.Binding.Definition -> Ast.Binding.Definition(binding.name, binding.value.compile())
     }
 
-    override infix fun compile(i: List<Cst.Localised<Cst.Binding>>): Bindings<Region.T> =
+    override infix fun act(i: List<Cst.Localised<Cst.Binding>>): Bindings<Region.T> =
         i.map { compile(it).set(it.region) }.let { bindings ->
             Bindings(
                 bindings.filterIsInstance<Ast.Binding.Signature<Region.T>>().associate { it.name to it.value },

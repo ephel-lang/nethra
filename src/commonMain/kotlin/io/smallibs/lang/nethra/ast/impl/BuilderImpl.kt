@@ -30,5 +30,5 @@ class BuilderImpl<C> : Builder<C> {
     override fun fold(e: Ast.Term<C>) = Ast.Term.Fold(e)
     override fun unfold(e: Ast.Term<C>) = Ast.Term.Unfold(e)
 
-    override fun hole(name: String): Ast.Term.Hole<C> = Ast.Term.Hole(name)
+    override fun hole(name: String, external: String?): Ast.Term.Hole<C> = Ast.Term.Hole(name, external)
 }

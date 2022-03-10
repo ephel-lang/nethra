@@ -13,8 +13,8 @@ object Cst {
 
         fun pretty(atom: Boolean = false): String =
             when (this) {
-                is Signature -> "sig $name : ${value.prettyTerm()}"
-                is Definition -> "def $name = ${value.prettyTerm()}"
+                is Signature -> "sig $name : ${value.prettyPrint()}"
+                is Definition -> "def $name = ${value.prettyPrint()}"
             }
     }
 
@@ -61,30 +61,30 @@ object Cst {
             is Data ->
                 "data $name : ${type.value.pretty(true)}"
             is Forall -> {
-                if (v == null) "${bound.prettyTerm()} -> ${body.prettyTerm(true)}"
-                else if (implicit) "{$v:${bound.prettyTerm()}} -> ${body.prettyTerm()}"
-                else "($v:${bound.prettyTerm()}) -> ${body.prettyTerm()}"
+                if (v == null) "${bound.prettyPrint()} -> ${body.prettyPrint(true)}"
+                else if (implicit) "{$v:${bound.prettyPrint()}} -> ${body.prettyPrint()}"
+                else "($v:${bound.prettyPrint()}) -> ${body.prettyPrint()}"
             }
             is Apply -> {
-                if (implicit) "${lhd.prettyTerm()} {${rhd.prettyTerm()}}"
-                else "${lhd.prettyTerm()} ${rhd.prettyTerm(true)}"
+                if (implicit) "${lhd.prettyPrint()} {${rhd.prettyPrint()}}"
+                else "${lhd.prettyPrint()} ${rhd.prettyPrint(true)}"
             }
             is Lambda ->
-                if (implicit) "{$v}.${body.prettyTerm(true)}"
-                else "($v).${body.prettyTerm(true)}"
-            is Exists -> if (v == null) "${bound.prettyTerm()} * ${body.prettyTerm(true)}"
-            else "($v:${bound.prettyTerm()}) * ${body.prettyTerm()}"
-            is Couple -> "${lhd.prettyTerm(true)} , ${rhd.prettyTerm(true)}"
+                if (implicit) "{$v}.${body.prettyPrint(true)}"
+                else "($v).${body.prettyPrint(true)}"
+            is Exists -> if (v == null) "${bound.prettyPrint()} * ${body.prettyPrint(true)}"
+            else "($v:${bound.prettyPrint()}) * ${body.prettyPrint()}"
+            is Couple -> "${lhd.prettyPrint(true)} , ${rhd.prettyPrint(true)}"
             is Disjunction ->
-                "${lhd.prettyTerm(true)} | ${rhd.prettyTerm(true)}"
+                "${lhd.prettyPrint(true)} | ${rhd.prettyPrint(true)}"
             is Case ->
-                "case ${term.prettyTerm(true)} ${lhd.prettyTerm(true)} ${rhd.prettyTerm(true)}"
+                "case ${term.prettyPrint(true)} ${lhd.prettyPrint(true)} ${rhd.prettyPrint(true)}"
             is Rec ->
-                "rec($v).${body.prettyTerm(true)}"
+                "rec($v).${body.prettyPrint(true)}"
             is SpecialApp ->
-                "$operation ${term.prettyTerm(true)}"
+                "$operation ${term.prettyPrint(true)}"
             is LetBinding ->
-                "let $name = ${value.prettyTerm()} in ${body.prettyTerm(true)}"
+                "let $name = ${value.prettyPrint()} in ${body.prettyPrint(true)}"
         }
 
         private fun isAtom(): Boolean = when (this) {
@@ -111,7 +111,7 @@ object Cst {
 
     data class Localised<V>(val value: V, val region: Region.T)
 
-    fun Localised<Term>.prettyTerm(atom: Boolean = false) = value.pretty(atom)
+    fun Localised<Term>.prettyPrint(atom: Boolean = false) = value.pretty(atom)
 
     fun Localised<Binding>.prettyBinding(atom: Boolean = false) = value.pretty(atom)
 }

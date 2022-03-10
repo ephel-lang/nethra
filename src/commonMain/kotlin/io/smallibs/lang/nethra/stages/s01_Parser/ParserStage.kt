@@ -12,7 +12,7 @@ import io.smallibs.parsec.parser.Flow.optrep
 import io.smallibs.parsec.parser.Flow.thenLeft
 
 class ParserStage(private val reporter: ErrorReporter) : Stage<String, List<Cst.Localised<Cst.Binding>>> {
-    override infix fun compile(i: String): List<Cst.Localised<Cst.Binding>> =
+    override infix fun act(i: String): List<Cst.Localised<Cst.Binding>> =
         (BindingParser().optrep thenLeft eos())(string(i)).fold({ it.value }, {
             val error = CompilationException.SyntaxError(it.location)
             reporter.report(error)

@@ -87,7 +87,7 @@ class InferenceImpl<C>(
                     }
                 } else if (type.implicit) {
                     val v = substitution.newVariable()
-                    val t = apply(apply(abstraction, hole(v), true), argument)
+                    val t = apply(apply(abstraction, hole(v, type.n.initial ?: type.n.value), true), argument)
                     val r = i.setSignature(v, type.bound).infer(t)
                     r.first to listOf(r.second)
                 } else {

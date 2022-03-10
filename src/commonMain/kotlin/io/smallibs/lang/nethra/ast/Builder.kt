@@ -31,7 +31,7 @@ interface Builder<C> {
     fun fold(e: Ast.Term<C>): Ast.Term.Fold<C>
     fun unfold(e: Ast.Term<C>): Ast.Term.Unfold<C>
 
-    fun hole(name: String): Ast.Term.Hole<C>
+    fun hole(name: String, external: String? = null): Ast.Term.Hole<C>
 
     companion object {
         operator fun <C> invoke(): Builder<C> = BuilderImpl()
