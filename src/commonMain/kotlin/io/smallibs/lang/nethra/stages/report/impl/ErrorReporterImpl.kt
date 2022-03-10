@@ -1,12 +1,11 @@
-package io.smallibs.lang.nethra.stages.errors.impl
+package io.smallibs.lang.nethra.stages.report.impl
 
 import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Printer
-import io.smallibs.lang.nethra.stages.errors.CompilationException
-import io.smallibs.lang.nethra.stages.errors.ErrorReporter
+import io.smallibs.lang.nethra.stages.report.CompilationException
+import io.smallibs.lang.nethra.stages.report.ErrorReporter
 import io.smallibs.parsec.parser.Region
 import io.smallibs.parsec.utils.Location
-import kotlin.math.max
 
 data class ErrorReporterImpl(private val source: String) : ErrorReporter {
 

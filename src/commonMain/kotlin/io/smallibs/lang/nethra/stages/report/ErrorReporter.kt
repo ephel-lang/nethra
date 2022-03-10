@@ -1,6 +1,6 @@
-package io.smallibs.lang.nethra.stages.errors
+package io.smallibs.lang.nethra.stages.report
 
-import io.smallibs.lang.nethra.stages.errors.impl.ErrorReporterImpl
+import io.smallibs.lang.nethra.stages.report.impl.ErrorReporterImpl
 
 interface ErrorReporter {
 

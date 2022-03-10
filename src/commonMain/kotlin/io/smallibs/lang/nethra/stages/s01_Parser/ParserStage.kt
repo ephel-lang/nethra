@@ -3,8 +3,8 @@ package io.smallibs.lang.nethra.stages.s01_Parser
 import io.smallibs.lang.nethra.cst.Cst
 import io.smallibs.lang.nethra.cst.Cst.prettyBinding
 import io.smallibs.lang.nethra.stages.common.Stage
-import io.smallibs.lang.nethra.stages.errors.CompilationException
-import io.smallibs.lang.nethra.stages.errors.ErrorReporter
+import io.smallibs.lang.nethra.stages.report.CompilationException
+import io.smallibs.lang.nethra.stages.report.ErrorReporter
 import io.smallibs.lang.nethra.stages.s01_Parser.internal.BindingParser
 import io.smallibs.parsec.io.Reader.Companion.string
 import io.smallibs.parsec.parser.Flow.eos

@@ -24,8 +24,8 @@ class ReducerImpl<C>(
 ) : Reducer<C>, Printer<C> by printer, Substitution<C> by substitution {
 
     override fun Bindings<C>.reduce(t: Ast.Term<C>): Ast.Term<C> =
-        println("[?] ${t.prettyPrint()} *→ ?").let {
-        // Unit.let {
+        // println("[?] ${t.prettyPrint()} *→ ?").let {
+        Unit.let {
             when (t) {
                 is Hole ->
                     t.ref.value?.let { reduce(it) } ?: t
@@ -50,7 +50,7 @@ class ReducerImpl<C>(
                 else -> t
             }
         }.let {
-            println("[?] ${t.prettyPrint()} *→ ${it.prettyPrint()}")
+            // println("[?] ${t.prettyPrint()} *→ ${it.prettyPrint()}")
             it
         }
 

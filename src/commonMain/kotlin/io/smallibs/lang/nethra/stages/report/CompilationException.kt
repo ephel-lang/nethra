@@ -1,4 +1,4 @@
-package io.smallibs.lang.nethra.stages.errors
+package io.smallibs.lang.nethra.stages.report
 
 import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.parsec.utils.Location

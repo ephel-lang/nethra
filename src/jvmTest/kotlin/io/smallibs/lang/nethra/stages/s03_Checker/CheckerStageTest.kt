@@ -1,12 +1,21 @@
 package io.smallibs.lang.nethra.stages.s03_Checker
 
 import io.kotest.core.spec.style.StringSpec
-import io.smallibs.lang.nethra.stages.errors.ErrorReporter
+import io.smallibs.lang.nethra.stages.report.ErrorReporter
 import io.smallibs.lang.nethra.stages.s01_Parser.ParserStage
 import io.smallibs.lang.nethra.stages.s02_Abstraction.AbstractionStage
 import io.smallibs.parsec.parser.Region
 
 class CheckerStageTest : StringSpec({
+
+    "[checker] combineInt/add" {
+        """
+        sig add : int -> int -> int
+        
+        sig combineInt : (t).(t -> t -> t) int   
+        def combineInt = add
+        """.trimIndent().let { check(it) }
+    }
 
     "[checker] zero" {
         """
@@ -21,15 +30,6 @@ class CheckerStageTest : StringSpec({
         
         sig add : int -> int -> int    
         def add = combine {int}
-        """.trimIndent().let { check(it) }
-    }
-
-    "[checker] combineInt/add" {
-        """
-        sig add : int -> int -> int
-        
-        sig combineInt : (t).(t -> t -> t) int   
-        def combineInt = add
         """.trimIndent().let { check(it) }
     }
 
@@ -167,7 +167,7 @@ class CheckerStageTest : StringSpec({
         sig list : type -> type
         
         sig nil  : {X:type} -> list X
-        def nil  = fold (inl Unit)        
+        def nil  = fold (inl Unit)
         sig cons : {X:type} -> X -> list X -> list X
         def cons = (head).(tail).fold inr (head,tail)
         def list = (X).rec(l).(unit | (X * l)) 
