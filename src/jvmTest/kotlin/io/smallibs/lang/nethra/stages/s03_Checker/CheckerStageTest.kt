@@ -66,7 +66,7 @@ class CheckerStageTest : StringSpec({
         sig m1 : ic (inl 1)
         def m1 = 'c'
 
-        sig m2 : ic (inr 'c') | ic (inl 1) 
+        sig m2 : ic (inr 1) | ic (inl 1) 
         def m2 = inl 1
         """.trimIndent().let { check(it) }
     }

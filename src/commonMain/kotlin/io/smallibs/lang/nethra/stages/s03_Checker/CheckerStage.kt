@@ -1,6 +1,5 @@
 package io.smallibs.lang.nethra.stages.s03_Checker
 
-import io.smallibs.lang.nethra.ast.Ast
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Congruence
 import io.smallibs.lang.nethra.stages.common.Stage
@@ -24,7 +23,7 @@ class CheckerStage<C>(
             try {
                 val check = bindings.check(type, type(2))
                 if (!check.success()) {
-                    ProofPrinter<C>().print(check)
+                    ProofPrinter<C>().printError(check)
                     println()
                     check.error()
                 }
@@ -37,7 +36,7 @@ class CheckerStage<C>(
                     val type = bindings.getSignature(name) ?: throw CompilationException.Unbound(id(name).set(definition.context))
                     val check = bindings.check(definition, type)
                     if (!check.success()) {
-                        ProofPrinter<C>().print(check)
+                        ProofPrinter<C>().printError(check)
                         println()
                         check.error()
                     }
