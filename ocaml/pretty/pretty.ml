@@ -38,16 +38,18 @@ let sum ppf render (left, right, _) =
 let inl ppf render (term, _) = Format.fprintf ppf "inl %a" render term
 let inr ppf render (term, _) = Format.fprintf ppf "inr %a" render term
 
+
 let case ppf render (term, left, right, _) =
   Format.fprintf ppf "case %a %a %a" render term render left render right
 
 let mu ppf render (n, body, _) = Format.fprintf ppf "μ((%s).%a" n render body
 let fold ppf render (term, _) = Format.fprintf ppf "fold %a" render term
 let unfold ppf render (term, _) = Format.fprintf ppf "unfold %a" render term
+
 let hole ppf render (value, reference, _) =
-    match !reference with
-    | Some value -> Format.fprintf ppf "%a" render value
-    | None -> Format.fprintf ppf "%s" value
+  match !reference with
+  | Some value -> Format.fprintf ppf "%a" render value
+  | None -> Format.fprintf ppf "%s" value
 
 let rec render ppf t =
   Nethra_ast.Term.Catamorphism.fold ~kind:(kind ppf) ~int:(int ppf)
@@ -56,4 +58,5 @@ let rec render ppf t =
     ~sigma:(sigma ppf render) ~pair:(pair ppf render) ~fst:(fst ppf render)
     ~snd:(snd ppf render) ~sum:(sum ppf render) ~inl:(inl ppf render)
     ~inr:(inr ppf render) ~case:(case ppf render) ~mu:(mu ppf render)
-    ~fold:(fold ppf render) ~unfold:(unfold ppf render) ~hole:(hole ppf render) t
+    ~fold:(fold ppf render) ~unfold:(unfold ppf render) ~hole:(hole ppf render)
+    t
