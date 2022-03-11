@@ -34,15 +34,12 @@ module Builders = struct
 
   let pi ?(c = None) ?(implicit = false) n bound body =
     Pi (n, bound, body, implicit, c)
-  ;;
 
   let lambda ?(c = None) ?(implicit = false) n body =
     Lambda (n, body, implicit, c)
-  ;;
 
   let apply ?(c = None) ?(implicit = false) abs arg =
     Apply (abs, arg, implicit, c)
-  ;;
 
   let sigma ?(c = None) n bound body = Sigma (n, bound, body, c)
   let pair ?(c = None) left right = Pair (left, right, c)
@@ -81,7 +78,6 @@ module Catamorphism = struct
     | Fold (term, c) -> fold (term, c)
     | Unfold (term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)
-  ;;
 
   let fold_opt =
     let internal_fold = fold in
@@ -95,5 +91,4 @@ module Catamorphism = struct
         ?(hole = fun _ -> None) term ->
       internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
         ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole term
-  ;;
 end

@@ -1,0 +1,4 @@
+(library
+ (name nathra_pretty)
+ (public_name nethra.pretty)
+ (libraries nethra.ast))

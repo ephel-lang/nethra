@@ -35,7 +35,6 @@ infix-precedence = indent
 leading-nested-match-parens = false
 
 let-and = sparse
-let-binding-spacing = double-semicolon
 let-module = compact
 
 parens-tuple = always
