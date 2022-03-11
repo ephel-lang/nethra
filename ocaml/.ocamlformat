@@ -1,0 +1,57 @@
+version = 0.20.1
+margin = 80
+max-indent = 68
+
+assignment-operator = begin-line
+
+break-cases = fit
+break-fun-decl = wrap
+break-fun-sig = fit-or-vertical
+break-infix = fit-or-vertical
+break-infix-before-func = true
+break-separators = before
+break-sequences = true
+
+cases-exp-indent = 2
+cases-matching-exp-indent = normal
+
+
+doc-comments = after-when-possible
+doc-comments-padding = 2
+doc-comments-tag-only = default
+dock-collection-brackets = true
+
+exp-grouping = preserve
+
+field-space = loose
+
+if-then-else = keyword-first
+
+indicate-multiline-delimiters = space
+indicate-nested-or-patterns = unsafe-no
+
+infix-precedence = indent
+
+leading-nested-match-parens = false
+
+let-and = sparse
+let-binding-spacing = double-semicolon
+let-module = compact
+
+parens-tuple = always
+
+parse-docstrings = true
+
+sequence-blank-line = preserve-one
+sequence-style = terminator
+single-case = sparse
+
+space-around-arrays = true
+space-around-lists = true
+space-around-records = true
+space-around-variants = true
+
+type-decl = sparse
+
+wrap-comments = false
+wrap-fun-args = true
