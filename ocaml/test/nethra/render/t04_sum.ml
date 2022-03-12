@@ -1,28 +1,28 @@
 open Nethra.Ast.Term
 open Common
 
-let render_sigma () =
-  let repr = render @@ Builders.(sigma "x" (kind 0) (id "x")) in
-  Alcotest.(check string) "sigma" "Σ(x:type0).x" repr
+let render_sum () =
+  let repr = render @@ Builders.(sum (kind 0) (id "x")) in
+  Alcotest.(check string) "sum" "type0 | x" repr
 
-let render_pair () =
-  let repr = render @@ Builders.(pair (kind 0) (id "x")) in
-  Alcotest.(check string) "sigma" "(type0,x)" repr
+let render_inl () =
+  let repr = render @@ Builders.(inl (id "x")) in
+  Alcotest.(check string) "inl" "inl x" repr
 
-let render_fst () =
-  let repr = render @@ Builders.(fst (id "x")) in
-  Alcotest.(check string) "fst" "fst x" repr
+let render_inr () =
+  let repr = render @@ Builders.(inr (id "x")) in
+  Alcotest.(check string) "inr" "inr x" repr
 
-let render_snd () =
-  let repr = render @@ Builders.(snd (id "x")) in
-  Alcotest.(check string) "snd" "snd x" repr
+let render_case () =
+  let repr = render @@ Builders.(case (id "x") (id "y") (id "z")) in
+  Alcotest.(check string) "case" "case x y z" repr
 
 let cases =
   let open Alcotest in
   ( "Render sum types"
   , [
-      test_case "Σ(x:type0).x" `Quick render_sigma
-    ; test_case "(type0,x)" `Quick render_pair
-    ; test_case "fst x" `Quick render_fst
-    ; test_case "snd x" `Quick render_snd
+      test_case "type0 | x" `Quick render_sum
+    ; test_case "inl x" `Quick render_inl
+    ; test_case "inr x" `Quick render_inr
+    ; test_case "case x y z" `Quick render_case
     ] )
