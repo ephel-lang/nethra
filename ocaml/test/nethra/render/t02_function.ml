@@ -11,15 +11,15 @@ let render_pi_implicit () =
 
 let render_lambda () =
   let repr = render @@ Builders.(lambda "x" (id "x")) in
-  Alcotest.(check string) "lambda" "λ(x).x" repr
+  Alcotest.(check string) "lambda" "λ(x).(x)" repr
 
 let render_lambda_implicit () =
   let repr = render @@ Builders.(lambda ~implicit:true "x" (id "x")) in
-  Alcotest.(check string) "lambda" "λ{x}.x" repr
+  Alcotest.(check string) "lambda" "λ{x}.(x)" repr
 
 let render_apply () =
   let repr = render @@ Builders.(apply (lambda "x" (id "x")) (id "x")) in
-  Alcotest.(check string) "lambda" "λ(x).x (x)" repr
+  Alcotest.(check string) "lambda" "λ(x).(x) x" repr
 
 let render_apply_implicit () =
   let repr =
@@ -27,7 +27,11 @@ let render_apply_implicit () =
     @@ Builders.(
          apply ~implicit:true (lambda ~implicit:true "x" (id "x")) (id "x"))
   in
-  Alcotest.(check string) "lambda" "λ{x}.x {x}" repr
+  Alcotest.(check string) "lambda" "λ{x}.(x) {x}" repr
+
+let render_lambda_apply () =
+  let repr = render @@ Builders.(lambda "x" (apply (id "x") (int 1))) in
+  Alcotest.(check string) "lambda/apply" "λ(x).(x 1)" repr
 
 let cases =
   let open Alcotest in
@@ -35,8 +39,10 @@ let cases =
   , [
       test_case "Π(x:type0).x" `Quick render_pi
     ; test_case "Π{x:type0}.x" `Quick render_pi_implicit
-    ; test_case "λ(x).x" `Quick render_lambda
-    ; test_case "λ{x}.x" `Quick render_lambda_implicit
-    ; test_case "λ(x).x (x)" `Quick render_apply
-    ; test_case "λ{x}.x {x}" `Quick render_apply_implicit
+    ; test_case "λ(x).(x)" `Quick render_lambda
+    ; test_case "λ(x).(x)" `Quick render_lambda_apply
+    ; test_case "λ{x}.(x)" `Quick render_lambda_implicit
+    ; test_case "λ(x).(x) x" `Quick render_apply
+    ; test_case "λ{x}.(x) {x}" `Quick render_apply_implicit
+    ; test_case "λ(x).(x 1)" `Quick render_lambda_apply
     ] )
