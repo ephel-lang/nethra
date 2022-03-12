@@ -15,13 +15,13 @@ let pi ppf render (n, bound, body, implicit, _) =
 
 let lambda ppf render (n, body, implicit, _) =
   if implicit
-  then Format.fprintf ppf "λ({%s).%a" n render body
-  else Format.fprintf ppf "λ((%s).%a" n render body
+  then Format.fprintf ppf "λ{%s}.%a" n render body
+  else Format.fprintf ppf "λ(%s).%a" n render body
 
 let apply ppf render (abstraction, argument, implicit, _) =
   if implicit
-  then Format.fprintf ppf "%a (%a)" render abstraction render argument
-  else Format.fprintf ppf "%a {%a}" render abstraction render argument
+  then Format.fprintf ppf "%a {%a}" render abstraction render argument
+  else Format.fprintf ppf "%a (%a)" render abstraction render argument
 
 let sigma ppf render (n, bound, body, _) =
   Format.fprintf ppf "Σ(%s:%a).%a" n render bound render body
@@ -37,7 +37,6 @@ let sum ppf render (left, right, _) =
 
 let inl ppf render (term, _) = Format.fprintf ppf "inl %a" render term
 let inr ppf render (term, _) = Format.fprintf ppf "inr %a" render term
-
 
 let case ppf render (term, left, right, _) =
   Format.fprintf ppf "case %a %a %a" render term render left render right
