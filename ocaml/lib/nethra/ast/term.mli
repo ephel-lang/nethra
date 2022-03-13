@@ -22,7 +22,7 @@ module Builders : sig
   val mu : ?c:'a option -> string -> 'a t -> 'a t
   val fold : ?c:'a option -> 'a t -> 'a t
   val unfold : ?c:'a option -> 'a t -> 'a t
-  val hole : ?c:'a option -> string -> 'a t
+  val hole : ?c:'a option -> ?r:'a t option ref -> string -> 'a t
 end
 
 module Catamorphism : sig

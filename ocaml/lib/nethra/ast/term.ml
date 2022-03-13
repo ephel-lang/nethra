@@ -52,7 +52,7 @@ module Builders = struct
   let mu ?(c = None) self body = Mu (self, body, c)
   let fold ?(c = None) term = Fold (term, c)
   let unfold ?(c = None) term = Unfold (term, c)
-  let hole ?(c = None) n = Hole (n, ref None, c)
+  let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
 end
 
 module Catamorphism = struct

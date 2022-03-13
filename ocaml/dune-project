@@ -8,4 +8,5 @@
   (synopsis "Core language based on dependent types")
   (description "Core language based on dependent types")
   (depends
-   (alcotest :with-test)))
+   (alcotest :with-test)
+   (preface (>= 0.1.0))))
