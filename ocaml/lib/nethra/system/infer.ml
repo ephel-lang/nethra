@@ -1,5 +1,5 @@
 module Infer = struct
-  include Common
+  include Goal
 
   let infer _bindings _term = failwith "TODO"
   let ( <?:> ) term _ bindings = infer bindings term

@@ -23,3 +23,11 @@ module Catamorphism = struct
     | Step (Congruent (lhd, rhd), steps) -> congruent (lhd, rhd, steps)
     | Fail reason -> failure reason
 end
+
+let rec is_success step =
+  Catamorphism.fold
+    ~check:(fun (_, _, steps) -> List.for_all is_success steps)
+    ~infer:(fun (_, steps) -> List.for_all is_success steps)
+    ~congruent:(fun (_, _, steps) -> List.for_all is_success steps)
+    ~failure:(fun _ -> false)
+    step

@@ -1,5 +1,5 @@
 module Infer : sig
-  include module type of Common
+  include module type of Goal
 
   val ( <?:> ) :
        'a Nethra_ast.Term.t

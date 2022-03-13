@@ -18,3 +18,5 @@ module Catamorphism : sig
     -> 'a t
     -> 'b
 end
+
+val is_success : 'a t -> bool

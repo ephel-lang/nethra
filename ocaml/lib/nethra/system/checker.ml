@@ -4,7 +4,7 @@ open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
 
 module Checker (Infer : module type of Infer.Infer) = struct
-  include Common
+  include Goal
 
   let check_kind bindings term' (level, c) =
     let term = kind ~c (level + 1) in
@@ -27,56 +27,38 @@ module Checker (Infer : module type of Infer.Infer) = struct
     | Some term -> Congruent.(bindings |- (term =?= term'))
     | None -> failure @@ Some "Unbound variable"
 
-  let rec check_pi bindings term' (name, bound, body, _, c) =
+  let rec check_pi bindings term' (name, bound, body, _implicit, _c) =
     let bindings = add_signature bindings (name, bound) in
     bindings |- (body <?:> term')
 
-  and check_lambda bindings term' (name, body, implicit, c) =
+  and check_lambda _bindings term' (_name, _body, _implicit, _c) =
     match fold_opt ~pi:(fun p -> Some p) term' with
-    | Some (name', bound', body', implicit', c') -> failure @@ Some "TODO"
+    | Some (_name', _bound', _body', _implicit', _c') -> failure @@ Some "TODO"
     | None -> failure @@ Some "Waiting for a pi term"
 
-  and check_apply bindings term' (abstraction, argument, implicit, c) =
+  and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =
     match Infer.(bindings |- (abstraction <?:> ())) with
-    | Some t, proof -> failure @@ Some "TODO"
-    | None, proof -> failure @@ Some "TODO"
+    | Some _t, _proof -> failure @@ Some "TODO"
+    | None, _proof -> failure @@ Some "TODO"
 
-  and check_sigma bindings term' (name, bound, body, c) =
+  and check_sigma bindings term' (name, bound, body, _c) =
     let bindings = add_signature bindings (name, bound) in
     bindings |- (body <?:> term')
 
-  and check_pair bindings term' (lhd, rhd, c) =
+  and check_pair _bindings _term' (_lhd, _rhd, _c) = failure @@ Some "TODO"
+  and check_fst _bindings _term' (_term, _c) = failure @@ Some "TODO"
+  and check_snd _bindings _term' (_term, _c) = failure @@ Some "TODO"
+  and check_sum _bindings _term' (_lhd, _rhd, _c) = failure @@ Some "TODO"
+  and check_inl _bindings _term' (_term, _c) = failure @@ Some "TODO"
+  and check_inr _bindings _term' (_term, _c) = failure @@ Some "TODO"
+
+  and check_case _bindings _term' (_term, _left, _right, _c) =
     failure @@ Some "TODO"
 
-  and check_fst bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_snd bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_sum bindings term' (lhd, rhd, c) =
-    failure @@ Some "TODO"
-
-  and check_inl bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_inr bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_case bindings term' (term, left, right, c) =
-    failure @@ Some "TODO"
-
-  and check_mu bindings term' (name, body, c) =
-    failure @@ Some "TODO"
-
-  and check_fold bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_unfold bindings term' (term, c) =
-    failure @@ Some "TODO"
-
-  and check_hole bindings term' (name, value, c) =
-    failure @@ Some "TODO"
+  and check_mu _bindings _term' (_name, _body, _c) = failure @@ Some "TODO"
+  and check_fold _bindings _term' (_term, _c) = failure @@ Some "TODO"
+  and check_unfold _bindings _term' (_term, _c) = failure @@ Some "TODO"
+  and check_hole _bindings _term' (_name, _value, _c) = failure @@ Some "TODO"
 
   and check bindings term term' =
     fold
@@ -89,10 +71,8 @@ module Checker (Infer : module type of Infer.Infer) = struct
       ~apply:(check_apply bindings term')
       ~sigma:(check_sigma bindings term')
       ~pair:(check_pair bindings term')
-      ~fst:(check_fst bindings term')
-      ~snd:(check_snd bindings term')
-      ~sum:(check_sum bindings term')
-      ~inl:(check_inl bindings term')
+      ~fst:(check_fst bindings term') ~snd:(check_snd bindings term')
+      ~sum:(check_sum bindings term') ~inl:(check_inl bindings term')
       ~inr:(check_inr bindings term')
       ~case:(check_case bindings term')
       ~mu:(check_mu bindings term')
