@@ -6,35 +6,35 @@ let check_type0_type1 () =
   let bindings = Bindings.Builders.create
   and term = Term.Builders.kind 1
   and term' = Term.Builders.kind 2 in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "type0" (Proof.is_success proof) true
 
 let check_int_value () =
   let bindings = Bindings.Builders.create
   and term = Term.Builders.int 42
   and term' = Term.Builders.id "int" in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "int" (Proof.is_success proof) true
 
 let check_not_int_value () =
   let bindings = Bindings.Builders.create
   and term = Term.Builders.int 42
   and term' = Term.Builders.id "string" in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "int" (Proof.is_success proof) false
 
 let check_char_value () =
   let bindings = Bindings.Builders.create
   and term = Term.Builders.char '4'
   and term' = Term.Builders.id "char" in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "char" (Proof.is_success proof) true
 
 let check_string_value () =
   let bindings = Bindings.Builders.create
   and term = Term.Builders.string "4"
   and term' = Term.Builders.id "string" in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "string" (Proof.is_success proof) true
 
 let check_id () =
@@ -43,7 +43,7 @@ let check_id () =
       ("x", Term.Builders.id "T")
   and term = Term.Builders.id "x"
   and term' = Term.Builders.id "T" in
-  let proof = TypeChecker.(bindings |- (term <?:> term')) in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "string" (Proof.is_success proof) true
 
 let cases =

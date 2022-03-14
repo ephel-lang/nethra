@@ -8,5 +8,5 @@ module Impl = struct
     then Proof.Builders.(congruent term term' [])
     else Proof.Builders.(congruent term term' [ failure None ])
 
-  let ( =?= ) term term' bindings = congruent bindings term term'
+  let ( =?= ) (bindings, term) term' = congruent bindings term term'
 end

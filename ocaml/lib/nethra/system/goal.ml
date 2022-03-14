@@ -1,1 +1,1 @@
-let ( |- ) bindings f = f bindings
+let ( |- ) a b = (a, b)
