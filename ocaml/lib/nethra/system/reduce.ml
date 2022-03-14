@@ -1,1 +1,3 @@
-let reduce _bindings _term = failwith "TODO"
+module Impl = struct
+  let reduce _bindings _term = failwith "TODO"
+end

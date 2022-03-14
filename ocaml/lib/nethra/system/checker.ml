@@ -3,7 +3,8 @@ open Nethra_ast.Term.Catamorphism
 open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
 
-module Checker (Infer : module type of Infer.Infer) = struct
+module Impl (Infer : Specs.Infer) = struct
+  module Congruent = Congruent.Impl
   include Goal
 
   (*

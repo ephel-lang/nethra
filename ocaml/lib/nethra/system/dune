@@ -2,4 +2,4 @@
  (name nethra_system)
  (public_name nethra.system)
  (libraries nethra.ast preface)
- (modules_without_implementation system))
+ (modules_without_implementation system specs))

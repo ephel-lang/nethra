@@ -1,4 +1,4 @@
-module Infer : sig
+module Impl : functor (Checker : Specs.Checker) -> sig
   include module type of Goal
 
   val ( <?:> ) :

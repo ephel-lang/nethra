@@ -1,6 +1,6 @@
 open Nethra.Ast
 open Nethra.System
-module TypeChecker = Checker.Checker (Infer.Infer)
+module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
 
 let check_type0_type1 () =
   let bindings = Bindings.Builders.create
