@@ -1,6 +1,10 @@
 open Nethra_ast.Ast.Term.Builders
 open Nethra_ast.Ast.Term.Catamorphism
+open Nethra_ast.Ast.Bindings.Access
 open Substitution
+
+let reduce_id reduce bindings (name, _, _) =
+  Option.bind (get_definition bindings name) (reduce bindings)
 
 let reduce_apply reduce bindings (abstraction, argument, implicit, c) =
   match reduce bindings abstraction with
@@ -38,6 +42,7 @@ let reduce_hole reduce bindings (_, reference, _) =
 let rec reduce_opt bindings term =
   match
     fold_opt
+      ~id:(reduce_id reduce_opt bindings)
       ~apply:(reduce_apply reduce_opt bindings)
       ~fst:(reduce_fst reduce_opt bindings)
       ~snd:(reduce_snd reduce_opt bindings)

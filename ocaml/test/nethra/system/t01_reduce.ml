@@ -1,5 +1,6 @@
 open Common
 open Nethra.Ast.Bindings.Builders
+open Nethra.Ast.Bindings.Access
 open Nethra.Ast.Term.Builders
 open Nethra.System.Reduce
 
@@ -27,6 +28,11 @@ let reduce_id () =
   let term = id "x" in
   let term' = reduce create term in
   Alcotest.(check string) "id" (render term) (render term')
+
+let reduce_id_bind () =
+  let term = id "x" in
+  let term' = reduce (add_definition create ("x", id "y")) term in
+  Alcotest.(check string) "id" (render @@ id "y") (render term')
 
 let reduce_pi () =
   let term = pi "x" (id "y") (id "y") in
@@ -117,6 +123,7 @@ let cases =
     ; test_case "char" `Quick reduce_char
     ; test_case "string" `Quick reduce_string
     ; test_case "id" `Quick reduce_id
+    ; test_case "id" `Quick reduce_id_bind
     ; test_case "pi" `Quick reduce_pi
     ; test_case "lambda" `Quick reduce_lambda
     ; test_case "apply" `Quick reduce_apply

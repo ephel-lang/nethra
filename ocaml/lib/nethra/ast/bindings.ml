@@ -13,4 +13,6 @@ module Access = struct
 
   let get_definition (_, delta) n =
     Option.map snd (List.find_opt (fun c -> fst c = n) delta)
+
+  let add_definition (gamma, delta) binding = (gamma, binding :: delta)
 end
