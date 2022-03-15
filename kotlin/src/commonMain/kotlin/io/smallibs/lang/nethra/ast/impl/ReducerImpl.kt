@@ -9,7 +9,7 @@ import io.smallibs.lang.nethra.ast.Ast.Term.Id
 import io.smallibs.lang.nethra.ast.Ast.Term.Inl
 import io.smallibs.lang.nethra.ast.Ast.Term.Inr
 import io.smallibs.lang.nethra.ast.Ast.Term.Lambda
-import io.smallibs.lang.nethra.ast.Ast.Term.Sigma
+import io.smallibs.lang.nethra.ast.Ast.Term.Couple
 import io.smallibs.lang.nethra.ast.Ast.Term.Snd
 import io.smallibs.lang.nethra.ast.Builder
 import io.smallibs.lang.nethra.ast.Printer
@@ -40,11 +40,11 @@ class ReducerImpl<C>(
                     else -> t
                 }
                 is Fst -> when (val term = reduce(t.term)) {
-                    is Sigma -> reduce(term.bound)
+                    is Couple -> reduce(term.lhd)
                     else -> term
                 }
                 is Snd -> when (val term = reduce(t.term)) {
-                    is Sigma -> reduce(term.body.substitute(term.n to term.bound))
+                    is Couple -> reduce(term.rhd)
                     else -> term
                 }
                 else -> t
