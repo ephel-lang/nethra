@@ -1,12 +1,12 @@
-open Nethra_ast.Ast
+open Nethra_ast.Ast.Proof.Builders
 
 module Impl = struct
   include Goal
 
-  let congruent _bindings term term' =
-    if term = term'
-    then Proof.Builders.(congruent term term' [])
-    else Proof.Builders.(congruent term term' [ failure None ])
+  let congruent_terms _bindings term term' =
+    if term = term' (* TODO *)
+    then congruent term term' []
+    else congruent term term' [ failure None ]
 
-  let ( =?= ) (bindings, term) term' = congruent bindings term term'
+  let ( =?= ) (bindings, term) term' = congruent_terms bindings term term'
 end

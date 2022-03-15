@@ -13,45 +13,54 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ Type_i : Type_{i+1}
   *)
   let check_kind bindings term' (level, c) =
-    let term = kind ~c (level + 1) in
-    [ Congruent.(bindings |- term =?= term') ]
+    let term, proof = Infer.(bindings |- kind ~c level <?:> ()) in
+    match term with
+    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | None -> [ proof; failure None ]
 
   (*
     l ∈ int
     -----------
     Γ ⊢ l : int
   *)
-  let check_int bindings term' (_, c) =
-    let term = id ~c "int" in
-    [ Congruent.(bindings |- term =?= term') ]
+  let check_int bindings term' (value, c) =
+    let term, proof = Infer.(bindings |- int ~c value <?:> ()) in
+    match term with
+    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | None -> [ proof; failure None ]
 
   (*
     l ∈ char
     ------------
     Γ ⊢ l : char
   *)
-  let check_char bindings term' (_, c) =
-    let term = id ~c "char" in
-    [ Congruent.(bindings |- term =?= term') ]
+  let check_char bindings term' (value, c) =
+    let term, proof = Infer.(bindings |- char ~c value <?:> ()) in
+    match term with
+    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | None -> [ proof; failure None ]
 
   (*
     l ∈ string
     --------------
     Γ ⊢ l : string
   *)
-  let check_string bindings term' (_, c) =
-    let term = id ~c "string" in
-    [ Congruent.(bindings |- term =?= term') ]
+  let check_string bindings term' (value, c) =
+    let term, proof = Infer.(bindings |- string ~c value <?:> ()) in
+    match term with
+    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | None -> [ proof; failure None ]
 
   (*
     Γ ⊢
     ----------------
     Γ, x : T ⊢ x : T
   *)
-  let check_id bindings term' (name, _, _) =
-    match get_signature bindings name with
-    | Some term -> [ Congruent.(bindings |- term =?= term') ]
-    | None -> [ failure @@ Some "Unbound variable" ]
+  let check_id bindings term' (name, initial, c) =
+    let term, proof = Infer.(bindings |- id ~c ~initial name <?:> ()) in
+    match term with
+    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | None -> [ proof; failure @@ Some ("Unbound variable " ^ name) ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -68,12 +77,12 @@ module Impl (Infer : Specs.Infer) = struct
     match fold_opt ~pi:(fun p -> Some p) term' with
     | Some (_name', _bound', _body', _implicit', _c') ->
       [ failure @@ Some "TODO" ]
-    | None -> [ failure @@ Some "Waiting for a pi term" ]
+    | None -> [ failure @@ Some "Waiting for a Pi term" ]
 
   and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =
     match Infer.(bindings |- abstraction <?:> ()) with
     | Some _t, _proof -> [ failure @@ Some "TODO" ]
-    | None, _proof -> [ failure @@ Some "TODO" ]
+    | None, proof -> [ proof; failure None ]
 
   and check_sigma bindings term' (name, bound, body, _c) =
     let bindings = add_signature bindings (name, bound) in
