@@ -43,6 +43,16 @@ let reduce_apply () =
   let term' = reduce create term in
   Alcotest.(check string) "apply" (render (id "y")) (render term')
 
+let reduce_apply_implicit () =
+  let term = apply (lambda ~implicit:true "X" (lambda "x" (id "x"))) (id "y") in
+  let term' = reduce create term in
+  Alcotest.(check string) "apply" (render (id "y")) (render term')
+
+let reduce_apply_not_implicit () =
+  let term = apply ~implicit:true (lambda "x" (id "x")) (id "y") in
+  let term' = reduce create term in
+  Alcotest.(check string) "apply" (render term) (render term')
+
 let reduce_sigma () =
   let term = sigma "x" (id "y") (id "y") in
   let term' = reduce create term in
@@ -110,6 +120,8 @@ let cases =
     ; test_case "pi" `Quick reduce_pi
     ; test_case "lambda" `Quick reduce_lambda
     ; test_case "apply" `Quick reduce_apply
+    ; test_case "apply implicit" `Quick reduce_apply_implicit
+    ; test_case "apply not implicit" `Quick reduce_apply_not_implicit
     ; test_case "sigma" `Quick reduce_sigma
     ; test_case "fst" `Quick reduce_fst
     ; test_case "snd" `Quick reduce_snd

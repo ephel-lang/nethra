@@ -2,7 +2,7 @@ open Nethra_ast.Ast.Term.Builders
 open Nethra_ast.Ast.Term.Catamorphism
 open Substitution
 
-let reduce_apply reduce bindings (abstraction, argument, implicit, _) =
+let reduce_apply reduce bindings (abstraction, argument, implicit, c) =
   match reduce bindings abstraction with
   | None -> None
   | Some term ->
@@ -10,7 +10,11 @@ let reduce_apply reduce bindings (abstraction, argument, implicit, _) =
       ~lambda:(fun (n, body, implicit', _) ->
         if implicit = implicit'
         then reduce bindings (substitute n argument body)
-        else (* case implicit' = true missing *) None )
+        else if implicit'
+        then
+          reduce bindings
+            (apply ~c ~implicit (substitute n (hole n) body) argument)
+        else None )
       term
 
 let reduce_fst reduce bindings (term, _c) =
