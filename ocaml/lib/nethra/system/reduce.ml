@@ -15,7 +15,9 @@ let reduce_apply reduce bindings (abstraction, argument, implicit, c) =
           if implicit = implicit'
           then return (substitute n argument body)
           else if implicit'
-          then return (apply ~c ~implicit (substitute n (hole n) body) argument)
+          then
+            let var, _ = fresh_variable bindings n in
+            return (apply ~c ~implicit (substitute n (hole var) body) argument)
           else None )
   >>= reduce bindings
 

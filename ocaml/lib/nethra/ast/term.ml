@@ -79,6 +79,21 @@ module Catamorphism = struct
     | Unfold (term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)
 
+  let fold_default default term =
+    let internal_fold = fold in
+    fun ?(kind = fun _ -> default term) ?(int = fun _ -> default term)
+        ?(char = fun _ -> default term) ?(string = fun _ -> default term)
+        ?(id = fun _ -> default term) ?(pi = fun _ -> default term)
+        ?(lambda = fun _ -> default term) ?(apply = fun _ -> default term)
+        ?(sigma = fun _ -> default term) ?(pair = fun _ -> default term)
+        ?(fst = fun _ -> default term) ?(snd = fun _ -> default term)
+        ?(sum = fun _ -> default term) ?(inl = fun _ -> default term)
+        ?(inr = fun _ -> default term) ?(case = fun _ -> default term)
+        ?(mu = fun _ -> default term) ?(fold = fun _ -> default term)
+        ?(unfold = fun _ -> default term) ?(hole = fun _ -> default term) ->
+      internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
+        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole term
+
   let fold_opt =
     let internal_fold = fold in
     fun ?(kind = fun _ -> None) ?(int = fun _ -> None) ?(char = fun _ -> None)

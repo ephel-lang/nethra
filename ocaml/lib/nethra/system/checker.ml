@@ -2,6 +2,7 @@ open Nethra_ast.Term.Builders
 open Nethra_ast.Term.Catamorphism
 open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
+open Substitution
 
 module Impl (Infer : Specs.Infer) = struct
   module Congruent = Congruent.Impl
@@ -66,6 +67,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
     ----------------------------
     Γ ⊢ Π(x:M).N : T
+
   *)
   let rec check_pi bindings term' (name, bound, body, _implicit, _c) =
     [
@@ -73,10 +75,20 @@ module Impl (Infer : Specs.Infer) = struct
     ; add_signature bindings (name, bound) |- body <?:> term'
     ]
 
-  and check_lambda _bindings term' (_name, _body, _implicit, _c) =
+  (*
+    Γ, x : A ⊢ B : T          Γ, x : A ⊢ B : T
+    ---------------------     ---------------------
+    Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
+  *)
+  and check_lambda bindings term' (name, body, implicit, _c) =
     match fold_opt ~pi:(fun p -> Some p) term' with
-    | Some (_name', _bound', _body', _implicit', _c') ->
-      [ failure @@ Some "TODO" ]
+    | Some (name', bound', body', implicit', _c') ->
+      if implicit = implicit'
+      then let var, bindings = fresh_variable bindings name' in
+           let body' = substitute name' (id ~initial:(Some name') var) body' in
+           let body = substitute name (id ~initial:(Some name) var) body in
+           [  add_signature bindings (var, bound') |- body <?:> body' ]
+      else [ failure None ]
     | None -> [ failure @@ Some "Waiting for a Pi term" ]
 
   and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =

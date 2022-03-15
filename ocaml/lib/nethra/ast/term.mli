@@ -73,4 +73,29 @@ module Catamorphism : sig
     -> ?hole:(string * 'a t option ref * 'a option -> 'b option)
     -> 'a t
     -> 'b option
+
+  val fold_default :
+       ('a t -> 'b)
+    -> 'a t
+    -> ?kind:(int * 'a option -> 'b)
+    -> ?int:(int * 'a option -> 'b)
+    -> ?char:(char * 'a option -> 'b)
+    -> ?string:(string * 'a option -> 'b)
+    -> ?id:(string * string option * 'a option -> 'b)
+    -> ?pi:(string * 'a t * 'a t * bool * 'a option -> 'b)
+    -> ?lambda:(string * 'a t * bool * 'a option -> 'b)
+    -> ?apply:('a t * 'a t * bool * 'a option -> 'b)
+    -> ?sigma:(string * 'a t * 'a t * 'a option -> 'b)
+    -> ?pair:('a t * 'a t * 'a option -> 'b)
+    -> ?fst:('a t * 'a option -> 'b)
+    -> ?snd:('a t * 'a option -> 'b)
+    -> ?sum:('a t * 'a t * 'a option -> 'b)
+    -> ?inl:('a t * 'a option -> 'b)
+    -> ?inr:('a t * 'a option -> 'b)
+    -> ?case:('a t * 'a t * 'a t * 'a option -> 'b)
+    -> ?mu:(string * 'a t * 'a option -> 'b)
+    -> ?fold:('a t * 'a option -> 'b)
+    -> ?unfold:('a t * 'a option -> 'b)
+    -> ?hole:(string * 'a t option ref * 'a option -> 'b)
+    -> 'b
 end

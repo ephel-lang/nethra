@@ -5,6 +5,7 @@ module Builders : sig
 end
 
 module Access : sig
+  val fresh_variable : 'a t -> string -> string * 'a t
   val get_signature : 'a t -> string -> 'a Term.t option
   val add_signature : 'a t -> string * 'a Term.t -> 'a t
   val get_definition : 'a t -> string -> 'a Term.t option
