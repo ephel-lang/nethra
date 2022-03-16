@@ -2,7 +2,7 @@ open Common
 open Nethra.Ast.Bindings.Builders
 open Nethra.Ast.Bindings.Access
 open Nethra.Ast.Term.Builders
-open Nethra.System.Reduce
+open Nethra.System.Reduction
 
 let reduce_type0 () =
   let term = kind 1 in

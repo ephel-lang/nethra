@@ -1,4 +1,5 @@
 module Substitution = Substitution
-module Reduce = Reduce
+module Reduction = Reduction
+module Congruence = Congruence
 module Checker = Checker
 module Infer = Infer

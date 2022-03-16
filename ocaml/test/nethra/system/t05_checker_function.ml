@@ -35,7 +35,18 @@ let check_lambda_not_implicit () =
   and term = Term.Builders.(lambda ~implicit:true "y" (id "y"))
   and term' = Term.Builders.(pi "x" (id "int") (id "int")) in
   let proof = TypeChecker.(bindings |- term <?:> term') in
-  Alcotest.(check bool) "lambda" false (Proof.is_success proof)
+  Alcotest.(check bool) "lambda not implicit" false (Proof.is_success proof)
+
+let check_lambda_implicit_tactic () =
+  let bindings = Bindings.Builders.create
+  and term = Term.Builders.(lambda "y" (id "y"))
+  and term' =
+    Term.Builders.(
+      pi ~implicit:true "x" (kind 0) (pi "y" (id "int") (id "int")))
+  in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let () = Nethra.Render.Proof.render Format.std_formatter proof in
+  Alcotest.(check bool) "lambda implicit tactic" true (Proof.is_success proof)
 
 let cases =
   let open Alcotest in
@@ -46,4 +57,7 @@ let cases =
     ; test_case "Γ ⊢ λ(X).λ(y).y : Π(x:Type_0).Π(y:x).x" `Quick check_lambda_dep
     ; test_case "Γ ⊢ λ{y}.y : Π{x:int}.int" `Quick check_lambda_implicit
     ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_not_implicit
+    ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_implicit
+    ; test_case "Γ ⊢ λ(y).y : Π{X:Type_0}.Π(x:int).int" `Quick
+        check_lambda_implicit_tactic
     ] )

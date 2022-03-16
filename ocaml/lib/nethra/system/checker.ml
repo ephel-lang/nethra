@@ -3,11 +3,11 @@ open Nethra_ast.Term.Catamorphism
 open Nethra_ast.Proof
 open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
-open Reduce
+open Reduction
 open Substitution
 
 module Impl (Infer : Specs.Infer) = struct
-  module Congruent = Congruent.Impl
+  module Congruence = Congruence
   include Goal
 
   (*
@@ -18,7 +18,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_kind bindings term' (level, c) =
     let term, proof = Infer.(bindings |- kind ~c level <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
     | None -> [ proof; failure None ]
 
   (*
@@ -29,7 +29,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_int bindings term' (value, c) =
     let term, proof = Infer.(bindings |- int ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
     | None -> [ proof; failure None ]
 
   (*
@@ -40,7 +40,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_char bindings term' (value, c) =
     let term, proof = Infer.(bindings |- char ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
     | None -> [ proof; failure None ]
 
   (*
@@ -51,7 +51,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_string bindings term' (value, c) =
     let term, proof = Infer.(bindings |- string ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
     | None -> [ proof; failure None ]
 
   (*
@@ -62,7 +62,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_id bindings term' (name, initial, c) =
     let term, proof = Infer.(bindings |- id ~c ~initial name <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruent.(bindings |- term =?= term') ]
+    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
     | None -> [ proof; failure @@ Some ("Unbound variable " ^ name) ]
 
   (*
@@ -120,7 +120,31 @@ module Impl (Infer : Specs.Infer) = struct
   and check_hole _bindings _term' (_name, _value, _c) =
     [ failure @@ Some "TODO" ]
 
-  (* type checker tactics *)
+  (*
+    Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
+    ----------------------------------
+    Γ ⊢ B : Π{x:A}.T
+  *)
+  and implicit bindings term term' =
+    let implicit_lambda = fold_opt ~lambda:(fun (_, _, i, _) -> Some i) term in
+    let implicit_pi = fold_opt ~pi:(fun (n, _, _, i, _) -> Some (n, i)) term' in
+    match (implicit_lambda, implicit_pi) with
+    | Some true, _ -> [ failure None ]
+    | _, Some (n, true) ->
+      [ bindings |- lambda ~implicit:true n term <?:> term' ]
+    | _ -> [ failure None ]
+
+  (*
+    Γ ⊢ t : Type_i
+    ------------------
+    Γ ⊢ t : Type_{i+1}
+  *)
+  and type_level bindings term term' =
+    let level = fold_opt ~kind:(fun t -> Some t) term' in
+    match level with
+    | Some (level, c) when level > 0 ->
+      [ bindings |- term <?:> kind ~c (level - 1) ]
+    | _ -> [ failure None ]
 
   and nominal bindings term term' =
     fold
@@ -143,33 +167,17 @@ module Impl (Infer : Specs.Infer) = struct
       ~hole:(check_hole bindings term')
       term
 
-  and implicit bindings term term' =
-    let implicit_lambda = fold_opt ~lambda:(fun (_, _, i, _) -> Some i) term in
-    let implicit_pi = fold_opt ~pi:(fun (n, _, _, i, _) -> Some (n, i)) term in
-    match (implicit_lambda, implicit_pi) with
-    | Some true, _ -> [ failure None ]
-    | _, Some (n, true) ->
-      let var, bindings = fresh_variable bindings n in
-      [ bindings |- lambda ~implicit:true var term <?:> term' ]
-    | _ -> [ failure None ]
-
-  and type_level bindings term term' =
-    let level = fold_opt ~kind:(fun t -> Some t) term' in
-    match level with
-    | Some (level, c) when level > 0 ->
-      [ bindings |- term <?:> kind ~c (level - 1) ]
-    | _ -> [ failure None ]
-
   (* type checker main entrypoint *)
 
   and check_type bindings term term' =
     let term' = reduce bindings term' in
     let tactics = [ nominal; implicit; type_level ] in
+    (* Either can be uses here + Foldable *)
     let success, failures =
       List.fold_left
         (fun (success, failures) tactic ->
           match success with
-          | Some _ -> (success, failures)
+          | Some _ -> (success, [])
           | None ->
             let proof = check term term' (tactic bindings term term') in
             if is_success proof

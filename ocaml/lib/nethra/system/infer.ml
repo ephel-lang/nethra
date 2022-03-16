@@ -69,7 +69,7 @@ module Impl (Checker : Specs.Checker) = struct
         ~mu:(infer_mu bindings) ~fold:(infer_fold bindings)
         ~unfold:(infer_unfold bindings) ~hole:(infer_hole bindings) term
     in
-    (term', infer term proofs)
+    (term', infer term term' proofs)
 
   and ( <?:> ) (bindings, term) () = infer_type bindings term
 end
