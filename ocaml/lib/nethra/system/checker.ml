@@ -1,7 +1,9 @@
 open Nethra_ast.Term.Builders
 open Nethra_ast.Term.Catamorphism
+open Nethra_ast.Proof
 open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
+open Reduce
 open Substitution
 
 module Impl (Infer : Specs.Infer) = struct
@@ -84,10 +86,11 @@ module Impl (Infer : Specs.Infer) = struct
     match fold_opt ~pi:(fun p -> Some p) term' with
     | Some (name', bound', body', implicit', _c') ->
       if implicit = implicit'
-      then let var, bindings = fresh_variable bindings name' in
-           let body' = substitute name' (id ~initial:(Some name') var) body' in
-           let body = substitute name (id ~initial:(Some name) var) body in
-           [  add_signature bindings (var, bound') |- body <?:> body' ]
+      then
+        let var, bindings = fresh_variable bindings name' in
+        let body' = substitute name' (id ~initial:(Some name') var) body' in
+        let body = substitute name (id ~initial:(Some name) var) body in
+        [ add_signature bindings (var, bound') |- body <?:> body' ]
       else [ failure None ]
     | None -> [ failure @@ Some "Waiting for a Pi term" ]
 
@@ -117,29 +120,75 @@ module Impl (Infer : Specs.Infer) = struct
   and check_hole _bindings _term' (_name, _value, _c) =
     [ failure @@ Some "TODO" ]
 
+  (* type checker tactics *)
+
+  and nominal bindings term term' =
+    fold
+      ~kind:(check_kind bindings term')
+      ~int:(check_int bindings term')
+      ~char:(check_char bindings term')
+      ~string:(check_string bindings term')
+      ~id:(check_id bindings term') ~pi:(check_pi bindings term')
+      ~lambda:(check_lambda bindings term')
+      ~apply:(check_apply bindings term')
+      ~sigma:(check_sigma bindings term')
+      ~pair:(check_pair bindings term')
+      ~fst:(check_fst bindings term') ~snd:(check_snd bindings term')
+      ~sum:(check_sum bindings term') ~inl:(check_inl bindings term')
+      ~inr:(check_inr bindings term')
+      ~case:(check_case bindings term')
+      ~mu:(check_mu bindings term')
+      ~fold:(check_fold bindings term')
+      ~unfold:(check_unfold bindings term')
+      ~hole:(check_hole bindings term')
+      term
+
+  and implicit bindings term term' =
+    let implicit_lambda = fold_opt ~lambda:(fun (_, _, i, _) -> Some i) term in
+    let implicit_pi = fold_opt ~pi:(fun (n, _, _, i, _) -> Some (n, i)) term in
+    match (implicit_lambda, implicit_pi) with
+    | Some true, _ -> [ failure None ]
+    | _, Some (n, true) ->
+      let var, bindings = fresh_variable bindings n in
+      [ bindings |- lambda ~implicit:true var term <?:> term' ]
+    | _ -> [ failure None ]
+
+  and type_level bindings term term' =
+    let level = fold_opt ~kind:(fun t -> Some t) term' in
+    match level with
+    | Some (level, c) when level > 0 ->
+      [ bindings |- term <?:> kind ~c (level - 1) ]
+    | _ -> [ failure None ]
+
+  (* type checker main entrypoint *)
+
   and check_type bindings term term' =
-    let proofs =
-      fold
-        ~kind:(check_kind bindings term')
-        ~int:(check_int bindings term')
-        ~char:(check_char bindings term')
-        ~string:(check_string bindings term')
-        ~id:(check_id bindings term') ~pi:(check_pi bindings term')
-        ~lambda:(check_lambda bindings term')
-        ~apply:(check_apply bindings term')
-        ~sigma:(check_sigma bindings term')
-        ~pair:(check_pair bindings term')
-        ~fst:(check_fst bindings term') ~snd:(check_snd bindings term')
-        ~sum:(check_sum bindings term') ~inl:(check_inl bindings term')
-        ~inr:(check_inr bindings term')
-        ~case:(check_case bindings term')
-        ~mu:(check_mu bindings term')
-        ~fold:(check_fold bindings term')
-        ~unfold:(check_unfold bindings term')
-        ~hole:(check_hole bindings term')
-        term
+    let term' = reduce bindings term' in
+    let tactics =
+      [
+        (fun () -> nominal bindings term term')
+      ; (fun () -> implicit bindings term term')
+      ; (fun () -> type_level bindings term term')
+      ]
     in
-    check term term' proofs
+    let success, failures =
+      List.fold_left
+        (fun (success, failures) tactic ->
+          match success with
+          | Some _ -> (success, failures)
+          | None ->
+            let proof = check term term' (tactic ()) in
+            if is_success proof
+            then (Some proof, [])
+            else (None, proof :: failures) )
+        (None, []) tactics
+    in
+    match success with
+    | Some proof -> proof
+    | None ->
+      List.fold_left
+        (fun p p' -> if size p > size p' then p else p')
+        (failure None) failures
 
   and ( <?:> ) (bindings, term) term' = check_type bindings term term'
 end

@@ -31,3 +31,14 @@ let rec is_success step =
     ~congruent:(fun (_, _, steps) -> List.for_all is_success steps)
     ~failure:(fun _ -> false)
     step
+
+let rec size step =
+  1
+  + Catamorphism.fold
+      ~check:(fun (_, _, steps) ->
+        List.fold_left (fun s e -> s + size e) 0 steps )
+      ~infer:(fun (_, steps) -> List.fold_left (fun s e -> s + size e) 0 steps)
+      ~congruent:(fun (_, _, steps) ->
+        List.fold_left (fun s e -> s + size e) 0 steps )
+      ~failure:(fun _ -> 0)
+      step

@@ -73,5 +73,4 @@ module Catamorphism : sig
     -> ?hole:(string * 'a t option ref * 'a option -> 'b option)
     -> 'a t
     -> 'b option
-
 end

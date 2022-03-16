@@ -20,3 +20,4 @@ module Catamorphism : sig
 end
 
 val is_success : 'a t -> bool
+val size : 'a t -> int
