@@ -164,20 +164,14 @@ module Impl (Infer : Specs.Infer) = struct
 
   and check_type bindings term term' =
     let term' = reduce bindings term' in
-    let tactics =
-      [
-        (fun () -> nominal bindings term term')
-      ; (fun () -> implicit bindings term term')
-      ; (fun () -> type_level bindings term term')
-      ]
-    in
+    let tactics = [ nominal; implicit; type_level ] in
     let success, failures =
       List.fold_left
         (fun (success, failures) tactic ->
           match success with
           | Some _ -> (success, failures)
           | None ->
-            let proof = check term term' (tactic ()) in
+            let proof = check term term' (tactic bindings term term') in
             if is_success proof
             then (Some proof, [])
             else (None, proof :: failures) )
