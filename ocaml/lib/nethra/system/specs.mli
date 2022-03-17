@@ -7,13 +7,13 @@ module type Checker = sig
     -> 'a Nethra_ast.Proof.t
   (** The type checker provides an intuitive DSL
 
-      ``` bindings |- term <:?> type ``` *)
+      ``` bindings |- term <?:> type ``` *)
 end
 
 module type Infer = sig
   include module type of Goal
 
-  val ( <?:> ) :
+  val ( <:?> ) :
        'a Nethra_ast.Bindings.t * 'a Nethra_ast.Term.t
     -> unit
     -> 'a Nethra_ast.Term.t option * 'a Nethra_ast.Proof.t

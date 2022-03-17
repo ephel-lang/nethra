@@ -1,10 +1,9 @@
-open Nethra_ast.Term.Builders
-open Nethra_ast.Term.Catamorphism
-open Nethra_ast.Proof.Builders
-open Nethra_ast.Bindings.Access
-
 module Impl (Checker : Specs.Checker) = struct
   include Goal
+  open Nethra_ast.Term.Builders
+  open Nethra_ast.Term.Catamorphism
+  open Nethra_ast.Proof.Builders
+  open Nethra_ast.Bindings.Access
 
   let infer_kind _bindings (level, c) =
     let term = kind ~c @@ (level + 1) in
@@ -71,5 +70,5 @@ module Impl (Checker : Specs.Checker) = struct
     in
     (term', infer term term' proofs)
 
-  and ( <?:> ) (bindings, term) () = infer_type bindings term
+  and ( <:?> ) (bindings, term) () = infer_type bindings term
 end

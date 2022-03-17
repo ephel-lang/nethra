@@ -1,15 +1,14 @@
-open Nethra_ast.Term.Builders
-open Nethra_ast.Term.Catamorphism
-open Nethra_ast.Proof
-open Nethra_ast.Proof.Builders
-open Nethra_ast.Bindings.Access
-open Substitution
-open Reduction
-open Congruence
-
 module Impl (Infer : Specs.Infer) = struct
-  module Congruence = Congruence
   include Goal
+  open Nethra_ast.Term.Builders
+  open Nethra_ast.Term.Catamorphism
+  open Nethra_ast.Proof
+  open Nethra_ast.Proof.Builders
+  open Nethra_ast.Bindings.Access
+  open Substitution
+  open Reduction
+  open Congruence
+  open Infer
 
   (*
     Γ ⊢
@@ -17,7 +16,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ Type_i : Type_{i+1}
   *)
   let check_kind bindings term' (level, c) =
-    let term, proof = Infer.(bindings |- kind ~c level <?:> ()) in
+    let term, proof = bindings |- kind ~c level <:?> () in
     match term with
     | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
@@ -28,7 +27,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ l : int
   *)
   let check_int bindings term' (value, c) =
-    let term, proof = Infer.(bindings |- int ~c value <?:> ()) in
+    let term, proof = bindings |- int ~c value <:?> () in
     match term with
     | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
@@ -39,7 +38,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ l : char
   *)
   let check_char bindings term' (value, c) =
-    let term, proof = Infer.(bindings |- char ~c value <?:> ()) in
+    let term, proof = bindings |- char ~c value <:?> () in
     match term with
     | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
@@ -50,7 +49,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ l : string
   *)
   let check_string bindings term' (value, c) =
-    let term, proof = Infer.(bindings |- string ~c value <?:> ()) in
+    let term, proof = bindings |- string ~c value <:?> () in
     match term with
     | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
@@ -61,7 +60,7 @@ module Impl (Infer : Specs.Infer) = struct
     Γ, x : T ⊢ x : T
   *)
   let check_id bindings term' (name, initial, c) =
-    let term, proof = Infer.(bindings |- id ~c ~initial name <?:> ()) in
+    let term, proof = bindings |- id ~c ~initial name <:?> () in
     match term with
     | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure @@ Some ("Unbound variable " ^ name) ]
@@ -74,7 +73,7 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let rec check_pi bindings term' (name, bound, body, _implicit, _c) =
     [
-      Stdlib.snd Infer.(bindings |- bound <?:> ())
+      Stdlib.snd (bindings |- bound <:?> ())
     ; add_signature bindings (name, bound) |- body <?:> term'
     ]
 
@@ -96,7 +95,7 @@ module Impl (Infer : Specs.Infer) = struct
     | None -> [ failure @@ Some "Waiting for a Pi term" ]
 
   and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =
-    match Infer.(bindings |- abstraction <?:> ()) with
+    match bindings |- abstraction <:?> () with
     | Some _t, _proof -> [ failure @@ Some "TODO" ]
     | None, proof -> [ proof; failure None ]
 
