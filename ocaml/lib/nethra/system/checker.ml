@@ -3,8 +3,9 @@ open Nethra_ast.Term.Catamorphism
 open Nethra_ast.Proof
 open Nethra_ast.Proof.Builders
 open Nethra_ast.Bindings.Access
-open Reduction
 open Substitution
+open Reduction
+open Congruence
 
 module Impl (Infer : Specs.Infer) = struct
   module Congruence = Congruence
@@ -18,7 +19,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_kind bindings term' (level, c) =
     let term, proof = Infer.(bindings |- kind ~c level <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
+    | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
 
   (*
@@ -29,7 +30,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_int bindings term' (value, c) =
     let term, proof = Infer.(bindings |- int ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
+    | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
 
   (*
@@ -40,7 +41,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_char bindings term' (value, c) =
     let term, proof = Infer.(bindings |- char ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
+    | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
 
   (*
@@ -51,7 +52,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_string bindings term' (value, c) =
     let term, proof = Infer.(bindings |- string ~c value <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
+    | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure None ]
 
   (*
@@ -62,7 +63,7 @@ module Impl (Infer : Specs.Infer) = struct
   let check_id bindings term' (name, initial, c) =
     let term, proof = Infer.(bindings |- id ~c ~initial name <?:> ()) in
     match term with
-    | Some term -> [ proof; Congruence.(bindings |- term =?= term') ]
+    | Some term -> [ proof; bindings |- term =?= term' ]
     | None -> [ proof; failure @@ Some ("Unbound variable " ^ name) ]
 
   (*

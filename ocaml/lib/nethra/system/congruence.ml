@@ -145,11 +145,8 @@ and congruent_terms bindings term term' =
   let term = reduce bindings term
   and term' = reduce bindings term' in
   let term, term' =
-    match
-      ( fold_opt ~hole:(fun _ -> Some ()) term
-      , fold_opt ~hole:(fun _ -> Some ()) term' )
-    with
-    | None, Some () -> (term', term)
+    match fold_opt ~hole:(fun _ -> Some ()) term' with
+    | Some () -> (term', term)
     | _ -> (term, term')
   in
   let proofs =
