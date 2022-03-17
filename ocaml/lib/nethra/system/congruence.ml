@@ -6,6 +6,9 @@ open Reduction
 open Substitution
 include Goal
 
+(* Reference management in holes should be replaced thanks to a
+   state monad embedding the bindings *)
+
 let congruent_kind term' (level, _) =
   match fold_opt ~kind:(fun t -> Some t) term' with
   | Some (level', _) when level = level' -> []
@@ -31,21 +34,21 @@ let congruent_id term' (name, _, _) =
   | Some (name', _, _) when name = name' -> []
   | _ -> [ failure None ]
 
-let rec congruent_pi bindings term' (name, bound, body, implicit, _) =
+let rec congruent_pi bindings term' (name, bound, body, implicit, c) =
   match fold_opt ~pi:(fun t -> Some t) term' with
-  | Some (name', bound', body', implicit', _) when implicit' = implicit ->
+  | Some (name', bound', body', implicit', c') when implicit' = implicit ->
     let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id var) body
-    and body' = substitute name' (id var) body' in
+    let body = substitute name (id ~c ~initial:(Some name) var) body
+    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ bindings |- bound =?= bound'; bindings |- body =?= body' ]
   | _ -> [ failure None ]
 
-and congruent_lambda bindings term' (name, body, implicit, _c) =
+and congruent_lambda bindings term' (name, body, implicit, c) =
   match fold_opt ~lambda:(fun t -> Some t) term' with
-  | Some (name', body', implicit', _) when implicit' = implicit ->
+  | Some (name', body', implicit', c') when implicit' = implicit ->
     let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id var) body
-    and body' = substitute name' (id var) body' in
+    let body = substitute name (id ~c ~initial:(Some name) var) body
+    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ bindings |- body =?= body' ]
   | _ -> [ failure None ]
 
@@ -58,12 +61,12 @@ and congruent_apply bindings term' (abstraction, argument, implicit, _) =
     ]
   | _ -> [ failure None ]
 
-and congruent_sigma bindings term' (name, bound, body, _c) =
+and congruent_sigma bindings term' (name, bound, body, c) =
   match fold_opt ~sigma:(fun t -> Some t) term' with
-  | Some (name', bound', body', _) ->
+  | Some (name', bound', body', c') ->
     let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id var) body
-    and body' = substitute name' (id var) body' in
+    let body = substitute name (id ~c ~initial:(Some name) var) body
+    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ bindings |- bound =?= bound'; bindings |- body =?= body' ]
   | _ -> [ failure None ]
 
@@ -109,12 +112,12 @@ and congruent_case bindings term' (term, left, right, _c) =
     ]
   | _ -> [ failure None ]
 
-and congruent_mu bindings term' (name, body, _c) =
+and congruent_mu bindings term' (name, body, c) =
   match fold_opt ~mu:(fun t -> Some t) term' with
-  | Some (name', body', _) ->
+  | Some (name', body', c') ->
     let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id var) body
-    and body' = substitute name' (id var) body' in
+    let body = substitute name (id ~c ~initial:(Some name) var) body
+    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ bindings |- body =?= body' ]
   | _ -> [ failure None ]
 
@@ -128,12 +131,27 @@ and congruent_unfold bindings term' (term, _c) =
   | Some (term', _) -> [ bindings |- term =?= term' ]
   | _ -> [ failure None ]
 
-and congruent_hole _bindings _term' (_name, _value, _c) =
-  [ failure @@ Some "TODO" ]
+and congruent_hole bindings term' (name, reference, _c) =
+  match !reference with
+  | Some term -> [ bindings |- term =?= term' ]
+  | None -> (
+    match fold_opt ~hole:(fun t -> Some t) term' with
+    | Some (name', _, _) when name = name' -> []
+    | _ ->
+      let () = reference := Some term' in
+      [] )
 
 and congruent_terms bindings term term' =
   let term = reduce bindings term
   and term' = reduce bindings term' in
+  let term, term' =
+    match
+      ( fold_opt ~hole:(fun _ -> Some ()) term
+      , fold_opt ~hole:(fun _ -> Some ()) term' )
+    with
+    | None, Some () -> (term', term)
+    | _ -> (term, term')
+  in
   let proofs =
     fold ~kind:(congruent_kind term') ~int:(congruent_int term')
       ~char:(congruent_char term') ~string:(congruent_string term')

@@ -180,6 +180,76 @@ let congruence_case () =
   let proof = bindings |- term =?= term' in
   Alcotest.(check bool) "case" true (is_success proof)
 
+let congruence_case_inl () =
+  let bindings = create
+  and term = case (inl (id "x")) (id "y") (id "z")
+  and term' = apply (id "y") (id "x") in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "case" true (is_success proof)
+
+let congruence_case_inr () =
+  let bindings = create
+  and term = case (inr (id "x")) (id "y") (id "z")
+  and term' = apply (id "z") (id "x") in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "case" true (is_success proof)
+
+let congruence_mu () =
+  let bindings = create
+  and term = mu "x" (id "x")
+  and term' = mu "y" (id "y") in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "mu" true (is_success proof)
+
+let congruence_fold () =
+  let bindings = create
+  and term = fold (id "x")
+  and term' = fold (id "x") in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "fold" true (is_success proof)
+
+let congruence_unfold () =
+  let bindings = create
+  and term = unfold (id "x")
+  and term' = unfold (id "x") in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "unfold" true (is_success proof)
+
+let congruence_hole () =
+  let bindings = create
+  and term = hole "x"
+  and term' = hole "x" in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "hole same" true (is_success proof)
+
+let congruence_hole_left () =
+  let bindings = create
+  and term = hole "x"
+  and term' = id "x" in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "hole left" true (is_success proof)
+
+let congruence_hole_right () =
+  let bindings = create
+  and term = id "x"
+  and term' = hole "x" in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "hole right" true (is_success proof)
+
+let congruence_hole_left_ref () =
+  let bindings = create
+  and term = hole ~r:(ref (Some (id "x"))) "x"
+  and term' = id "x" in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "hole left ref" true (is_success proof)
+
+let congruence_hole_right_ref () =
+  let bindings = create
+  and term = id "x"
+  and term' = hole ~r:(ref (Some (id "x"))) "x" in
+  let proof = bindings |- term =?= term' in
+  Alcotest.(check bool) "hole right ref" true (is_success proof)
+
 let cases =
   let open Alcotest in
   ( "Check congruence"
@@ -191,8 +261,10 @@ let cases =
     ; test_case "Γ ⊢ x ≅ x" `Quick congruence_id
     ; test_case "Γ ⊢ x ≅ y <fail>" `Quick congruence_id_diff
     ; test_case "Γ ⊢ Π(x:Type_0).x ≅ Π(y:Type_0).y" `Quick congruence_pi
-    ; test_case "Γ ⊢ Π{x:Type_0}.x ≅ Π{y:Type_0}.y" `Quick congruence_pi_implicit
-    ; test_case "Γ ⊢ Π{x:Type_0}.x ≅ Π(y:Type_0).y <fail>" `Quick congruence_pi_implicit_diff
+    ; test_case "Γ ⊢ Π{x:Type_0}.x ≅ Π{y:Type_0}.y" `Quick
+        congruence_pi_implicit
+    ; test_case "Γ ⊢ Π{x:Type_0}.x ≅ Π(y:Type_0).y <fail>" `Quick
+        congruence_pi_implicit_diff
     ; test_case "Γ ⊢ λ(x).x ≅ λ(y).y" `Quick congruence_lambda
     ; test_case "Γ ⊢ λ{x}.x ≅ λ{y}.y" `Quick congruence_lambda_implicit
     ; test_case "Γ ⊢ x y ≅ x y" `Quick congruence_apply
@@ -208,4 +280,14 @@ let cases =
     ; test_case "Γ ⊢ inl x ≅ inl x" `Quick congruence_inl
     ; test_case "Γ ⊢ inr x ≅ inr x" `Quick congruence_inr
     ; test_case "Γ ⊢ case x y z ≅ case x y z" `Quick congruence_case
+    ; test_case "Γ ⊢ case (inl x) y z ≅ y x" `Quick congruence_case_inl
+    ; test_case "Γ ⊢ case (inr x) y z ≅ z x" `Quick congruence_case_inr
+    ; test_case "Γ ⊢ μ(x).x ≅ μ(y).y" `Quick congruence_mu
+    ; test_case "Γ ⊢ fold x ≅ fold x" `Quick congruence_fold
+    ; test_case "Γ ⊢ unfold x ≅ unfold x" `Quick congruence_unfold
+    ; test_case "Γ ⊢ ?x ≅ ?x" `Quick congruence_hole
+    ; test_case "Γ ⊢ ?x ≅ x" `Quick congruence_hole_left
+    ; test_case "Γ ⊢ x ≅ ?x" `Quick congruence_hole_right
+    ; test_case "Γ ⊢ ?x↦x ≅ x" `Quick congruence_hole_left_ref
+    ; test_case "Γ ⊢ x ≅ ?x↦x" `Quick congruence_hole_right_ref
     ] )
