@@ -1,6 +1,7 @@
 open Nethra.Ast.Term.Builders
 open Nethra.Ast.Proof
 open Nethra.Ast.Bindings.Builders
+open Nethra.Ast.Bindings.Access
 open Nethra.System
 module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
 
@@ -39,12 +40,27 @@ let check_lambda_not_implicit () =
   let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "lambda not implicit" false (is_success proof)
 
-let check_lambda_implicit_tactic () =
+let check_implicit_tactic () =
   let bindings = create
   and term = lambda "y" (id "y")
   and term' = pi ~implicit:true "x" (kind 0) (pi "y" (id "int") (id "int")) in
   let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "lambda implicit tactic" true (is_success proof)
+
+let check_apply () =
+  let bindings = add_signature create ("y", pi "_" (id "int") (id "int"))
+  and term = apply (id "y") (int 1)
+  and term' = id "int" in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
+  Alcotest.(check bool) "apply" true (is_success proof)
+
+let check_apply_implicit () =
+  let bindings =
+    add_signature create ("y", pi ~implicit:true "_" (id "int") (id "int"))
+  and term = apply ~implicit:true (id "y") (int 1)
+  and term' = id "int" in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
+  Alcotest.(check bool) "apply" true (is_success proof)
 
 let cases =
   let open Alcotest in
@@ -57,5 +73,7 @@ let cases =
     ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_not_implicit
     ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_implicit
     ; test_case "Γ ⊢ λ(y).y : Π{X:Type_0}.Π(x:int).int" `Quick
-        check_lambda_implicit_tactic
+        check_implicit_tactic
+    ; test_case "Γ ⊢ λ(y).y 1 : int" `Quick check_apply
+    ; test_case "Γ ⊢ λ{y}.y {1} : int" `Quick check_apply_implicit
     ] )

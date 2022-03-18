@@ -87,21 +87,38 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_lambda bindings term' (name, body, implicit, _c) =
     fold_right const
-      ( fold_opt ~pi:(fun p -> Some p) term'
+      ( fold_opt ~pi:(fun p -> return p) term'
       <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
       then
         let var, bindings = fresh_variable bindings name' in
-        let body' = substitute name' (id ~initial:(Some name') var) body' in
-        let body = substitute name (id ~initial:(Some name) var) body in
+        let body' = substitute name' (id ~initial:(return name') var) body'
+        and body = substitute name (id ~initial:(return name) var) body in
         [ add_signature bindings (var, bound') |- body <?:> body' ]
       else [ failure None ] )
-      [ failure @@ Some "Waiting for a Pi term" ]
+      [ failure @@ return "Waiting for a Pi term" ]
 
-  and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =
-    match bindings |- abstraction <:?> () with
-    | Some _t, _proof -> [ failure @@ Some "TODO" ]
-    | None, proof -> [ proof; failure None ]
+  (*
+    Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
+    ----------------------------      ----------------------------
+    Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]
+  *)
+  and check_apply bindings term' (abstraction, argument, implicit, _c) =
+    let term, proof = bindings |- abstraction <:?> () in
+    fold_right const
+      ( term
+      >>= fold_opt ~pi:(fun t -> return t)
+      >>= fun (name, bound, body, implicit', _) ->
+      if implicit = implicit'
+      then
+        return
+          [
+            proof
+          ; bindings |- argument <?:> bound
+          ; bindings |- substitute name argument body =?= term'
+          ]
+      else None )
+      [ proof; failure None ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -121,13 +138,13 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_pair bindings term' (lhd, rhd, _c) =
     fold_right const
-      ( fold_opt ~sigma:(fun t -> Some t) term'
+      ( fold_opt ~sigma:(fun t -> return t) term'
       <&> fun (n', bound', body', _c') ->
       [
         bindings |- lhd <?:> bound'
       ; bindings |- rhd <?:> substitute n' lhd body'
       ] )
-      [ failure (Some "Waiting for a sigma") ]
+      [ failure (return "Waiting for a sigma") ]
 
   (*
     Γ ⊢ p : Σ(x:M).N
@@ -138,7 +155,7 @@ module Impl (Infer : Specs.Infer) = struct
     let term'', proof = bindings |- term <:?> () in
     fold_right const
       ( term''
-      >>= fold_opt ~sigma:(fun t -> Some t)
+      >>= fold_opt ~sigma:(fun t -> return t)
       <&> fun (_, bound, _, _) -> [ proof; bindings |- bound =?= term' ] )
       [ proof; failure None ]
 
@@ -151,33 +168,108 @@ module Impl (Infer : Specs.Infer) = struct
     let term'', proof = bindings |- term <:?> () in
     fold_right const
       ( term''
-      >>= fold_opt ~sigma:(fun t -> Some t)
+      >>= fold_opt ~sigma:(fun t -> return t)
       <&> fun (n, _, body, _) ->
       [ proof; bindings |- substitute n (fst term) body =?= term' ] )
       [ proof; failure None ]
 
-  and check_sum _bindings _term' (_lhd, _rhd, _c) = [ failure @@ Some "TODO" ]
-  and check_inl _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
-  and check_inr _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
+  (*
+    Γ ⊢ A : T   Γ ⊢ B : T
+    ---------------------
+    Γ ⊢ A + B : T
+  *)
+  and check_sum bindings term' (lhd, rhd, _c) =
+    [ bindings |- lhd <?:> term'; bindings |- rhd <?:> term' ]
 
-  and check_case _bindings _term' (_term, _left, _right, _c) =
-    [ failure @@ Some "TODO" ]
+  (*
+    Γ ⊢ A : M
+    -----------------
+    Γ ⊢ inl A : M + N
+  *)
+  and check_inl bindings term' (term, _c) =
+    fold_right const
+      ( fold_opt ~sum:(fun t -> return t) term'
+      <&> fun (lhd, _, _) -> [ bindings |- term <?:> lhd ] )
+      [ failure None ]
 
-  and check_mu _bindings _term' (_name, _body, _c) = [ failure @@ Some "TODO" ]
-  and check_fold _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
-  and check_unfold _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
+  (*
+    Γ ⊢ A : N
+    -----------------
+    Γ ⊢ inr A : M + N
+  *)
+  and check_inr bindings term' (term, _c) =
+    fold_right const
+      ( fold_opt ~sum:(fun t -> return t) term'
+      <&> fun (_, rhd, _) -> [ bindings |- term <?:> rhd ] )
+      [ failure None ]
+
+  (*
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
+    ---------------------------------------------------
+    Γ ⊢ case a l r : C
+  *)
+  and check_case bindings term' (term, left, right, _c) =
+    let term'', proof = bindings |- term <:?> () in
+    fold_right const
+      ( term''
+      >>= fold_opt ~sum:(fun t -> return t)
+      <&> fun (lhd, rhd, _) ->
+      [
+        proof
+      ; bindings |- left <?:> pi "_" lhd term'
+      ; bindings |- right <?:> pi "_" rhd term'
+      ] )
+      [ proof; failure None ]
+
+  (*
+    Γ,x : T ⊢ A : T
+    ---------------
+    Γ ⊢ μ(x).A : T
+  *)
+  and check_mu bindings term' (name, body, _c) =
+    [ add_signature bindings (name, body) |- body <?:> term' ]
+
+  (*
+    Γ ⊢ A : N[x=μ(x).N]
+    -------------------
+    Γ ⊢ fold A : μ(x).N
+  *)
+  and check_fold bindings term' (term, _c) =
+    fold_right const
+      ( fold_opt ~mu:(fun t -> return t) term'
+      <&> fun (name', term'', _) ->
+      [ bindings |- term <?:> substitute name' term' term'' ] )
+      [ failure None ]
+
+  (*
+    Γ ⊢ A : μ(x).N
+    --------------------------
+    Γ ⊢ unfold A : N[x=μ(x).N]
+  *)
+  and check_unfold bindings term' (term, _c) =
+    let term'', proof = bindings |- term <:?> () in
+    fold_right const
+      ( term''
+      >>= fold_opt ~mu:(fun t -> return t)
+      <&> fun (name', term'', _) ->
+      [ proof; bindings |- term' =?= substitute name' term'' term'' ] )
+      [ proof; failure None ]
 
   and check_hole _bindings _term' (_name, _value, _c) =
-    [ failure @@ Some "TODO" ]
+    [ failure @@ return "TODO" ]
 
   (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
     ----------------------------------
     Γ ⊢ B : Π{x:A}.T
   *)
-  and implicit bindings term term' =
-    let implicit_lambda = fold_opt ~lambda:(fun (_, _, i, _) -> Some i) term in
-    let implicit_pi = fold_opt ~pi:(fun (n, _, _, i, _) -> Some (n, i)) term' in
+  and implicit_argument bindings term term' =
+    let implicit_lambda =
+      fold_opt ~lambda:(fun (_, _, i, _) -> return i) term
+    in
+    let implicit_pi =
+      fold_opt ~pi:(fun (n, _, _, i, _) -> return (n, i)) term'
+    in
     match (implicit_lambda, implicit_pi) with
     | Some true, _ -> [ failure None ]
     | _, Some (n, true) ->
@@ -185,12 +277,19 @@ module Impl (Infer : Specs.Infer) = struct
     | _ -> [ failure None ]
 
   (*
+    Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
+    ---------------------------------------
+    Γ ⊢ f e : N
+  *)
+  and implicit_parameter _bindings _term _term' = [ failure @@ return "TODO" ]
+
+  (*
     Γ ⊢ t : Type_i
     ------------------
     Γ ⊢ t : Type_{i+1}
   *)
   and type_level bindings term term' =
-    let level = fold_opt ~kind:(fun t -> Some t) term' in
+    let level = fold_opt ~kind:(fun t -> return t) term' in
     match level with
     | Some (level, c) when level > 0 ->
       [ bindings |- term <?:> kind ~c (level - 1) ]
@@ -220,7 +319,9 @@ module Impl (Infer : Specs.Infer) = struct
   (* type checker main entrypoint *)
   and check_type bindings term term' =
     let term' = reduce bindings term' in
-    let tactics = [ nominal; implicit; type_level ] in
+    let tactics =
+      [ nominal; implicit_argument; implicit_parameter; type_level ]
+    in
     (* Either can be uses here + Foldable *)
     let success, failures =
       List.fold_left
@@ -230,7 +331,7 @@ module Impl (Infer : Specs.Infer) = struct
           | None ->
             let proof = check term term' (tactic bindings term term') in
             if is_success proof
-            then (Some proof, [])
+            then (return proof, [])
             else (None, proof :: failures) )
         (None, []) tactics
     in

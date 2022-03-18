@@ -8,4 +8,6 @@ let () =
       ; T04_checker_basic.cases
       ; T05_checker_function.cases
       ; T06_checker_pair.cases
+      ; T07_checker_sum.cases
+      ; T08_checker_mu.cases
       ])
