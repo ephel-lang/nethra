@@ -19,6 +19,9 @@ module Access = struct
   let add_signature (reference, gamma, delta) binding =
     (reference, binding :: gamma, delta)
 
+  let add_signatures (reference, gamma, delta) signatures =
+    (reference, signatures @ gamma, delta)
+
   let get_definition (_, _, delta) n =
     Option.map snd (List.find_opt (fun c -> fst c = n) delta)
 

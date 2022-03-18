@@ -1,14 +1,17 @@
 module Impl (Infer : Specs.Infer) = struct
   include Goal
+  open Stdlib.Fun
+  open Preface.Option.Monad
+  open Preface.Option.Foldable
   open Nethra_ast.Term.Builders
   open Nethra_ast.Term.Catamorphism
   open Nethra_ast.Proof
   open Nethra_ast.Proof.Builders
   open Nethra_ast.Bindings.Access
   open Substitution
-  open Reduction
   open Congruence
   open Infer
+  open Reduction
 
   (*
     Γ ⊢
@@ -17,9 +20,9 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_kind bindings term' (level, c) =
     let term, proof = bindings |- kind ~c level <:?> () in
-    match term with
-    | Some term -> [ proof; bindings |- term =?= term' ]
-    | None -> [ proof; failure None ]
+    fold_right const
+      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      [ proof; failure None ]
 
   (*
     l ∈ int
@@ -28,9 +31,9 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_int bindings term' (value, c) =
     let term, proof = bindings |- int ~c value <:?> () in
-    match term with
-    | Some term -> [ proof; bindings |- term =?= term' ]
-    | None -> [ proof; failure None ]
+    fold_right const
+      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      [ proof; failure None ]
 
   (*
     l ∈ char
@@ -39,9 +42,9 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_char bindings term' (value, c) =
     let term, proof = bindings |- char ~c value <:?> () in
-    match term with
-    | Some term -> [ proof; bindings |- term =?= term' ]
-    | None -> [ proof; failure None ]
+    fold_right const
+      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      [ proof; failure None ]
 
   (*
     l ∈ string
@@ -50,9 +53,9 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_string bindings term' (value, c) =
     let term, proof = bindings |- string ~c value <:?> () in
-    match term with
-    | Some term -> [ proof; bindings |- term =?= term' ]
-    | None -> [ proof; failure None ]
+    fold_right const
+      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      [ proof; failure None ]
 
   (*
     Γ ⊢
@@ -61,9 +64,9 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_id bindings term' (name, initial, c) =
     let term, proof = bindings |- id ~c ~initial name <:?> () in
-    match term with
-    | Some term -> [ proof; bindings |- term =?= term' ]
-    | None -> [ proof; failure @@ Some ("Unbound variable " ^ name) ]
+    fold_right const
+      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      [ proof; failure None ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -83,29 +86,76 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
   and check_lambda bindings term' (name, body, implicit, _c) =
-    match fold_opt ~pi:(fun p -> Some p) term' with
-    | Some (name', bound', body', implicit', _c') ->
+    fold_right const
+      ( fold_opt ~pi:(fun p -> Some p) term'
+      <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
       then
         let var, bindings = fresh_variable bindings name' in
         let body' = substitute name' (id ~initial:(Some name') var) body' in
         let body = substitute name (id ~initial:(Some name) var) body in
         [ add_signature bindings (var, bound') |- body <?:> body' ]
-      else [ failure None ]
-    | None -> [ failure @@ Some "Waiting for a Pi term" ]
+      else [ failure None ] )
+      [ failure @@ Some "Waiting for a Pi term" ]
 
   and check_apply bindings _term' (abstraction, _argument, _implicit, _c) =
     match bindings |- abstraction <:?> () with
     | Some _t, _proof -> [ failure @@ Some "TODO" ]
     | None, proof -> [ proof; failure None ]
 
+  (*
+    Γ ⊢ M : S   Γ, x : M ⊢ N : T
+    ----------------------------
+    Γ ⊢ Σ(x:M).N : T
+  *)
   and check_sigma bindings term' (name, bound, body, _c) =
-    let bindings = add_signature bindings (name, bound) in
-    [ bindings |- body <?:> term' ]
+    [
+      Stdlib.snd (bindings |- bound <:?> ())
+    ; add_signature bindings (name, bound) |- body <?:> term'
+    ]
 
-  and check_pair _bindings _term' (_lhd, _rhd, _c) = [ failure @@ Some "TODO" ]
-  and check_fst _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
-  and check_snd _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
+  (*
+    Γ ⊢ A : M   Γ ⊢ B : N[x=A]
+    --------------------------
+    Γ ⊢ A,B : Σ(x:M).N
+  *)
+  and check_pair bindings term' (lhd, rhd, _c) =
+    fold_right const
+      ( fold_opt ~sigma:(fun t -> Some t) term'
+      <&> fun (n', bound', body', _c') ->
+      [
+        bindings |- lhd <?:> bound'
+      ; bindings |- rhd <?:> substitute n' lhd body'
+      ] )
+      [ failure (Some "Waiting for a sigma") ]
+
+  (*
+    Γ ⊢ p : Σ(x:M).N
+    ----------------
+    Γ ⊢ fst p : M
+  *)
+  and check_fst bindings term' (term, _c) =
+    let term'', proof = bindings |- term <:?> () in
+    fold_right const
+      ( term''
+      >>= fold_opt ~sigma:(fun t -> Some t)
+      <&> fun (_, bound, _, _) -> [ proof; bindings |- bound =?= term' ] )
+      [ proof; failure None ]
+
+  (*
+    Γ ⊢ p : Σ(x:M).N
+    ----------------------
+    Γ ⊢ snd p : N[x=fst p]
+    *)
+  and check_snd bindings term' (term, _c) =
+    let term'', proof = bindings |- term <:?> () in
+    fold_right const
+      ( term''
+      >>= fold_opt ~sigma:(fun t -> Some t)
+      <&> fun (n, _, body, _) ->
+      [ proof; bindings |- substitute n (fst term) body =?= term' ] )
+      [ proof; failure None ]
+
   and check_sum _bindings _term' (_lhd, _rhd, _c) = [ failure @@ Some "TODO" ]
   and check_inl _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
   and check_inr _bindings _term' (_term, _c) = [ failure @@ Some "TODO" ]
@@ -168,7 +218,6 @@ module Impl (Infer : Specs.Infer) = struct
       term
 
   (* type checker main entrypoint *)
-
   and check_type bindings term term' =
     let term' = reduce bindings term' in
     let tactics = [ nominal; implicit; type_level ] in
