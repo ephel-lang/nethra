@@ -1,43 +1,43 @@
 open Nethra.Ast.Term.Builders
 open Nethra.Ast.Proof
-open Nethra.Ast.Bindings.Builders
-open Nethra.Ast.Bindings.Access
+open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Hypothesis.Access
 open Nethra.System
 module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
 
 let check_sigma () =
-  let bindings = create
+  let hypothesis = create
   and term = sigma "x" (kind 0) (id "x")
   and term' = kind 0 in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "sigma" true (is_success proof)
 
 let check_pair () =
-  let bindings = add_signature create ("char", kind 0)
+  let hypothesis = add_signature create ("char", kind 0)
   and term = pair (id "char") (char 'c')
   and term' = sigma "x" (kind 0) (id "x") in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "pair" true (is_success proof)
 
 let check_pair_wrong () =
-  let bindings = add_signature create ("char", kind 0)
+  let hypothesis = add_signature create ("char", kind 0)
   and term = pair (id "char") (int 1)
   and term' = sigma "x" (kind 0) (id "x") in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "pair wrong" false (is_success proof)
 
 let check_pair_fst () =
-  let bindings = add_signature create ("p", sigma "n" (kind 0) (id "n"))
+  let hypothesis = add_signature create ("p", sigma "n" (kind 0) (id "n"))
   and term = fst (id "p")
   and term' = kind 0 in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "pair fst" true (is_success proof)
 
 let check_pair_snd () =
-  let bindings = add_signature create ("p", sigma "n" (kind 0) (id "n"))
+  let hypothesis = add_signature create ("p", sigma "n" (kind 0) (id "n"))
   and term = snd (id "p")
   and term' = fst (id "p") in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "pair snd" true (is_success proof)
 
 let cases =

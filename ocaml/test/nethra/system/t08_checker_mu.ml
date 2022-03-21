@@ -1,31 +1,32 @@
 open Nethra.Ast.Term.Builders
 open Nethra.Ast.Proof
-open Nethra.Ast.Bindings.Builders
-open Nethra.Ast.Bindings.Access
+open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Hypothesis.Access
 open Nethra.System
 module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
 
 let check_mu () =
-  let bindings = add_signature create ("int", kind 0)
+  let hypothesis = add_signature create ("int", kind 0)
   and term = mu "x" (pi "_" (id "x") (id "int"))
   and term' = kind 0 in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "mu" true (is_success proof)
 
 let check_mu_fold () =
-  let bindings =
+  let hypothesis =
     add_signature create
       ("a", pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int"))
   and term = fold (id "a")
   and term' = mu "x" (pi "_" (id "x") (id "int")) in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "mu fold" true (is_success proof)
 
 let check_mu_unfold () =
-  let bindings = add_signature create ("a", mu "x" (pi "_" (id "x") (id "int")))
+  let hypothesis =
+    add_signature create ("a", mu "x" (pi "_" (id "x") (id "int")))
   and term = unfold (id "a")
   and term' = pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int") in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "mu unfold" true (is_success proof)
 
 let cases =

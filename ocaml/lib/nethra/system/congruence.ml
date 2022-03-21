@@ -1,175 +1,190 @@
+open Stdlib.Fun
+open Preface.Option.Monad
+open Preface.Option.Foldable
 open Nethra_ast.Ast.Term.Builders
 open Nethra_ast.Ast.Term.Catamorphism
 open Nethra_ast.Ast.Proof.Builders
-open Nethra_ast.Ast.Bindings.Access
+open Nethra_ast.Ast.Hypothesis.Access
 open Reduction
 open Substitution
-include Goal
+include Judgment
 
 (* Reference management in holes should be replaced thanks to a
-   state monad embedding the bindings *)
+   state monad embedding the hypothesis *)
+
+let proof_from_option ?(reason = None) o = fold_right const o [ failure reason ]
 
 let congruent_kind term' (level, _) =
-  match fold_opt ~kind:(fun t -> Some t) term' with
-  | Some (level', _) when level = level' -> []
-  | _ -> [ failure None ]
+  proof_from_option
+    ( fold_opt ~kind:return term'
+    >>= fun (level', _) -> if level = level' then Some [] else None )
 
 let congruent_int term' (value, _) =
-  match fold_opt ~int:(fun t -> Some t) term' with
-  | Some (value', _) when value = value' -> []
-  | _ -> [ failure None ]
+  proof_from_option
+    ( fold_opt ~int:return term'
+    >>= fun (value', _) -> if value = value' then Some [] else None )
 
 let congruent_char term' (value, _) =
-  match fold_opt ~char:(fun t -> Some t) term' with
-  | Some (value', _) when value = value' -> []
-  | _ -> [ failure None ]
+  proof_from_option
+    ( fold_opt ~char:return term'
+    >>= fun (value', _) -> if value = value' then Some [] else None )
 
 let congruent_string term' (value, _) =
-  match fold_opt ~string:(fun t -> Some t) term' with
-  | Some (value', _) when value = value' -> []
-  | _ -> [ failure None ]
+  proof_from_option
+    ( fold_opt ~string:return term'
+    >>= fun (value', _) -> if value = value' then Some [] else None )
 
 let congruent_id term' (name, _, _) =
-  match fold_opt ~id:(fun t -> Some t) term' with
-  | Some (name', _, _) when name = name' -> []
-  | _ -> [ failure None ]
+  proof_from_option
+    ( fold_opt ~id:return term'
+    >>= fun (name', _, _) -> if name = name' then Some [] else None )
 
-let rec congruent_pi bindings term' (name, bound, body, implicit, c) =
-  match fold_opt ~pi:(fun t -> Some t) term' with
-  | Some (name', bound', body', implicit', c') when implicit' = implicit ->
-    let var, bindings = fresh_variable bindings name in
+let rec congruent_pi hypothesis term' (name, bound, body, implicit, c) =
+  proof_from_option
+    ( fold_opt ~pi:return term'
+    >>= fun (name', bound', body', implicit', c') ->
+    if implicit' = implicit
+    then
+      let var, hypothesis = fresh_variable hypothesis name in
+      let body = substitute name (id ~c ~initial:(Some name) var) body
+      and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
+      Some [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ]
+    else None )
+
+and congruent_lambda hypothesis term' (name, body, implicit, c) =
+  proof_from_option
+    ( fold_opt ~lambda:return term'
+    >>= fun (name', body', implicit', c') ->
+    if implicit' = implicit
+    then
+      let var, hypothesis = fresh_variable hypothesis name in
+      let body = substitute name (id ~c ~initial:(Some name) var) body
+      and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
+      Some [ hypothesis |- body =?= body' ]
+    else None )
+
+and congruent_apply hypothesis term' (abstraction, argument, implicit, _) =
+  proof_from_option
+    ( fold_opt ~apply:return term'
+    >>= fun (abstraction', argument', implicit', _) ->
+    if implicit' = implicit
+    then
+      Some
+        [
+          hypothesis |- abstraction =?= abstraction'
+        ; hypothesis |- argument =?= argument'
+        ]
+    else None )
+
+and congruent_sigma hypothesis term' (name, bound, body, c) =
+  proof_from_option
+    ( fold_opt ~sigma:return term'
+    <&> fun (name', bound', body', c') ->
+    let var, hypothesis = fresh_variable hypothesis name in
     let body = substitute name (id ~c ~initial:(Some name) var) body
     and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
-    [ bindings |- bound =?= bound'; bindings |- body =?= body' ]
-  | _ -> [ failure None ]
+    [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ] )
 
-and congruent_lambda bindings term' (name, body, implicit, c) =
-  match fold_opt ~lambda:(fun t -> Some t) term' with
-  | Some (name', body', implicit', c') when implicit' = implicit ->
-    let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id ~c ~initial:(Some name) var) body
-    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
-    [ bindings |- body =?= body' ]
-  | _ -> [ failure None ]
+and congruent_pair hypothesis term' (lhd, rhd, _c) =
+  proof_from_option
+    ( fold_opt ~pair:return term'
+    <&> fun (lhd', rhd', _) ->
+    [ hypothesis |- lhd =?= lhd'; hypothesis |- rhd =?= rhd' ] )
 
-and congruent_apply bindings term' (abstraction, argument, implicit, _) =
-  match fold_opt ~apply:(fun t -> Some t) term' with
-  | Some (abstraction', argument', implicit', _) when implicit' = implicit ->
+and congruent_fst hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~fst:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
+
+and congruent_snd hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~snd:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
+
+and congruent_sum hypothesis term' (lhd, rhd, _c) =
+  proof_from_option
+    ( fold_opt ~sum:return term'
+    <&> fun (lhd', rhd', _) ->
+    [ hypothesis |- lhd =?= lhd'; hypothesis |- rhd =?= rhd' ] )
+
+and congruent_inl hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~inl:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
+
+and congruent_inr hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~inr:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
+
+and congruent_case hypothesis term' (term, left, right, _c) =
+  proof_from_option
+    ( fold_opt ~case:return term'
+    <&> fun (term', left', right', _c') ->
     [
-      bindings |- abstraction =?= abstraction'
-    ; bindings |- argument =?= argument'
-    ]
-  | _ -> [ failure None ]
+      hypothesis |- term =?= term'
+    ; hypothesis |- left =?= left'
+    ; hypothesis |- right =?= right'
+    ] )
 
-and congruent_sigma bindings term' (name, bound, body, c) =
-  match fold_opt ~sigma:(fun t -> Some t) term' with
-  | Some (name', bound', body', c') ->
-    let var, bindings = fresh_variable bindings name in
+and congruent_mu hypothesis term' (name, body, c) =
+  proof_from_option
+    ( fold_opt ~mu:return term'
+    <&> fun (name', body', c') ->
+    let var, hypothesis = fresh_variable hypothesis name in
     let body = substitute name (id ~c ~initial:(Some name) var) body
     and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
-    [ bindings |- bound =?= bound'; bindings |- body =?= body' ]
-  | _ -> [ failure None ]
+    [ hypothesis |- body =?= body' ] )
 
-and congruent_pair bindings term' (lhd, rhd, _c) =
-  match fold_opt ~pair:(fun t -> Some t) term' with
-  | Some (lhd', rhd', _) ->
-    [ bindings |- lhd =?= lhd'; bindings |- rhd =?= rhd' ]
-  | _ -> [ failure None ]
+and congruent_fold hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~fold:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_fst bindings term' (term, _c) =
-  match fold_opt ~fst:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
+and congruent_unfold hypothesis term' (term, _c) =
+  proof_from_option
+    ( fold_opt ~unfold:return term'
+    <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_snd bindings term' (term, _c) =
-  match fold_opt ~snd:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
-
-and congruent_sum bindings term' (lhd, rhd, _c) =
-  match fold_opt ~sum:(fun t -> Some t) term' with
-  | Some (lhd', rhd', _) ->
-    [ bindings |- lhd =?= lhd'; bindings |- rhd =?= rhd' ]
-  | _ -> [ failure None ]
-
-and congruent_inl bindings term' (term, _c) =
-  match fold_opt ~inl:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
-
-and congruent_inr bindings term' (term, _c) =
-  match fold_opt ~inr:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
-
-and congruent_case bindings term' (term, left, right, _c) =
-  match fold_opt ~case:(fun t -> Some t) term' with
-  | Some (term', left', right', _c') ->
-    [
-      bindings |- term =?= term'
-    ; bindings |- left =?= left'
-    ; bindings |- right =?= right'
-    ]
-  | _ -> [ failure None ]
-
-and congruent_mu bindings term' (name, body, c) =
-  match fold_opt ~mu:(fun t -> Some t) term' with
-  | Some (name', body', c') ->
-    let var, bindings = fresh_variable bindings name in
-    let body = substitute name (id ~c ~initial:(Some name) var) body
-    and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
-    [ bindings |- body =?= body' ]
-  | _ -> [ failure None ]
-
-and congruent_fold bindings term' (term, _c) =
-  match fold_opt ~fold:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
-
-and congruent_unfold bindings term' (term, _c) =
-  match fold_opt ~unfold:(fun t -> Some t) term' with
-  | Some (term', _) -> [ bindings |- term =?= term' ]
-  | _ -> [ failure None ]
-
-and congruent_hole bindings term' (name, reference, _c) =
+and congruent_hole hypothesis term' (name, reference, _c) =
   match !reference with
-  | Some term -> [ bindings |- term =?= term' ]
+  | Some term -> [ hypothesis |- term =?= term' ]
   | None -> (
-    match fold_opt ~hole:(fun t -> Some t) term' with
+    match fold_opt ~hole:return term' with
     | Some (name', _, _) when name = name' -> []
     | _ ->
       let () = reference := Some term' in
       [] )
 
-and congruent_terms bindings term term' =
-  let term = reduce bindings term
-  and term' = reduce bindings term' in
+and congruent_terms hypothesis term term' =
+  let term = reduce hypothesis term
+  and term' = reduce hypothesis term' in
   let term, term' =
-    match fold_opt ~hole:(fun _ -> Some ()) term' with
-    | Some () -> (term', term)
-    | _ -> (term, term')
+    fold_right const
+      (fold_opt ~hole:return term' <&> fun _ -> (term', term))
+      (term, term')
   in
   let proofs =
     fold ~kind:(congruent_kind term') ~int:(congruent_int term')
       ~char:(congruent_char term') ~string:(congruent_string term')
       ~id:(congruent_id term')
-      ~pi:(congruent_pi bindings term')
-      ~lambda:(congruent_lambda bindings term')
-      ~apply:(congruent_apply bindings term')
-      ~sigma:(congruent_sigma bindings term')
-      ~pair:(congruent_pair bindings term')
-      ~fst:(congruent_fst bindings term')
-      ~snd:(congruent_snd bindings term')
-      ~sum:(congruent_sum bindings term')
-      ~inl:(congruent_inl bindings term')
-      ~inr:(congruent_inr bindings term')
-      ~case:(congruent_case bindings term')
-      ~mu:(congruent_mu bindings term')
-      ~fold:(congruent_fold bindings term')
-      ~unfold:(congruent_unfold bindings term')
-      ~hole:(congruent_hole bindings term')
+      ~pi:(congruent_pi hypothesis term')
+      ~lambda:(congruent_lambda hypothesis term')
+      ~apply:(congruent_apply hypothesis term')
+      ~sigma:(congruent_sigma hypothesis term')
+      ~pair:(congruent_pair hypothesis term')
+      ~fst:(congruent_fst hypothesis term')
+      ~snd:(congruent_snd hypothesis term')
+      ~sum:(congruent_sum hypothesis term')
+      ~inl:(congruent_inl hypothesis term')
+      ~inr:(congruent_inr hypothesis term')
+      ~case:(congruent_case hypothesis term')
+      ~mu:(congruent_mu hypothesis term')
+      ~fold:(congruent_fold hypothesis term')
+      ~unfold:(congruent_unfold hypothesis term')
+      ~hole:(congruent_hole hypothesis term')
       term
   in
   congruent term term' proofs
 
-and ( =?= ) (bindings, term) term' = congruent_terms bindings term term'
+and ( =?= ) (hypothesis, term) term' = congruent_terms hypothesis term term'

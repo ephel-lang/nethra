@@ -1,6 +1,6 @@
 open Common
-open Nethra.Ast.Bindings.Builders
-open Nethra.Ast.Bindings.Access
+open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Hypothesis.Access
 open Nethra.Ast.Term.Builders
 open Nethra.System.Reduction
 

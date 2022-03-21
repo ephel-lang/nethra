@@ -1,5 +1,5 @@
 module Impl (Infer : Specs.Infer) = struct
-  include Goal
+  include Judgment
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
@@ -7,7 +7,7 @@ module Impl (Infer : Specs.Infer) = struct
   open Nethra_ast.Term.Catamorphism
   open Nethra_ast.Proof
   open Nethra_ast.Proof.Builders
-  open Nethra_ast.Bindings.Access
+  open Nethra_ast.Hypothesis.Access
   open Reduction
   open Substitution
   open Congruence
@@ -21,50 +21,50 @@ module Impl (Infer : Specs.Infer) = struct
     -----------------------
     Γ ⊢ Type_i : Type_{i+1}
   *)
-  let check_kind bindings term' (level, c) =
-    let term, proof = bindings |- kind ~c level <:?> () in
+  let check_kind hypothesis term' (level, c) =
+    let term, proof = hypothesis |- kind ~c level <:?> () in
     proof_from_option
-      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
     l ∈ int
     -----------
     Γ ⊢ l : int
   *)
-  let check_int bindings term' (value, c) =
-    let term, proof = bindings |- int ~c value <:?> () in
+  let check_int hypothesis term' (value, c) =
+    let term, proof = hypothesis |- int ~c value <:?> () in
     proof_from_option
-      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
     l ∈ char
     ------------
     Γ ⊢ l : char
   *)
-  let check_char bindings term' (value, c) =
-    let term, proof = bindings |- char ~c value <:?> () in
+  let check_char hypothesis term' (value, c) =
+    let term, proof = hypothesis |- char ~c value <:?> () in
     proof_from_option
-      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
     l ∈ string
     --------------
     Γ ⊢ l : string
   *)
-  let check_string bindings term' (value, c) =
-    let term, proof = bindings |- string ~c value <:?> () in
+  let check_string hypothesis term' (value, c) =
+    let term, proof = hypothesis |- string ~c value <:?> () in
     proof_from_option
-      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
     Γ ⊢
     ----------------
     Γ, x : T ⊢ x : T
   *)
-  let check_id bindings term' (name, initial, c) =
-    let term, proof = bindings |- id ~c ~initial name <:?> () in
+  let check_id hypothesis term' (name, initial, c) =
+    let term, proof = hypothesis |- id ~c ~initial name <:?> () in
     proof_from_option
-      (term <&> fun term -> [ proof; bindings |- term =?= term' ])
+      (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -72,10 +72,10 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ Π(x:M).N : T
 
   *)
-  let rec check_pi bindings term' (name, bound, body, _implicit, _c) =
+  let rec check_pi hypothesis term' (name, bound, body, _implicit, _c) =
     [
-      Stdlib.snd (bindings |- bound <:?> ())
-    ; add_signature bindings (name, bound) |- body <?:> term'
+      Stdlib.snd (hypothesis |- bound <:?> ())
+    ; add_signature hypothesis (name, bound) |- body <?:> term'
     ]
 
   (*
@@ -83,17 +83,17 @@ module Impl (Infer : Specs.Infer) = struct
     ---------------------     ---------------------
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
-  and check_lambda bindings term' (name, body, implicit, _c) =
+  and check_lambda hypothesis term' (name, body, implicit, _c) =
     proof_from_option
       ~reason:(return "Waiting for a Pi term")
       ( fold_opt ~pi:(fun p -> return p) term'
       <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
       then
-        let var, bindings = fresh_variable bindings name' in
+        let var, hypothesis = fresh_variable hypothesis name' in
         let body' = substitute name' (id ~initial:(return name') var) body'
         and body = substitute name (id ~initial:(return name) var) body in
-        [ add_signature bindings (var, bound') |- body <?:> body' ]
+        [ add_signature hypothesis (var, bound') |- body <?:> body' ]
       else [ failure None ] )
 
   (*
@@ -101,19 +101,19 @@ module Impl (Infer : Specs.Infer) = struct
     ----------------------------      ----------------------------
     Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]
   *)
-  and check_apply bindings term' (abstraction, argument, implicit, _c) =
-    let term, proof = bindings |- abstraction <:?> () in
+  and check_apply hypothesis term' (abstraction, argument, implicit, _c) =
+    let term, proof = hypothesis |- abstraction <:?> () in
     proof_from_option
       ( term
-      >>= fold_opt ~pi:(fun t -> return t)
+      >>= fold_opt ~pi:return
       >>= fun (name, bound, body, implicit', _) ->
       if implicit = implicit'
       then
         return
           [
             proof
-          ; bindings |- argument <?:> bound
-          ; bindings |- substitute name argument body =?= term'
+          ; hypothesis |- argument <?:> bound
+          ; hypothesis |- substitute name argument body =?= term'
           ]
       else None )
 
@@ -122,10 +122,10 @@ module Impl (Infer : Specs.Infer) = struct
     ----------------------------
     Γ ⊢ Σ(x:M).N : T
   *)
-  and check_sigma bindings term' (name, bound, body, _c) =
+  and check_sigma hypothesis term' (name, bound, body, _c) =
     [
-      Stdlib.snd (bindings |- bound <:?> ())
-    ; add_signature bindings (name, bound) |- body <?:> term'
+      Stdlib.snd (hypothesis |- bound <:?> ())
+    ; add_signature hypothesis (name, bound) |- body <?:> term'
     ]
 
   (*
@@ -133,14 +133,14 @@ module Impl (Infer : Specs.Infer) = struct
     --------------------------
     Γ ⊢ A,B : Σ(x:M).N
   *)
-  and check_pair bindings term' (lhd, rhd, _c) =
+  and check_pair hypothesis term' (lhd, rhd, _c) =
     proof_from_option
       ~reason:(return "Waiting for a sigma")
-      ( fold_opt ~sigma:(fun t -> return t) term'
+      ( fold_opt ~sigma:return term'
       <&> fun (n', bound', body', _c') ->
       [
-        bindings |- lhd <?:> bound'
-      ; bindings |- rhd <?:> substitute n' lhd body'
+        hypothesis |- lhd <?:> bound'
+      ; hypothesis |- rhd <?:> substitute n' lhd body'
       ] )
 
   (*
@@ -148,69 +148,69 @@ module Impl (Infer : Specs.Infer) = struct
     ----------------
     Γ ⊢ fst p : M
   *)
-  and check_fst bindings term' (term, _c) =
-    let term'', proof = bindings |- term <:?> () in
+  and check_fst hypothesis term' (term, _c) =
+    let term'', proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term''
-      >>= fold_opt ~sigma:(fun t -> return t)
-      <&> fun (_, bound, _, _) -> [ proof; bindings |- bound =?= term' ] )
+      >>= fold_opt ~sigma:return
+      <&> fun (_, bound, _, _) -> [ proof; hypothesis |- bound =?= term' ] )
 
   (*
     Γ ⊢ p : Σ(x:M).N
     ----------------------
     Γ ⊢ snd p : N[x=fst p]
     *)
-  and check_snd bindings term' (term, _c) =
-    let term'', proof = bindings |- term <:?> () in
+  and check_snd hypothesis term' (term, _c) =
+    let term'', proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term''
-      >>= fold_opt ~sigma:(fun t -> return t)
+      >>= fold_opt ~sigma:return
       <&> fun (n, _, body, _) ->
-      [ proof; bindings |- substitute n (fst term) body =?= term' ] )
+      [ proof; hypothesis |- substitute n (fst term) body =?= term' ] )
 
   (*
     Γ ⊢ A : T   Γ ⊢ B : T
     ---------------------
     Γ ⊢ A + B : T
   *)
-  and check_sum bindings term' (lhd, rhd, _c) =
-    [ bindings |- lhd <?:> term'; bindings |- rhd <?:> term' ]
+  and check_sum hypothesis term' (lhd, rhd, _c) =
+    [ hypothesis |- lhd <?:> term'; hypothesis |- rhd <?:> term' ]
 
   (*
     Γ ⊢ A : M
     -----------------
     Γ ⊢ inl A : M + N
   *)
-  and check_inl bindings term' (term, _c) =
+  and check_inl hypothesis term' (term, _c) =
     proof_from_option
-      ( fold_opt ~sum:(fun t -> return t) term'
-      <&> fun (lhd, _, _) -> [ bindings |- term <?:> lhd ] )
+      ( fold_opt ~sum:return term'
+      <&> fun (lhd, _, _) -> [ hypothesis |- term <?:> lhd ] )
 
   (*
     Γ ⊢ A : N
     -----------------
     Γ ⊢ inr A : M + N
   *)
-  and check_inr bindings term' (term, _c) =
+  and check_inr hypothesis term' (term, _c) =
     proof_from_option
-      ( fold_opt ~sum:(fun t -> return t) term'
-      <&> fun (_, rhd, _) -> [ bindings |- term <?:> rhd ] )
+      ( fold_opt ~sum:return term'
+      <&> fun (_, rhd, _) -> [ hypothesis |- term <?:> rhd ] )
 
   (*
     Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
     ---------------------------------------------------
     Γ ⊢ case a l r : C
   *)
-  and check_case bindings term' (term, left, right, _c) =
-    let term'', proof = bindings |- term <:?> () in
+  and check_case hypothesis term' (term, left, right, _c) =
+    let term'', proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term''
-      >>= fold_opt ~sum:(fun t -> return t)
+      >>= fold_opt ~sum:return
       <&> fun (lhd, rhd, _) ->
       [
         proof
-      ; bindings |- left <?:> pi "_" lhd term'
-      ; bindings |- right <?:> pi "_" rhd term'
+      ; hypothesis |- left <?:> pi "_" lhd term'
+      ; hypothesis |- right <?:> pi "_" rhd term'
       ] )
 
   (*
@@ -218,46 +218,46 @@ module Impl (Infer : Specs.Infer) = struct
     ---------------
     Γ ⊢ μ(x).A : T
   *)
-  and check_mu bindings term' (name, body, _c) =
-    [ add_signature bindings (name, body) |- body <?:> term' ]
+  and check_mu hypothesis term' (name, body, _c) =
+    [ add_signature hypothesis (name, body) |- body <?:> term' ]
 
   (*
     Γ ⊢ A : N[x=μ(x).N]
     -------------------
     Γ ⊢ fold A : μ(x).N
   *)
-  and check_fold bindings term' (term, _c) =
+  and check_fold hypothesis term' (term, _c) =
     proof_from_option
-      ( fold_opt ~mu:(fun t -> return t) term'
+      ( fold_opt ~mu:return term'
       <&> fun (name', term'', _) ->
-      [ bindings |- term <?:> substitute name' term' term'' ] )
+      [ hypothesis |- term <?:> substitute name' term' term'' ] )
 
   (*
     Γ ⊢ A : μ(x).N
     --------------------------
     Γ ⊢ unfold A : N[x=μ(x).N]
   *)
-  and check_unfold bindings term' (term, _c) =
-    let term'', proof = bindings |- term <:?> () in
+  and check_unfold hypothesis term' (term, _c) =
+    let term'', proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term''
-      >>= fold_opt ~mu:(fun t -> return t)
+      >>= fold_opt ~mu:return
       <&> fun (name', term'', _) ->
-      [ proof; bindings |- term' =?= substitute name' term'' term'' ] )
+      [ proof; hypothesis |- term' =?= substitute name' term'' term'' ] )
 
   (*
     Γ ⊢                   Γ, x : T ⊢ U : T
     -----------------     -------------------
     Γ, x : T ⊢ ?x : T     Γ, x : T ⊢ ?x=U : T
   *)
-  and check_hole bindings term' (name, reference, _c) =
+  and check_hole hypothesis term' (name, reference, _c) =
     proof_from_option
       ~reason:(return "Unbound variable")
-      ( get_signature bindings name
+      ( get_signature hypothesis name
       <&> fun term ->
-      [ bindings |- term =?= term' ]
+      [ hypothesis |- term =?= term' ]
       @ fold_right const
-          (!reference <&> fun term -> [ bindings |- term <?:> term' ])
+          (!reference <&> fun term -> [ hypothesis |- term <?:> term' ])
           [] )
 
   (*
@@ -265,7 +265,7 @@ module Impl (Infer : Specs.Infer) = struct
     ----------------------------------
     Γ ⊢ B : Π{x:A}.T
   *)
-  and implicit_argument bindings term term' =
+  and implicit_argument hypothesis term term' =
     proof_from_option
       (let implicit_lambda =
          fold_right const
@@ -275,7 +275,7 @@ module Impl (Infer : Specs.Infer) = struct
        fold_opt ~pi:(fun (n, _, _, i, _) -> return (n, i)) term'
        <&> fun (n, implicit_pi) ->
        if (not implicit_lambda) && implicit_pi
-       then [ bindings |- lambda ~implicit:true n term <?:> term' ]
+       then [ hypothesis |- lambda ~implicit:true n term <?:> term' ]
        else [ failure None ] )
 
   (*
@@ -283,25 +283,25 @@ module Impl (Infer : Specs.Infer) = struct
     ---------------------------------------
     Γ ⊢ f e : N
   *)
-  and implicit_parameter bindings term term' =
+  and implicit_parameter hypothesis term term' =
     proof_from_option
-      ( fold_opt ~apply:(fun t -> return t) term
+      ( fold_opt ~apply:return term
       <&> fun (abstraction, argument, implicit_apply, _) ->
       if implicit_apply
       then [ failure None ]
       else
-        let term'', _ = bindings |- abstraction <:?> () in
+        let term'', _ = hypothesis |- abstraction <:?> () in
         proof_from_option
           ( term''
-          >>= fold_opt ~pi:(fun t -> return t)
+          >>= fold_opt ~pi:return
           <&> fun (n, bound, _, implicit_pi, _) ->
           if implicit_pi
           then
-            let var, bindings = fresh_variable bindings n in
+            let var, hypothesis = fresh_variable hypothesis n in
             let term =
               apply (apply ~implicit:true abstraction (hole var)) argument
             in
-            [ add_signature bindings (var, bound) |- term <?:> term' ]
+            [ add_signature hypothesis (var, bound) |- term <?:> term' ]
           else [ failure None ] ) )
 
   (*
@@ -309,38 +309,41 @@ module Impl (Infer : Specs.Infer) = struct
     ------------------
     Γ ⊢ t : Type_{i+1}
   *)
-  and type_level bindings term term' =
+  and type_level hypothesis term term' =
     proof_from_option
-      ( fold_opt ~kind:(fun t -> return t) term'
+      ( fold_opt ~kind:return term'
       <&> fun (level, c) ->
       if level > 0
-      then [ bindings |- term <?:> kind ~c (level - 1) ]
+      then [ hypothesis |- term <?:> kind ~c (level - 1) ]
       else [ failure None ] )
 
-  and nominal bindings term term' =
+  and nominal hypothesis term term' =
     fold
-      ~kind:(check_kind bindings term')
-      ~int:(check_int bindings term')
-      ~char:(check_char bindings term')
-      ~string:(check_string bindings term')
-      ~id:(check_id bindings term') ~pi:(check_pi bindings term')
-      ~lambda:(check_lambda bindings term')
-      ~apply:(check_apply bindings term')
-      ~sigma:(check_sigma bindings term')
-      ~pair:(check_pair bindings term')
-      ~fst:(check_fst bindings term') ~snd:(check_snd bindings term')
-      ~sum:(check_sum bindings term') ~inl:(check_inl bindings term')
-      ~inr:(check_inr bindings term')
-      ~case:(check_case bindings term')
-      ~mu:(check_mu bindings term')
-      ~fold:(check_fold bindings term')
-      ~unfold:(check_unfold bindings term')
-      ~hole:(check_hole bindings term')
+      ~kind:(check_kind hypothesis term')
+      ~int:(check_int hypothesis term')
+      ~char:(check_char hypothesis term')
+      ~string:(check_string hypothesis term')
+      ~id:(check_id hypothesis term')
+      ~pi:(check_pi hypothesis term')
+      ~lambda:(check_lambda hypothesis term')
+      ~apply:(check_apply hypothesis term')
+      ~sigma:(check_sigma hypothesis term')
+      ~pair:(check_pair hypothesis term')
+      ~fst:(check_fst hypothesis term')
+      ~snd:(check_snd hypothesis term')
+      ~sum:(check_sum hypothesis term')
+      ~inl:(check_inl hypothesis term')
+      ~inr:(check_inr hypothesis term')
+      ~case:(check_case hypothesis term')
+      ~mu:(check_mu hypothesis term')
+      ~fold:(check_fold hypothesis term')
+      ~unfold:(check_unfold hypothesis term')
+      ~hole:(check_hole hypothesis term')
       term
 
   (* type checker main entrypoint *)
-  and check_type bindings term term' =
-    let term' = reduce bindings term' in
+  and check_type hypothesis term term' =
+    let term' = reduce hypothesis term' in
     let tactics =
       [ nominal; implicit_argument; implicit_parameter; type_level ]
     in
@@ -351,7 +354,7 @@ module Impl (Infer : Specs.Infer) = struct
           match success with
           | Some _ -> (success, [])
           | None ->
-            let proof = check term term' (tactic bindings term term') in
+            let proof = check term term' (tactic hypothesis term term') in
             if is_success proof
             then (return proof, [])
             else (None, proof :: failures) )
@@ -364,5 +367,5 @@ module Impl (Infer : Specs.Infer) = struct
         (fun p p' -> if size p > size p' then p else p')
         (failure None) failures
 
-  and ( <?:> ) (bindings, term) term' = check_type bindings term term'
+  and ( <?:> ) (hypothesis, term) term' = check_type hypothesis term term'
 end

@@ -1,12 +1,12 @@
 module Impl (Checker : Specs.Checker) = struct
-  include Goal
+  include Judgment
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
   open Nethra_ast.Term.Builders
   open Nethra_ast.Term.Catamorphism
   open Nethra_ast.Proof.Builders
-  open Nethra_ast.Bindings.Access
+  open Nethra_ast.Hypothesis.Access
   open Reduction
   open Substitution
   open Checker
@@ -19,7 +19,7 @@ module Impl (Checker : Specs.Checker) = struct
     -----------------------
     Γ ⊢ Type_i : Type_{i+1}
   *)
-  let infer_kind _bindings (level, c) =
+  let infer_kind _hypothesis (level, c) =
     let term = kind ~c @@ (level + 1) in
     (Some term, [])
 
@@ -28,7 +28,7 @@ module Impl (Checker : Specs.Checker) = struct
     -----------
     Γ ⊢ l : int
   *)
-  let infer_int _bindings (_, c) =
+  let infer_int _hypothesis (_, c) =
     let term = id ~c "int" in
     (Some term, [])
 
@@ -37,7 +37,7 @@ module Impl (Checker : Specs.Checker) = struct
     ------------
     Γ ⊢ l : char
   *)
-  let infer_char _bindings (_, c) =
+  let infer_char _hypothesis (_, c) =
     let term = id ~c "char" in
     (Some term, [])
 
@@ -46,7 +46,7 @@ module Impl (Checker : Specs.Checker) = struct
     --------------
     Γ ⊢ l : string
   *)
-  let infer_string _bindings (_, c) =
+  let infer_string _hypothesis (_, c) =
     let term = id ~c "string" in
     (Some term, [])
 
@@ -55,8 +55,8 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------
     Γ, x : T ⊢ x : T
   *)
-  let infer_id bindings (name, _, _) =
-    match get_signature bindings name with
+  let infer_id hypothesis (name, _, _) =
+    match get_signature hypothesis name with
     | Some term -> (Some term, [])
     | None -> (None, [ failure @@ Some ("Unbound variable " ^ name) ])
 
@@ -65,9 +65,11 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------------------
     Γ ⊢ Π(x:M).N : T
   *)
-  let rec infer_pi bindings (name, bound, body, _implicit, _c) =
-    let bound', proof = bindings |- bound <:?> () in
-    let body', proof' = add_signature bindings (name, bound) |- body <:?> () in
+  let rec infer_pi hypothesis (name, bound, body, _implicit, _c) =
+    let bound', proof = hypothesis |- bound <:?> () in
+    let body', proof' =
+      add_signature hypothesis (name, bound) |- body <:?> ()
+    in
     (bound' >>= const body', [ proof; proof' ])
 
   (*
@@ -75,7 +77,7 @@ module Impl (Checker : Specs.Checker) = struct
     ---------------------     ---------------------
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
-  and infer_lambda _bindings (_name, _body, _implicit, _c) =
+  and infer_lambda _hypothesis (_name, _body, _implicit, _c) =
     (None, [ failure @@ Some "TODO" ])
 
   (*
@@ -83,15 +85,16 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------------------      ----------------------------
     Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]
   *)
-  and infer_apply bindings (abstraction, argument, implicit, _c) =
-    let pi, proof = bindings |- abstraction <:?> () in
+  and infer_apply hypothesis (abstraction, argument, implicit, _c) =
+    let pi, proof = hypothesis |- abstraction <:?> () in
     proof_from_option
       ( pi
-      >>= fold_opt ~pi:(fun t -> Some t)
+      >>= fold_opt ~pi:return
       <&> fun (n, bound, body, implicit', _c') ->
       if implicit = implicit'
       then
-        (Some (substitute n argument body), [ bindings |- argument <?:> bound ])
+        ( Some (substitute n argument body)
+        , [ hypothesis |- argument <?:> bound ] )
       else (None, [ proof; failure None ]) )
       proof
 
@@ -100,9 +103,11 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------------------
     Γ ⊢ Σ(x:M).N : T
   *)
-  and infer_sigma bindings (name, bound, body, _c) =
-    let bound', proof = bindings |- bound <:?> () in
-    let body', proof' = add_signature bindings (name, bound) |- body <:?> () in
+  and infer_sigma hypothesis (name, bound, body, _c) =
+    let bound', proof = hypothesis |- bound <:?> () in
+    let body', proof' =
+      add_signature hypothesis (name, bound) |- body <:?> ()
+    in
     (bound' >>= const body', [ proof; proof' ])
 
   (*
@@ -110,9 +115,9 @@ module Impl (Checker : Specs.Checker) = struct
     --------------------------
     Γ ⊢ A,B : Σ(x:M).N
   *)
-  and infer_pair bindings (lhd, rhd, _c) =
-    let left, proof = bindings |- lhd <:?> () in
-    let right, proof' = bindings |- rhd <:?> () in
+  and infer_pair hypothesis (lhd, rhd, _c) =
+    let left, proof = hypothesis |- lhd <:?> () in
+    let right, proof' = hypothesis |- rhd <:?> () in
     ( (left >>= fun left -> right <&> fun right -> sigma "_" left right)
     , [ proof; proof' ] )
 
@@ -121,11 +126,11 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------
     Γ ⊢ fst p : M
   *)
-  and infer_fst bindings (term, _c) =
-    let sigma, proof = bindings |- term <:?> () in
+  and infer_fst hypothesis (term, _c) =
+    let sigma, proof = hypothesis |- term <:?> () in
     proof_from_option ~reason:(Some "Waiting for a sigma")
       ( sigma
-      >>= fold_opt ~sigma:(fun t -> Some t)
+      >>= fold_opt ~sigma:return
       <&> fun (_, bound, _, _) -> (Some bound, [ proof ]) )
       proof
 
@@ -134,11 +139,11 @@ module Impl (Checker : Specs.Checker) = struct
     ----------------------
     Γ ⊢ snd p : N[x=fst p]
   *)
-  and infer_snd bindings (term, _c) =
-    let sigma, proof = bindings |- term <:?> () in
+  and infer_snd hypothesis (term, _c) =
+    let sigma, proof = hypothesis |- term <:?> () in
     proof_from_option ~reason:(Some "Waiting for a sigma")
       ( sigma
-      >>= fold_opt ~sigma:(fun t -> Some t)
+      >>= fold_opt ~sigma:return
       <&> fun (n, _, body, _) -> (Some (substitute n (fst term) body), [ proof ])
       )
       proof
@@ -148,10 +153,10 @@ module Impl (Checker : Specs.Checker) = struct
     ---------------------
     Γ ⊢ A + B : T
   *)
-  and infer_sum bindings (lhd, rhd, _c) =
-    let term, proof = bindings |- lhd <:?> () in
+  and infer_sum hypothesis (lhd, rhd, _c) =
+    let term, proof = hypothesis |- lhd <:?> () in
     proof_from_option
-      (term <&> fun term -> (Some term, [ bindings |- rhd <?:> term ]))
+      (term <&> fun term -> (Some term, [ hypothesis |- rhd <?:> term ]))
       proof
 
   (*
@@ -159,12 +164,12 @@ module Impl (Checker : Specs.Checker) = struct
     -----------------
     Γ ⊢ inl A : M + N
   *)
-  and infer_inl bindings (term, c) =
-    let term, proof = bindings |- term <:?> () in
+  and infer_inl hypothesis (term, c) =
+    let term, proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term
       <&> fun term ->
-      let var, _bindings = fresh_variable bindings "_" in
+      let var, _hypothesis = fresh_variable hypothesis "_" in
       (Some (sum term (hole ~c var)), [ proof ]) )
       proof
 
@@ -173,12 +178,12 @@ module Impl (Checker : Specs.Checker) = struct
     -----------------
     Γ ⊢ inr A : M + N
   *)
-  and infer_inr bindings (term, c) =
-    let term, proof = bindings |- term <:?> () in
+  and infer_inr hypothesis (term, c) =
+    let term, proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term
       <&> fun term ->
-      let var, _bindings = fresh_variable bindings "_" in
+      let var, _hypothesis = fresh_variable hypothesis "_" in
       (Some (sum (hole ~c var) term), [ proof ]) )
       proof
 
@@ -187,18 +192,31 @@ module Impl (Checker : Specs.Checker) = struct
     ---------------------------------------------------
     Γ ⊢ case a l r : C
   *)
-  and infer_case _bindings (_term, _left, _right, _c) =
-    (None, [ failure @@ Some "TODO" ])
+  and infer_case hypothesis (term, left, right, _c) =
+    let term, proof = hypothesis |- term <:?> () in
+    proof_from_option
+      ( term
+      >>= fold_opt ~sum:return
+      <&> fun (lhd, rhd, c) ->
+      let var, hypothesis = fresh_variable hypothesis "_" in
+      let hole = hole ~c var in
+      ( Some hole
+      , [
+          proof
+        ; hypothesis |- left <?:> arrow lhd hole
+        ; hypothesis |- right <?:> arrow rhd hole
+        ] ) )
+      proof
 
   (*
     Γ,x : T ⊢ A : T
     ---------------
     Γ ⊢ μ(x).A : T
   *)
-  and infer_mu bindings (name, body, c) =
-    let var, bindings = fresh_variable bindings name in
-    let bindings = add_signature bindings (name, hole ~c var) in
-    let term, proof = bindings |- body <:?> () in
+  and infer_mu hypothesis (name, body, c) =
+    let var, hypothesis = fresh_variable hypothesis name in
+    let hypothesis = add_signature hypothesis (name, hole ~c var) in
+    let term, proof = hypothesis |- body <:?> () in
     (term, [ proof ])
 
   (*
@@ -206,7 +224,7 @@ module Impl (Checker : Specs.Checker) = struct
     -------------------
     Γ ⊢ fold A : μ(x).N
   *)
-  and infer_fold _bindings (_term, _c) =
+  and infer_fold _hypothesis (_term, _c) =
     (None, [ failure @@ Some "Cannot infer fold" ])
 
   (*
@@ -214,11 +232,11 @@ module Impl (Checker : Specs.Checker) = struct
     --------------------------
     Γ ⊢ unfold A : N[x=μ(x).N]
   *)
-  and infer_unfold bindings (term, _c) =
-    let term, proof = bindings |- term <:?> () in
+  and infer_unfold hypothesis (term, _c) =
+    let term, proof = hypothesis |- term <:?> () in
     proof_from_option
       ( term
-      >>= fold_opt ~mu:(fun t -> Some t)
+      >>= fold_opt ~mu:return
       <&> fun (n, body, c) ->
       (Some (substitute n (mu ~c n body) body), [ proof ]) )
       proof
@@ -228,23 +246,23 @@ module Impl (Checker : Specs.Checker) = struct
     -----------------     -------------------
     Γ, x : T ⊢ ?x : T     Γ, x : T ⊢ ?x=U : T
   *)
-  and infer_hole _bindings (_name, _value, _c) =
+  and infer_hole _hypothesis (_name, _value, _c) =
     (None, [ failure @@ Some "TODO" ])
 
-  and infer_type bindings term =
+  and infer_type hypothesis term =
     let term', proofs =
-      fold ~kind:(infer_kind bindings) ~int:(infer_int bindings)
-        ~char:(infer_char bindings) ~string:(infer_string bindings)
-        ~id:(infer_id bindings) ~pi:(infer_pi bindings)
-        ~lambda:(infer_lambda bindings) ~apply:(infer_apply bindings)
-        ~sigma:(infer_sigma bindings) ~pair:(infer_pair bindings)
-        ~fst:(infer_fst bindings) ~snd:(infer_snd bindings)
-        ~sum:(infer_sum bindings) ~inl:(infer_inl bindings)
-        ~inr:(infer_inr bindings) ~case:(infer_case bindings)
-        ~mu:(infer_mu bindings) ~fold:(infer_fold bindings)
-        ~unfold:(infer_unfold bindings) ~hole:(infer_hole bindings) term
+      fold ~kind:(infer_kind hypothesis) ~int:(infer_int hypothesis)
+        ~char:(infer_char hypothesis) ~string:(infer_string hypothesis)
+        ~id:(infer_id hypothesis) ~pi:(infer_pi hypothesis)
+        ~lambda:(infer_lambda hypothesis) ~apply:(infer_apply hypothesis)
+        ~sigma:(infer_sigma hypothesis) ~pair:(infer_pair hypothesis)
+        ~fst:(infer_fst hypothesis) ~snd:(infer_snd hypothesis)
+        ~sum:(infer_sum hypothesis) ~inl:(infer_inl hypothesis)
+        ~inr:(infer_inr hypothesis) ~case:(infer_case hypothesis)
+        ~mu:(infer_mu hypothesis) ~fold:(infer_fold hypothesis)
+        ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis) term
     in
-    (term' <&> reduce bindings, infer term term' proofs)
+    (term' <&> reduce hypothesis, infer term term' proofs)
 
-  and ( <:?> ) (bindings, term) () = infer_type bindings term
+  and ( <:?> ) (hypothesis, term) () = infer_type hypothesis term
 end

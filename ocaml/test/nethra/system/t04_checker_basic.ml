@@ -1,57 +1,57 @@
 open Nethra.Ast.Term.Builders
 open Nethra.Ast.Proof
-open Nethra.Ast.Bindings.Builders
-open Nethra.Ast.Bindings.Access
+open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Hypothesis.Access
 open Nethra.System
 module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
 
 let check_type0_type1 () =
-  let bindings = create
+  let hypothesis = create
   and term = kind 0
   and term' = kind 1 in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "type0" true (is_success proof)
 
 let check_type0_type2 () =
-  let bindings = create
+  let hypothesis = create
   and term = kind 0
   and term' = kind 2 in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "type0" true (is_success proof)
 
 let check_int_value () =
-  let bindings = create
+  let hypothesis = create
   and term = int 42
   and term' = id "int" in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "int" true (is_success proof)
 
 let check_not_int_value () =
-  let bindings = create
+  let hypothesis = create
   and term = int 42
   and term' = id "string" in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "int" false (is_success proof)
 
 let check_char_value () =
-  let bindings = create
+  let hypothesis = create
   and term = char '4'
   and term' = id "char" in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "char" true (is_success proof)
 
 let check_string_value () =
-  let bindings = create
+  let hypothesis = create
   and term = string "4"
   and term' = id "string" in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "string" true (is_success proof)
 
 let check_id () =
-  let bindings = add_signature create ("x", id "T")
+  let hypothesis = add_signature create ("x", id "T")
   and term = id "x"
   and term' = id "T" in
-  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let proof = TypeChecker.(hypothesis |- term <?:> term') in
   Alcotest.(check bool) "string" true (is_success proof)
 
 let cases =

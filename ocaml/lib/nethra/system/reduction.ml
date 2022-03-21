@@ -1,53 +1,53 @@
 open Nethra_ast.Ast.Term.Builders
 open Nethra_ast.Ast.Term.Catamorphism
-open Nethra_ast.Ast.Bindings.Access
+open Nethra_ast.Ast.Hypothesis.Access
 open Substitution
 open Stdlib.Fun
 open Preface.Option.Monad
 open Preface.Option.Foldable
 
-let reduce_id reduce bindings (name, _, _) =
-  get_definition bindings name >>= reduce bindings
+let reduce_id reduce hypothesis (name, _, _) =
+  get_definition hypothesis name >>= reduce hypothesis
 
-let reduce_apply reduce bindings (abstraction, argument, implicit, c) =
-  reduce bindings abstraction
+let reduce_apply reduce hypothesis (abstraction, argument, implicit, c) =
+  reduce hypothesis abstraction
   >>= fold_opt ~lambda:(fun (n, body, implicit', _) ->
           if implicit = implicit'
           then return (substitute n argument body)
           else if implicit'
           then
-            let var, _ = fresh_variable bindings n in
+            let var, _ = fresh_variable hypothesis n in
             return (apply ~c ~implicit (substitute n (hole var) body) argument)
           else None )
-  >>= reduce bindings
+  >>= reduce hypothesis
 
-let reduce_fst reduce bindings (term, _c) =
-  fold_opt ~pair:(fun (lhd, _, _) -> return lhd) term >>= reduce bindings
+let reduce_fst reduce hypothesis (term, _c) =
+  fold_opt ~pair:(fun (lhd, _, _) -> return lhd) term >>= reduce hypothesis
 
-let reduce_snd reduce bindings (term, _c) =
-  fold_opt ~pair:(fun (_, rhd, _) -> return rhd) term >>= reduce bindings
+let reduce_snd reduce hypothesis (term, _c) =
+  fold_opt ~pair:(fun (_, rhd, _) -> return rhd) term >>= reduce hypothesis
 
-let reduce_case reduce bindings (term, left, right, _) =
-  reduce bindings term
+let reduce_case reduce hypothesis (term, left, right, _) =
+  reduce hypothesis term
   >>= fold_opt
         ~inl:(fun (term, _) -> return (apply left term))
         ~inr:(fun (term, _) -> return (apply right term))
-  >>= reduce bindings
+  >>= reduce hypothesis
 
-let reduce_hole reduce bindings (_, reference, _) =
-  !reference >>= reduce bindings
+let reduce_hole reduce hypothesis (_, reference, _) =
+  !reference >>= reduce hypothesis
 
-let rec reduce_opt bindings term =
+let rec reduce_opt hypothesis term =
   fold_right const
     (fold_opt
-       ~id:(reduce_id reduce_opt bindings)
-       ~apply:(reduce_apply reduce_opt bindings)
-       ~fst:(reduce_fst reduce_opt bindings)
-       ~snd:(reduce_snd reduce_opt bindings)
-       ~case:(reduce_case reduce_opt bindings)
-       ~hole:(reduce_hole reduce_opt bindings)
+       ~id:(reduce_id reduce_opt hypothesis)
+       ~apply:(reduce_apply reduce_opt hypothesis)
+       ~fst:(reduce_fst reduce_opt hypothesis)
+       ~snd:(reduce_snd reduce_opt hypothesis)
+       ~case:(reduce_case reduce_opt hypothesis)
+       ~hole:(reduce_hole reduce_opt hypothesis)
        term )
     term
   |> return
 
-let reduce bindings term = fold_right const (reduce_opt bindings term) term
+let reduce hypothesis term = fold_right const (reduce_opt hypothesis term) term

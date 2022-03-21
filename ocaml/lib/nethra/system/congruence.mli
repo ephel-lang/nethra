@@ -1,9 +1,9 @@
-include module type of Goal
+include module type of Judgment
 
 val ( =?= ) :
-     'a Nethra_ast.Bindings.t * 'a Nethra_ast.Term.t
+     'a Nethra_ast.Hypothesis.t * 'a Nethra_ast.Term.t
   -> 'a Nethra_ast.Term.t
   -> 'a Nethra_ast.Proof.t
 (** The congruence provides an intuitive DSL
 
-    ``` bindings |- term1 =?= term2 ``` *)
+    ``` hypothesis |- term1 =?= term2 ``` *)
