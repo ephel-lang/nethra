@@ -11,6 +11,9 @@ module Impl (Checker : Specs.Checker) = struct
   open Substitution
   open Checker
 
+  let proof_from_option ?(reason = None) o proof =
+    fold_right const o (None, [ proof; failure reason ])
+
   (*
     Γ ⊢
     -----------------------
@@ -82,7 +85,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_apply bindings (abstraction, argument, implicit, _c) =
     let pi, proof = bindings |- abstraction <:?> () in
-    fold_right const
+    proof_from_option
       ( pi
       >>= fold_opt ~pi:(fun t -> Some t)
       <&> fun (n, bound, body, implicit', _c') ->
@@ -90,7 +93,7 @@ module Impl (Checker : Specs.Checker) = struct
       then
         (Some (substitute n argument body), [ bindings |- argument <?:> bound ])
       else (None, [ proof; failure None ]) )
-      (None, [ proof ])
+      proof
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -120,11 +123,11 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_fst bindings (term, _c) =
     let sigma, proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option ~reason:(Some "Waiting for a sigma")
       ( sigma
       >>= fold_opt ~sigma:(fun t -> Some t)
       <&> fun (_, bound, _, _) -> (Some bound, [ proof ]) )
-      (None, [ proof; failure (Some "Waiting for a sigma") ])
+      proof
 
   (*
     Γ ⊢ p : Σ(x:M).N
@@ -133,12 +136,12 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_snd bindings (term, _c) =
     let sigma, proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option ~reason:(Some "Waiting for a sigma")
       ( sigma
       >>= fold_opt ~sigma:(fun t -> Some t)
       <&> fun (n, _, body, _) -> (Some (substitute n (fst term) body), [ proof ])
       )
-      (None, [ proof; failure (Some "Waiting for a sigma") ])
+      proof
 
   (*
     Γ ⊢ A : T   Γ ⊢ B : T
@@ -147,9 +150,9 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_sum bindings (lhd, rhd, _c) =
     let term, proof = bindings |- lhd <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> (Some term, [ bindings |- rhd <?:> term ]))
-      (None, [ proof ])
+      proof
 
   (*
     Γ ⊢ A : M
@@ -158,12 +161,12 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_inl bindings (term, c) =
     let term, proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term
       <&> fun term ->
       let var, _bindings = fresh_variable bindings "_" in
       (Some (sum term (hole ~c var)), [ proof ]) )
-      (None, [ proof ])
+      proof
 
   (*
     Γ ⊢ A : N
@@ -172,12 +175,12 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_inr bindings (term, c) =
     let term, proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term
       <&> fun term ->
       let var, _bindings = fresh_variable bindings "_" in
       (Some (sum (hole ~c var) term), [ proof ]) )
-      (None, [ proof ])
+      proof
 
   (*
     Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
@@ -213,12 +216,12 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_unfold bindings (term, _c) =
     let term, proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term
       >>= fold_opt ~mu:(fun t -> Some t)
       <&> fun (n, body, c) ->
       (Some (substitute n (mu ~c n body) body), [ proof ]) )
-      (None, [ proof ])
+      proof
 
   (*
     Γ ⊢                   Γ, x : T ⊢ U : T
