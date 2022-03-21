@@ -9,6 +9,7 @@ module Builders : sig
   val string : ?c:'a option -> string -> 'a t
   val id : ?c:'a option -> ?initial:string option -> string -> 'a t
   val pi : ?c:'a option -> ?implicit:bool -> string -> 'a t -> 'a t -> 'a t
+  val arrow : ?c:'a option -> 'a t -> 'a t -> 'a t
   val lambda : ?c:'a option -> ?implicit:bool -> string -> 'a t -> 'a t
   val apply : ?c:'a option -> ?implicit:bool -> 'a t -> 'a t -> 'a t
   val sigma : ?c:'a option -> string -> 'a t -> 'a t -> 'a t

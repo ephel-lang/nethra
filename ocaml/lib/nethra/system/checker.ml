@@ -8,10 +8,13 @@ module Impl (Infer : Specs.Infer) = struct
   open Nethra_ast.Proof
   open Nethra_ast.Proof.Builders
   open Nethra_ast.Bindings.Access
+  open Reduction
   open Substitution
   open Congruence
   open Infer
-  open Reduction
+
+  let proof_from_option ?(reason = None) o =
+    fold_right const o [ failure reason ]
 
   (*
     Γ ⊢
@@ -20,9 +23,8 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_kind bindings term' (level, c) =
     let term, proof = bindings |- kind ~c level <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> [ proof; bindings |- term =?= term' ])
-      [ proof; failure None ]
 
   (*
     l ∈ int
@@ -31,9 +33,8 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_int bindings term' (value, c) =
     let term, proof = bindings |- int ~c value <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> [ proof; bindings |- term =?= term' ])
-      [ proof; failure None ]
 
   (*
     l ∈ char
@@ -42,9 +43,8 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_char bindings term' (value, c) =
     let term, proof = bindings |- char ~c value <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> [ proof; bindings |- term =?= term' ])
-      [ proof; failure None ]
 
   (*
     l ∈ string
@@ -53,9 +53,8 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_string bindings term' (value, c) =
     let term, proof = bindings |- string ~c value <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> [ proof; bindings |- term =?= term' ])
-      [ proof; failure None ]
 
   (*
     Γ ⊢
@@ -64,9 +63,8 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   let check_id bindings term' (name, initial, c) =
     let term, proof = bindings |- id ~c ~initial name <:?> () in
-    fold_right const
+    proof_from_option
       (term <&> fun term -> [ proof; bindings |- term =?= term' ])
-      [ proof; failure None ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -86,7 +84,8 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
   and check_lambda bindings term' (name, body, implicit, _c) =
-    fold_right const
+    proof_from_option
+      ~reason:(return "Waiting for a Pi term")
       ( fold_opt ~pi:(fun p -> return p) term'
       <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
@@ -96,7 +95,6 @@ module Impl (Infer : Specs.Infer) = struct
         and body = substitute name (id ~initial:(return name) var) body in
         [ add_signature bindings (var, bound') |- body <?:> body' ]
       else [ failure None ] )
-      [ failure @@ return "Waiting for a Pi term" ]
 
   (*
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
@@ -105,7 +103,7 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_apply bindings term' (abstraction, argument, implicit, _c) =
     let term, proof = bindings |- abstraction <:?> () in
-    fold_right const
+    proof_from_option
       ( term
       >>= fold_opt ~pi:(fun t -> return t)
       >>= fun (name, bound, body, implicit', _) ->
@@ -118,7 +116,6 @@ module Impl (Infer : Specs.Infer) = struct
           ; bindings |- substitute name argument body =?= term'
           ]
       else None )
-      [ proof; failure None ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -137,14 +134,14 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ A,B : Σ(x:M).N
   *)
   and check_pair bindings term' (lhd, rhd, _c) =
-    fold_right const
+    proof_from_option
+      ~reason:(return "Waiting for a sigma")
       ( fold_opt ~sigma:(fun t -> return t) term'
       <&> fun (n', bound', body', _c') ->
       [
         bindings |- lhd <?:> bound'
       ; bindings |- rhd <?:> substitute n' lhd body'
       ] )
-      [ failure (return "Waiting for a sigma") ]
 
   (*
     Γ ⊢ p : Σ(x:M).N
@@ -153,11 +150,10 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_fst bindings term' (term, _c) =
     let term'', proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term''
       >>= fold_opt ~sigma:(fun t -> return t)
       <&> fun (_, bound, _, _) -> [ proof; bindings |- bound =?= term' ] )
-      [ proof; failure None ]
 
   (*
     Γ ⊢ p : Σ(x:M).N
@@ -166,12 +162,11 @@ module Impl (Infer : Specs.Infer) = struct
     *)
   and check_snd bindings term' (term, _c) =
     let term'', proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term''
       >>= fold_opt ~sigma:(fun t -> return t)
       <&> fun (n, _, body, _) ->
       [ proof; bindings |- substitute n (fst term) body =?= term' ] )
-      [ proof; failure None ]
 
   (*
     Γ ⊢ A : T   Γ ⊢ B : T
@@ -187,10 +182,9 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ inl A : M + N
   *)
   and check_inl bindings term' (term, _c) =
-    fold_right const
+    proof_from_option
       ( fold_opt ~sum:(fun t -> return t) term'
       <&> fun (lhd, _, _) -> [ bindings |- term <?:> lhd ] )
-      [ failure None ]
 
   (*
     Γ ⊢ A : N
@@ -198,10 +192,9 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ inr A : M + N
   *)
   and check_inr bindings term' (term, _c) =
-    fold_right const
+    proof_from_option
       ( fold_opt ~sum:(fun t -> return t) term'
       <&> fun (_, rhd, _) -> [ bindings |- term <?:> rhd ] )
-      [ failure None ]
 
   (*
     Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
@@ -210,7 +203,7 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_case bindings term' (term, left, right, _c) =
     let term'', proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term''
       >>= fold_opt ~sum:(fun t -> return t)
       <&> fun (lhd, rhd, _) ->
@@ -219,7 +212,6 @@ module Impl (Infer : Specs.Infer) = struct
       ; bindings |- left <?:> pi "_" lhd term'
       ; bindings |- right <?:> pi "_" rhd term'
       ] )
-      [ proof; failure None ]
 
   (*
     Γ,x : T ⊢ A : T
@@ -235,11 +227,10 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ fold A : μ(x).N
   *)
   and check_fold bindings term' (term, _c) =
-    fold_right const
+    proof_from_option
       ( fold_opt ~mu:(fun t -> return t) term'
       <&> fun (name', term'', _) ->
       [ bindings |- term <?:> substitute name' term' term'' ] )
-      [ failure None ]
 
   (*
     Γ ⊢ A : μ(x).N
@@ -248,15 +239,26 @@ module Impl (Infer : Specs.Infer) = struct
   *)
   and check_unfold bindings term' (term, _c) =
     let term'', proof = bindings |- term <:?> () in
-    fold_right const
+    proof_from_option
       ( term''
       >>= fold_opt ~mu:(fun t -> return t)
       <&> fun (name', term'', _) ->
       [ proof; bindings |- term' =?= substitute name' term'' term'' ] )
-      [ proof; failure None ]
 
-  and check_hole _bindings _term' (_name, _value, _c) =
-    [ failure @@ return "TODO" ]
+  (*
+    Γ ⊢                   Γ, x : T ⊢ U : T
+    -----------------     -------------------
+    Γ, x : T ⊢ ?x : T     Γ, x : T ⊢ ?x=U : T
+  *)
+  and check_hole bindings term' (name, reference, _c) =
+    proof_from_option
+      ~reason:(return "Unbound variable")
+      ( get_signature bindings name
+      <&> fun term ->
+      [ bindings |- term =?= term' ]
+      @ fold_right const
+          (!reference <&> fun term -> [ bindings |- term <?:> term' ])
+          [] )
 
   (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
@@ -264,24 +266,43 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ B : Π{x:A}.T
   *)
   and implicit_argument bindings term term' =
-    let implicit_lambda =
-      fold_opt ~lambda:(fun (_, _, i, _) -> return i) term
-    in
-    let implicit_pi =
-      fold_opt ~pi:(fun (n, _, _, i, _) -> return (n, i)) term'
-    in
-    match (implicit_lambda, implicit_pi) with
-    | Some true, _ -> [ failure None ]
-    | _, Some (n, true) ->
-      [ bindings |- lambda ~implicit:true n term <?:> term' ]
-    | _ -> [ failure None ]
+    proof_from_option
+      (let implicit_lambda =
+         fold_right const
+           (fold_opt ~lambda:(fun (_, _, i, _) -> return i) term)
+           false
+       in
+       fold_opt ~pi:(fun (n, _, _, i, _) -> return (n, i)) term'
+       <&> fun (n, implicit_pi) ->
+       if (not implicit_lambda) && implicit_pi
+       then [ bindings |- lambda ~implicit:true n term <?:> term' ]
+       else [ failure None ] )
 
   (*
-    Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
+    Γ ⊢ f : Π{x:M}.C   Γ, v:M ⊢ f {v} e : N
     ---------------------------------------
     Γ ⊢ f e : N
   *)
-  and implicit_parameter _bindings _term _term' = [ failure @@ return "TODO" ]
+  and implicit_parameter bindings term term' =
+    proof_from_option
+      ( fold_opt ~apply:(fun t -> return t) term
+      <&> fun (abstraction, argument, implicit_apply, _) ->
+      if implicit_apply
+      then [ failure None ]
+      else
+        let term'', _ = bindings |- abstraction <:?> () in
+        proof_from_option
+          ( term''
+          >>= fold_opt ~pi:(fun t -> return t)
+          <&> fun (n, bound, _, implicit_pi, _) ->
+          if implicit_pi
+          then
+            let var, bindings = fresh_variable bindings n in
+            let term =
+              apply (apply ~implicit:true abstraction (hole var)) argument
+            in
+            [ add_signature bindings (var, bound) |- term <?:> term' ]
+          else [ failure None ] ) )
 
   (*
     Γ ⊢ t : Type_i
@@ -289,11 +310,12 @@ module Impl (Infer : Specs.Infer) = struct
     Γ ⊢ t : Type_{i+1}
   *)
   and type_level bindings term term' =
-    let level = fold_opt ~kind:(fun t -> return t) term' in
-    match level with
-    | Some (level, c) when level > 0 ->
-      [ bindings |- term <?:> kind ~c (level - 1) ]
-    | _ -> [ failure None ]
+    proof_from_option
+      ( fold_opt ~kind:(fun t -> return t) term'
+      <&> fun (level, c) ->
+      if level > 0
+      then [ bindings |- term <?:> kind ~c (level - 1) ]
+      else [ failure None ] )
 
   and nominal bindings term term' =
     fold

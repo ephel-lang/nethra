@@ -10,4 +10,5 @@ let () =
       ; T06_checker_pair.cases
       ; T07_checker_sum.cases
       ; T08_checker_mu.cases
+      ; T09_checker_hole.cases
       ])

@@ -1,5 +1,7 @@
 (* *)
 
+type implicit = bool
+
 type lit =
   | Int of int
   | Char of char
@@ -9,9 +11,9 @@ type 'a t =
   | Type of int * 'a option
   | Literal of lit * 'a option
   | Id of string * string option * 'a option
-  | Pi of string * 'a t * 'a t * bool * 'a option
-  | Lambda of string * 'a t * bool * 'a option
-  | Apply of 'a t * 'a t * bool * 'a option
+  | Pi of string * 'a t * 'a t * implicit * 'a option
+  | Lambda of string * 'a t * implicit * 'a option
+  | Apply of 'a t * 'a t * implicit * 'a option
   | Sigma of string * 'a t * 'a t * 'a option
   | Pair of 'a t * 'a t * 'a option
   | Fst of 'a t * 'a option
@@ -34,6 +36,8 @@ module Builders = struct
 
   let pi ?(c = None) ?(implicit = false) n bound body =
     Pi (n, bound, body, implicit, c)
+
+  let arrow ?(c = None) bound body = pi ~c "_" bound body
 
   let lambda ?(c = None) ?(implicit = false) n body =
     Lambda (n, body, implicit, c)

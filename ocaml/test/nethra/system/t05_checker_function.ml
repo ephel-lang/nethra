@@ -40,7 +40,7 @@ let check_lambda_not_implicit () =
   let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "lambda not implicit" false (is_success proof)
 
-let check_implicit_tactic () =
+let check_lambda_implicit_tactic () =
   let bindings = create
   and term = lambda "y" (id "y")
   and term' = pi ~implicit:true "x" (kind 0) (pi "y" (id "int") (id "int")) in
@@ -48,7 +48,7 @@ let check_implicit_tactic () =
   Alcotest.(check bool) "lambda implicit tactic" true (is_success proof)
 
 let check_apply () =
-  let bindings = add_signature create ("y", pi "_" (id "int") (id "int"))
+  let bindings = add_signature create ("y", arrow (id "int") (id "int"))
   and term = apply (id "y") (int 1)
   and term' = id "int" in
   let proof = TypeChecker.(bindings |- term <?:> term') in
@@ -62,6 +62,16 @@ let check_apply_implicit () =
   let proof = TypeChecker.(bindings |- term <?:> term') in
   Alcotest.(check bool) "apply" true (is_success proof)
 
+let check_apply_implicit_tactic () =
+  let bindings =
+    add_signature create
+      ("y", pi ~implicit:true "_" (kind 0) (arrow (id "int") (id "int")))
+  and term = apply (id "y") (int 1)
+  and term' = id "int" in
+  let proof = TypeChecker.(bindings |- term <?:> term') in
+  let () = Nethra.Render.Proof.render Format.std_formatter proof in
+  Alcotest.(check bool) "apply" true (is_success proof)
+
 let cases =
   let open Alcotest in
   ( "Check function terms"
@@ -71,9 +81,9 @@ let cases =
     ; test_case "Γ ⊢ λ(X).λ(y).y : Π(x:Type_0).Π(y:x).x" `Quick check_lambda_dep
     ; test_case "Γ ⊢ λ{y}.y : Π{x:int}.int" `Quick check_lambda_implicit
     ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_not_implicit
-    ; test_case "Γ ⊢ λ{y}.y : Π(x:int).int" `Quick check_lambda_implicit
     ; test_case "Γ ⊢ λ(y).y : Π{X:Type_0}.Π(x:int).int" `Quick
-        check_implicit_tactic
+        check_lambda_implicit_tactic
     ; test_case "Γ ⊢ λ(y).y 1 : int" `Quick check_apply
     ; test_case "Γ ⊢ λ{y}.y {1} : int" `Quick check_apply_implicit
+    ; test_case "Γ ⊢ λ{X}.λ(y).y 1 : int" `Quick check_apply_implicit_tactic
     ] )
