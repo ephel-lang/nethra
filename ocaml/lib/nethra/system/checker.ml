@@ -7,10 +7,10 @@ module Impl (Infer : Specs.Infer) = struct
   open Nethra_ast.Term.Catamorphism
   open Nethra_ast.Proof
   open Nethra_ast.Proof.Builders
-  open Nethra_ast.Hypothesis.Access
+  open Nethra_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
-  open Congruence
+  open Equivalence
   open Infer
 
   let proof_from_option ?(reason = None) o =

@@ -14,32 +14,32 @@ include Judgment
 
 let proof_from_option ?(reason = None) o = fold_right const o [ failure reason ]
 
-let congruent_kind term' (level, _) =
+let equivalent_kind term' (level, _) =
   proof_from_option
     ( fold_opt ~kind:return term'
     >>= fun (level', _) -> if level = level' then Some [] else None )
 
-let congruent_int term' (value, _) =
+let equivalent_int term' (value, _) =
   proof_from_option
     ( fold_opt ~int:return term'
     >>= fun (value', _) -> if value = value' then Some [] else None )
 
-let congruent_char term' (value, _) =
+let equivalent_char term' (value, _) =
   proof_from_option
     ( fold_opt ~char:return term'
     >>= fun (value', _) -> if value = value' then Some [] else None )
 
-let congruent_string term' (value, _) =
+let equivalent_string term' (value, _) =
   proof_from_option
     ( fold_opt ~string:return term'
     >>= fun (value', _) -> if value = value' then Some [] else None )
 
-let congruent_id term' (name, _, _) =
+let equivalent_id term' (name, _, _) =
   proof_from_option
     ( fold_opt ~id:return term'
     >>= fun (name', _, _) -> if name = name' then Some [] else None )
 
-let rec congruent_pi hypothesis term' (name, bound, body, implicit, c) =
+let rec equivalent_pi hypothesis term' (name, bound, body, implicit, c) =
   proof_from_option
     ( fold_opt ~pi:return term'
     >>= fun (name', bound', body', implicit', c') ->
@@ -51,7 +51,7 @@ let rec congruent_pi hypothesis term' (name, bound, body, implicit, c) =
       Some [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ]
     else None )
 
-and congruent_lambda hypothesis term' (name, body, implicit, c) =
+and equivalent_lambda hypothesis term' (name, body, implicit, c) =
   proof_from_option
     ( fold_opt ~lambda:return term'
     >>= fun (name', body', implicit', c') ->
@@ -63,7 +63,7 @@ and congruent_lambda hypothesis term' (name, body, implicit, c) =
       Some [ hypothesis |- body =?= body' ]
     else None )
 
-and congruent_apply hypothesis term' (abstraction, argument, implicit, _) =
+and equivalent_apply hypothesis term' (abstraction, argument, implicit, _) =
   proof_from_option
     ( fold_opt ~apply:return term'
     >>= fun (abstraction', argument', implicit', _) ->
@@ -76,7 +76,7 @@ and congruent_apply hypothesis term' (abstraction, argument, implicit, _) =
         ]
     else None )
 
-and congruent_sigma hypothesis term' (name, bound, body, c) =
+and equivalent_sigma hypothesis term' (name, bound, body, c) =
   proof_from_option
     ( fold_opt ~sigma:return term'
     <&> fun (name', bound', body', c') ->
@@ -85,39 +85,39 @@ and congruent_sigma hypothesis term' (name, bound, body, c) =
     and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ] )
 
-and congruent_pair hypothesis term' (lhd, rhd, _c) =
+and equivalent_pair hypothesis term' (lhd, rhd, _c) =
   proof_from_option
     ( fold_opt ~pair:return term'
     <&> fun (lhd', rhd', _) ->
     [ hypothesis |- lhd =?= lhd'; hypothesis |- rhd =?= rhd' ] )
 
-and congruent_fst hypothesis term' (term, _c) =
+and equivalent_fst hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~fst:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_snd hypothesis term' (term, _c) =
+and equivalent_snd hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~snd:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_sum hypothesis term' (lhd, rhd, _c) =
+and equivalent_sum hypothesis term' (lhd, rhd, _c) =
   proof_from_option
     ( fold_opt ~sum:return term'
     <&> fun (lhd', rhd', _) ->
     [ hypothesis |- lhd =?= lhd'; hypothesis |- rhd =?= rhd' ] )
 
-and congruent_inl hypothesis term' (term, _c) =
+and equivalent_inl hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~inl:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_inr hypothesis term' (term, _c) =
+and equivalent_inr hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~inr:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_case hypothesis term' (term, left, right, _c) =
+and equivalent_case hypothesis term' (term, left, right, _c) =
   proof_from_option
     ( fold_opt ~case:return term'
     <&> fun (term', left', right', _c') ->
@@ -127,7 +127,7 @@ and congruent_case hypothesis term' (term, left, right, _c) =
     ; hypothesis |- right =?= right'
     ] )
 
-and congruent_mu hypothesis term' (name, body, c) =
+and equivalent_mu hypothesis term' (name, body, c) =
   proof_from_option
     ( fold_opt ~mu:return term'
     <&> fun (name', body', c') ->
@@ -136,17 +136,17 @@ and congruent_mu hypothesis term' (name, body, c) =
     and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
     [ hypothesis |- body =?= body' ] )
 
-and congruent_fold hypothesis term' (term, _c) =
+and equivalent_fold hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~fold:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_unfold hypothesis term' (term, _c) =
+and equivalent_unfold hypothesis term' (term, _c) =
   proof_from_option
     ( fold_opt ~unfold:return term'
     <&> fun (term', _) -> [ hypothesis |- term =?= term' ] )
 
-and congruent_hole hypothesis term' (name, reference, _c) =
+and equivalent_hole hypothesis term' (name, reference, _c) =
   match !reference with
   | Some term -> [ hypothesis |- term =?= term' ]
   | None -> (
@@ -156,7 +156,7 @@ and congruent_hole hypothesis term' (name, reference, _c) =
       let () = reference := Some term' in
       [] )
 
-and congruent_terms hypothesis term term' =
+and equivalent_terms hypothesis term term' =
   let term = reduce hypothesis term
   and term' = reduce hypothesis term' in
   let term, term' =
@@ -165,26 +165,26 @@ and congruent_terms hypothesis term term' =
       (term, term')
   in
   let proofs =
-    fold ~kind:(congruent_kind term') ~int:(congruent_int term')
-      ~char:(congruent_char term') ~string:(congruent_string term')
-      ~id:(congruent_id term')
-      ~pi:(congruent_pi hypothesis term')
-      ~lambda:(congruent_lambda hypothesis term')
-      ~apply:(congruent_apply hypothesis term')
-      ~sigma:(congruent_sigma hypothesis term')
-      ~pair:(congruent_pair hypothesis term')
-      ~fst:(congruent_fst hypothesis term')
-      ~snd:(congruent_snd hypothesis term')
-      ~sum:(congruent_sum hypothesis term')
-      ~inl:(congruent_inl hypothesis term')
-      ~inr:(congruent_inr hypothesis term')
-      ~case:(congruent_case hypothesis term')
-      ~mu:(congruent_mu hypothesis term')
-      ~fold:(congruent_fold hypothesis term')
-      ~unfold:(congruent_unfold hypothesis term')
-      ~hole:(congruent_hole hypothesis term')
+    fold ~kind:(equivalent_kind term') ~int:(equivalent_int term')
+      ~char:(equivalent_char term') ~string:(equivalent_string term')
+      ~id:(equivalent_id term')
+      ~pi:(equivalent_pi hypothesis term')
+      ~lambda:(equivalent_lambda hypothesis term')
+      ~apply:(equivalent_apply hypothesis term')
+      ~sigma:(equivalent_sigma hypothesis term')
+      ~pair:(equivalent_pair hypothesis term')
+      ~fst:(equivalent_fst hypothesis term')
+      ~snd:(equivalent_snd hypothesis term')
+      ~sum:(equivalent_sum hypothesis term')
+      ~inl:(equivalent_inl hypothesis term')
+      ~inr:(equivalent_inr hypothesis term')
+      ~case:(equivalent_case hypothesis term')
+      ~mu:(equivalent_mu hypothesis term')
+      ~fold:(equivalent_fold hypothesis term')
+      ~unfold:(equivalent_unfold hypothesis term')
+      ~hole:(equivalent_hole hypothesis term')
       term
   in
-  congruent term term' proofs
+  equivalent term term' proofs
 
-and ( =?= ) (hypothesis, term) term' = congruent_terms hypothesis term term'
+and ( =?= ) (hypothesis, term) term' = equivalent_terms hypothesis term term'

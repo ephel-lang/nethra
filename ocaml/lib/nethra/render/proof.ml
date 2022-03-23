@@ -15,7 +15,7 @@ let infer render render_term prefix ppf (term, kind, proofs) =
   in
   List.iter (fun p -> render render_term (prefix ^ "|  ") ppf p) proofs
 
-let congruent render render_term prefix ppf (term, kind, proofs) =
+let equivalent render render_term prefix ppf (term, kind, proofs) =
   let () =
     fprintf ppf "%sΓ ⊢ %a = %a\n" prefix render_term term render_term kind
   in
@@ -29,7 +29,7 @@ let rec render render_term prefix ppf p =
   Nethra_ast.Proof.Catamorphism.fold
     ~check:(check render render_term prefix ppf)
     ~infer:(infer render render_term prefix ppf)
-    ~congruent:(congruent render render_term prefix ppf)
+    ~equivalent:(equivalent render render_term prefix ppf)
     ~failure:(failure prefix ppf) p
 
 let render ?(term = Term.render) ppf p = render term "" ppf p

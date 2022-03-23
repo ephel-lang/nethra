@@ -6,13 +6,13 @@ module Impl (Checker : Specs.Checker) = struct
   open Nethra_ast.Term.Builders
   open Nethra_ast.Term.Catamorphism
   open Nethra_ast.Proof.Builders
-  open Nethra_ast.Hypothesis.Access
+  open Nethra_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
   open Checker
 
-  let proof_from_option ?(reason = None) o proof =
-    fold_right const o (None, [ proof; failure reason ])
+  let proof_from_option ?(reason = None) o proofs =
+    fold_right const o (None, proofs @ [ failure reason ])
 
   (*
     Γ ⊢
@@ -21,7 +21,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   let infer_kind _hypothesis (level, c) =
     let term = kind ~c @@ (level + 1) in
-    (Some term, [])
+    (return term, [])
 
   (*
     l ∈ int
@@ -30,7 +30,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   let infer_int _hypothesis (_, c) =
     let term = id ~c "int" in
-    (Some term, [])
+    (return term, [])
 
   (*
     l ∈ char
@@ -39,7 +39,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   let infer_char _hypothesis (_, c) =
     let term = id ~c "char" in
-    (Some term, [])
+    (return term, [])
 
   (*
     l ∈ string
@@ -48,7 +48,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   let infer_string _hypothesis (_, c) =
     let term = id ~c "string" in
-    (Some term, [])
+    (return term, [])
 
   (*
     Γ ⊢
@@ -56,9 +56,10 @@ module Impl (Checker : Specs.Checker) = struct
     Γ, x : T ⊢ x : T
   *)
   let infer_id hypothesis (name, _, _) =
-    match get_signature hypothesis name with
-    | Some term -> (Some term, [])
-    | None -> (None, [ failure @@ Some ("Unbound variable " ^ name) ])
+    proof_from_option
+      ~reason:(return ("Unbound variable " ^ name))
+      (get_signature hypothesis name <&> fun term -> (return term, []))
+      []
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -78,7 +79,7 @@ module Impl (Checker : Specs.Checker) = struct
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
   and infer_lambda _hypothesis (_name, _body, _implicit, _c) =
-    (None, [ failure @@ Some "TODO" ])
+    (None, [ failure @@ return "TODO" ])
 
   (*
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
@@ -93,10 +94,10 @@ module Impl (Checker : Specs.Checker) = struct
       <&> fun (n, bound, body, implicit', _c') ->
       if implicit = implicit'
       then
-        ( Some (substitute n argument body)
+        ( return (substitute n argument body)
         , [ hypothesis |- argument <?:> bound ] )
       else (None, [ proof; failure None ]) )
-      proof
+      [ proof ]
 
   (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
@@ -128,11 +129,12 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_fst hypothesis (term, _c) =
     let sigma, proof = hypothesis |- term <:?> () in
-    proof_from_option ~reason:(Some "Waiting for a sigma")
+    proof_from_option
+      ~reason:(return "Waiting for a sigma")
       ( sigma
       >>= fold_opt ~sigma:return
-      <&> fun (_, bound, _, _) -> (Some bound, [ proof ]) )
-      proof
+      <&> fun (_, bound, _, _) -> (return bound, [ proof ]) )
+      [ proof ]
 
   (*
     Γ ⊢ p : Σ(x:M).N
@@ -141,12 +143,13 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_snd hypothesis (term, _c) =
     let sigma, proof = hypothesis |- term <:?> () in
-    proof_from_option ~reason:(Some "Waiting for a sigma")
+    proof_from_option
+      ~reason:(return "Waiting for a sigma")
       ( sigma
       >>= fold_opt ~sigma:return
-      <&> fun (n, _, body, _) -> (Some (substitute n (fst term) body), [ proof ])
-      )
-      proof
+      <&> fun (n, _, body, _) ->
+      (return (substitute n (fst term) body), [ proof ]) )
+      [ proof ]
 
   (*
     Γ ⊢ A : T   Γ ⊢ B : T
@@ -156,8 +159,8 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_sum hypothesis (lhd, rhd, _c) =
     let term, proof = hypothesis |- lhd <:?> () in
     proof_from_option
-      (term <&> fun term -> (Some term, [ hypothesis |- rhd <?:> term ]))
-      proof
+      (term <&> fun term -> (return term, [ hypothesis |- rhd <?:> term ]))
+      [ proof ]
 
   (*
     Γ ⊢ A : M
@@ -170,8 +173,8 @@ module Impl (Checker : Specs.Checker) = struct
       ( term
       <&> fun term ->
       let var, _hypothesis = fresh_variable hypothesis "_" in
-      (Some (sum term (hole ~c var)), [ proof ]) )
-      proof
+      (return (sum term (hole ~c var)), [ proof ]) )
+      [ proof ]
 
   (*
     Γ ⊢ A : N
@@ -184,8 +187,8 @@ module Impl (Checker : Specs.Checker) = struct
       ( term
       <&> fun term ->
       let var, _hypothesis = fresh_variable hypothesis "_" in
-      (Some (sum (hole ~c var) term), [ proof ]) )
-      proof
+      (return (sum (hole ~c var) term), [ proof ]) )
+      [ proof ]
 
   (*
     Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
@@ -200,13 +203,13 @@ module Impl (Checker : Specs.Checker) = struct
       <&> fun (lhd, rhd, c) ->
       let var, hypothesis = fresh_variable hypothesis "_" in
       let hole = hole ~c var in
-      ( Some hole
+      ( return hole
       , [
           proof
         ; hypothesis |- left <?:> arrow lhd hole
         ; hypothesis |- right <?:> arrow rhd hole
         ] ) )
-      proof
+      [ proof ]
 
   (*
     Γ,x : T ⊢ A : T
@@ -225,7 +228,7 @@ module Impl (Checker : Specs.Checker) = struct
     Γ ⊢ fold A : μ(x).N
   *)
   and infer_fold _hypothesis (_term, _c) =
-    (None, [ failure @@ Some "Cannot infer fold" ])
+    (None, [ failure @@ return "Cannot infer fold" ])
 
   (*
     Γ ⊢ A : μ(x).N
@@ -238,16 +241,19 @@ module Impl (Checker : Specs.Checker) = struct
       ( term
       >>= fold_opt ~mu:return
       <&> fun (n, body, c) ->
-      (Some (substitute n (mu ~c n body) body), [ proof ]) )
-      proof
+      (return (substitute n (mu ~c n body) body), [ proof ]) )
+      [ proof ]
 
   (*
     Γ ⊢                   Γ, x : T ⊢ U : T
     -----------------     -------------------
     Γ, x : T ⊢ ?x : T     Γ, x : T ⊢ ?x=U : T
   *)
-  and infer_hole _hypothesis (_name, _value, _c) =
-    (None, [ failure @@ Some "TODO" ])
+  and infer_hole hypothesis (name, _value, _c) =
+    proof_from_option
+      ~reason:(return "Unbound variable")
+      (get_signature hypothesis name <&> fun t -> (return t, []))
+      []
 
   and infer_type hypothesis term =
     let term', proofs =

@@ -4,7 +4,7 @@ let () =
       [
         T01_substitution.cases
       ; T02_reduction.cases
-      ; T03_congruence.cases
+      ; T03_equivalence.cases
       ; T04_checker_basic.cases
       ; T05_checker_function.cases
       ; T06_checker_pair.cases
