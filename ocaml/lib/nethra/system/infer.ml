@@ -78,8 +78,23 @@ module Impl (Checker : Specs.Checker) = struct
     ---------------------     ---------------------
     Γ ⊢ λ(x).B : Π(x:A).T     Γ ⊢ λ{x}.B : Π{x:A}.T
   *)
-  and infer_lambda _hypothesis (_name, _body, _implicit, _c) =
-    (None, [ failure @@ return "TODO" ])
+  and infer_lambda hypothesis (name, body, implicit, c) =
+    let reference = ref None in
+    let bound' = hole ~r:reference name in
+    let hypothesis = add_signature hypothesis (name, bound') in
+    let body', proof = hypothesis |- body <:?> () in
+    proof_from_option
+      ( body'
+      <&> fun body' ->
+      fold_right const
+        ( !reference
+        <&> fun value -> (Some (pi ~implicit ~c name value body'), [ proof ]) )
+        ( Some
+            (pi ~implicit:true name (kind 0)
+               (pi ~implicit ~c name bound' body') )
+          (* Why type0 / See type in type? *)
+        , [ proof ] ) )
+      [ proof ]
 
   (*
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
