@@ -6,6 +6,12 @@ Nethra is an experiment based on well know theories and constructions like:
 - recursive type and
 - core lambda calculus
 
+Some References:
+
+- [A simple type-theoretic language: Mini-TT](https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf)
+- [ΠΣ: Dependent Types without the Sugar](http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf)
+- [Cayenne a language with dependent types](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.155&rep=rep1&type=pdf)
+
 ## Formal foundations
 
 ### Terms
@@ -86,9 +92,9 @@ l ∈ string
 #### Dependant function type and application
 
 ```
-Γ ⊢ M : S   Γ, x : M ⊢ N : T
-----------------------------
-Γ ⊢ Π(x:M).N : T
+Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
+--------------------------------------
+Γ ⊢ Π(x:M).N : Type_j
 
 Γ, x : A ⊢ B : T     
 ---------------------
@@ -110,7 +116,7 @@ l ∈ string
 ----------------------------
 Γ ⊢ f {e} : N[x=e]            
 
-Γ ⊢ f : Π{x:M}.N   Γ, v:M ⊢ f {v} e : N
+Γ ⊢ f : Π{x:M}.C   Γ, v:M ⊢ f {v} e : N
 ---------------------------------------
 Γ ⊢ f e : N
 ```
@@ -118,9 +124,9 @@ l ∈ string
 #### Dependant pair type and deconstructions
 
 ```
-Γ ⊢ M : S   Γ, x : M ⊢ N : T
-----------------------------
-Γ ⊢ Σ(x:M).N : T
+Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
+--------------------------------------
+Γ ⊢ Σ(x:M).N : Type_j
 
 Γ ⊢ A : M   Γ ⊢ B : N[x=A]
 --------------------------
@@ -138,9 +144,9 @@ l ∈ string
 #### Disjunction and injections
 
 ```
-Γ ⊢ A : T   Γ ⊢ B : T
----------------------
-Γ ⊢ A + B : T
+Γ ⊢ A : Type_i   Γ ⊢ B : Type_i
+-------------------------------
+Γ ⊢ A + B : Type_i
 
 Γ ⊢ A : M
 -----------------
