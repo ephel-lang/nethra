@@ -1,6 +1,8 @@
 open Format
 
-let kind ppf (level, _) = fprintf ppf "type%d" level
+let kind ppf (level, _) =
+  if level == 0 then fprintf ppf "type" else fprintf ppf "type%d" level
+
 let int ppf (value, _) = fprintf ppf "%d" value
 let char ppf (value, _) = fprintf ppf "'%c'" value
 let string ppf (value, _) = fprintf ppf "\"%s\"" value

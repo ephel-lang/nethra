@@ -3,11 +3,11 @@ open Common
 
 let render_sigma () =
   let repr = render @@ Builders.(sigma "x" (kind 0) (id "x")) in
-  Alcotest.(check string) "sigma" "Σ(x:type0).x" repr
+  Alcotest.(check string) "sigma" "Σ(x:type).x" repr
 
 let render_pair () =
   let repr = render @@ Builders.(pair (kind 0) (id "x")) in
-  Alcotest.(check string) "sigma" "(type0,x)" repr
+  Alcotest.(check string) "sigma" "(type,x)" repr
 
 let render_fst () =
   let repr = render @@ Builders.(fst (id "x")) in

@@ -3,11 +3,11 @@ open Common
 
 let render_pi () =
   let repr = render @@ Builders.(pi "x" (kind 0) (id "x")) in
-  Alcotest.(check string) "pi" "Π(x:type0).x" repr
+  Alcotest.(check string) "pi" "Π(x:type).x" repr
 
 let render_pi_implicit () =
   let repr = render @@ Builders.(pi ~implicit:true "x" (kind 0) (id "x")) in
-  Alcotest.(check string) "pi implicit" "Π{x:type0}.x" repr
+  Alcotest.(check string) "pi implicit" "Π{x:type}.x" repr
 
 let render_lambda () =
   let repr = render @@ Builders.(lambda "x" (id "x")) in

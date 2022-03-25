@@ -3,7 +3,7 @@ open Common
 
 let render_type0 () =
   let repr = render @@ Builders.kind 0 in
-  Alcotest.(check string) "type0" "type0" repr
+  Alcotest.(check string) "type0" "type" repr
 
 let render_type2 () =
   let repr = render @@ Builders.kind 2 in

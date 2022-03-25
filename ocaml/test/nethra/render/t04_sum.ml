@@ -3,7 +3,7 @@ open Common
 
 let render_sum () =
   let repr = render @@ Builders.(sum (kind 0) (id "x")) in
-  Alcotest.(check string) "sum" "type0 | x" repr
+  Alcotest.(check string) "sum" "type | x" repr
 
 let render_inl () =
   let repr = render @@ Builders.(inl (id "x")) in
