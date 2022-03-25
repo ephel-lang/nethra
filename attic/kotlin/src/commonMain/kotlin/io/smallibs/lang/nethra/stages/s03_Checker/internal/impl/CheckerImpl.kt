@@ -289,7 +289,7 @@ class CheckerImpl<C>(
     // ----------------
     // Γ, x : T ⊢ x : T
     override fun Hole<C>.run(i: Context<C>): List<Proof<C>> =
-        (this.ref.value ?: i.gamma.getSignature(this.value))?.let { type ->
+        i.gamma.getSignature(this.value)?.let { type ->
             if (i.gamma.congruent(type, i.type)) {
                 listOf(Step(Congruent(i.gamma, this, type, i.type)))
             } else {

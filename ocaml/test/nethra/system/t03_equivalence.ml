@@ -2,7 +2,10 @@ open Nethra.Ast.Term.Builders
 open Nethra.Ast.Hypothesis.Builders
 open Nethra.Ast.Proof
 open Nethra.System
-open Equivalence
+
+open Equivalence.Impl (struct
+  let type_in_type = true
+end)
 
 let equivalence_type0 () =
   let hypothesis = create

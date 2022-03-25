@@ -3,7 +3,13 @@ open Nethra.Ast.Proof
 open Nethra.Ast.Hypothesis.Builders
 open Nethra.Ast.Hypothesis.Access
 open Nethra.System
-module rec TypeChecker : Specs.Checker = Checker.Impl (Infer.Impl (TypeChecker))
+
+module Theory = struct
+  let type_in_type = true
+end
+
+module rec TypeChecker : Specs.Checker =
+  Checker.Impl (Theory) (Infer.Impl (TypeChecker))
 
 let check_hole () =
   let hypothesis = add_signature create ("x", kind 0)

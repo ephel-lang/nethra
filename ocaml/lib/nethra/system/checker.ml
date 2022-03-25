@@ -1,4 +1,4 @@
-module Impl (Infer : Specs.Infer) = struct
+module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   include Judgment
   open Stdlib.Fun
   open Preface.Option.Monad
@@ -10,7 +10,7 @@ module Impl (Infer : Specs.Infer) = struct
   open Nethra_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
-  open Equivalence
+  open Equivalence.Impl (Theory)
   open Infer
 
   let proof_from_option ?(reason = None) o =
@@ -345,7 +345,9 @@ module Impl (Infer : Specs.Infer) = struct
   and check_type hypothesis term term' =
     let term' = reduce hypothesis term' in
     let tactics =
-      [ nominal; implicit_argument; implicit_parameter; type_level ]
+      if (Theory.type_in_type)
+        then [ nominal; implicit_argument; implicit_parameter]
+        else [ nominal; implicit_argument; implicit_parameter; type_level ]
     in
     (* Either can be uses here + Foldable *)
     let success, failures =

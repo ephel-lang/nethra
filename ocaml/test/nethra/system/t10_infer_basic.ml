@@ -5,7 +5,13 @@ open Nethra.Ast.Proof
 open Nethra.Ast.Hypothesis.Builders
 open Nethra.Ast.Hypothesis.Access
 open Nethra.System
-module rec TypeInfer : Specs.Infer = Infer.Impl (Checker.Impl (TypeInfer))
+
+module Theory = struct
+  let type_in_type = true
+end
+
+module rec TypeInfer : Specs.Infer =
+  Infer.Impl (Checker.Impl (Theory) (TypeInfer))
 
 let infer_type0 () =
   let hypothesis = create
