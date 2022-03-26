@@ -55,6 +55,8 @@ e ::=
 
 #### Stratified types and cumulativity
 
+By default, the type system is design on top of stratified types. 
+
 ```
 Γ ⊢
 -----------------------
@@ -63,6 +65,16 @@ e ::=
 Γ ⊢ t : Type_i
 ------------------
 Γ ⊢ t : Type_{i+1}
+```
+
+#### Type in Type
+
+It's also possible to enable the type in type capability. In this case, the previous rules can be revisited as follows.
+
+```
+Γ ⊢
+-------------------
+Γ ⊢ Type_i : Type_j
 ```
 
 #### Hypothesis
@@ -92,7 +104,7 @@ l ∈ string
 #### Dependant function type and application
 
 ```
-Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
+Γ ⊢ M :s Type_i   Γ, x : M ⊢ N : Type_j
 --------------------------------------
 Γ ⊢ Π(x:M).N : Type_j
 

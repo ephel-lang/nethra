@@ -17,7 +17,7 @@ let infer_type0 () =
   let hypothesis = create
   and term = kind 0
   and expect = kind 1 in
-  let term', proof = TypeInfer.(hypothesis |- term <:?> ()) in
+  let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "pi"
     (Some (render expect), true)
@@ -27,7 +27,7 @@ let infer_int () =
   let hypothesis = create
   and term = int 0
   and expect = id "int" in
-  let term', proof = TypeInfer.(hypothesis |- term <:?> ()) in
+  let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "pi"
     (Some (render expect), true)
@@ -38,7 +38,7 @@ let infer_char () =
   and term = char '0'
   and expect = id "char" in
 
-  let term', proof = TypeInfer.(hypothesis |- term <:?> ()) in
+  let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "pi"
     (Some (render expect), true)
@@ -48,7 +48,7 @@ let infer_string () =
   let hypothesis = create
   and term = string "0"
   and expect = id "string" in
-  let term', proof = TypeInfer.(hypothesis |- term <:?> ()) in
+  let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "pi"
     (Some (render expect), true)
@@ -58,7 +58,7 @@ let infer_id () =
   let hypothesis = add_signature create ("t", kind 0)
   and term = id "t"
   and expect = kind 0 in
-  let term', proof = TypeInfer.(hypothesis |- term <:?> ()) in
+  let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "pi"
     (Some (render expect), true)
