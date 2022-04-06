@@ -1,6 +1,6 @@
 let () =
   Alcotest.(
-    run "Test"
+    run "Type checker Test"
       [
         T01_substitution.cases
       ; T02_reduction.cases

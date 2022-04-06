@@ -1,5 +1,5 @@
-open Nethra_ast.Ast.Term.Builders
-open Nethra_ast.Ast.Term.Catamorphism
+open Nethra_ast.Ast.Term.Construct
+open Nethra_ast.Ast.Term.Destruct
 open Nethra_ast.Ast.Hypothesis.Access
 open Substitution
 open Stdlib.Fun

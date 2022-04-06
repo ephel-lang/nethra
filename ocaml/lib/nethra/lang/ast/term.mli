@@ -2,7 +2,7 @@
 
 type 'a t
 
-module Builders : sig
+module Construct : sig
   val kind : ?c:'a option -> int -> 'a t
   val int : ?c:'a option -> int -> 'a t
   val char : ?c:'a option -> char -> 'a t
@@ -26,7 +26,7 @@ module Builders : sig
   val hole : ?c:'a option -> ?r:'a t option ref -> string -> 'a t
 end
 
-module Catamorphism : sig
+module Destruct : sig
   val fold :
        kind:(int * 'a option -> 'b)
     -> int:(int * 'a option -> 'b)

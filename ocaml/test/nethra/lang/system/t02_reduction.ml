@@ -1,7 +1,7 @@
 open Common
-open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Hypothesis.Construct
 open Nethra.Ast.Hypothesis.Access
-open Nethra.Ast.Term.Builders
+open Nethra.Ast.Term.Construct
 open Nethra.System.Reduction
 
 let reduce_type0 () =

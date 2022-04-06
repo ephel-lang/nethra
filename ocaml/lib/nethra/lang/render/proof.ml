@@ -26,7 +26,7 @@ let failure prefix ppf reason =
     (match reason with Some s -> "❌ " ^ s | _ -> "❌")
 
 let rec render render_term prefix ppf p =
-  Nethra_ast.Proof.Catamorphism.fold
+  Nethra_ast.Proof.Destruct.fold
     ~check:(check render render_term prefix ppf)
     ~infer:(infer render render_term prefix ppf)
     ~equivalent:(equivalent render render_term prefix ppf)

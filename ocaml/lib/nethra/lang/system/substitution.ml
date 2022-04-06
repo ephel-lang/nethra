@@ -1,5 +1,5 @@
 open Nethra_ast.Term
-open Nethra_ast.Term.Builders
+open Nethra_ast.Term.Construct
 
 let subs_kind (level, c) = kind ~c level
 let subs_int (value, c) = int ~c value
@@ -63,7 +63,7 @@ let subs_unfold substitute name value (term, c) =
 let subs_hole (v, r, c) = hole ~c ~r v
 
 let rec substitute name value term =
-  Catamorphism.fold ~kind:subs_kind ~int:subs_int ~char:subs_char
+  Destruct.fold ~kind:subs_kind ~int:subs_int ~char:subs_char
     ~string:subs_string ~id:(subs_id name value)
     ~pi:(subs_pi substitute name value)
     ~lambda:(subs_lambda substitute name value)

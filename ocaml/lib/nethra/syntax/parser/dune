@@ -1,0 +1,5 @@
+(library
+ (name nethra_syntax_parser)
+ (public_name nethra.syntax.parser)
+ (libraries preface nethra.syntax.source)
+ (modules_without_implementation specs))

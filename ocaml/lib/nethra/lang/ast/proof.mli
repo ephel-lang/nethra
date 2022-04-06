@@ -2,14 +2,14 @@
 
 type 'a t
 
-module Builders : sig
+module Construct : sig
   val check : 'a Term.t -> 'a Term.t -> 'a t list -> 'a t
   val infer : 'a Term.t -> 'a Term.t option -> 'a t list -> 'a t
   val equivalent : 'a Term.t -> 'a Term.t -> 'a t list -> 'a t
   val failure : string option -> 'a t
 end
 
-module Catamorphism : sig
+module Destruct : sig
   val fold :
        check:('a Term.t * 'a Term.t * 'a t list -> 'b)
     -> infer:('a Term.t * 'a Term.t option * 'a t list -> 'b)

@@ -1,5 +1,5 @@
-open Nethra.Ast.Term.Builders
-open Nethra.Ast.Hypothesis.Builders
+open Nethra.Ast.Term.Construct
+open Nethra.Ast.Hypothesis.Construct
 open Nethra.Ast.Proof
 open Nethra.System
 

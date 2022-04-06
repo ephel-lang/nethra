@@ -6,9 +6,9 @@ module Impl (Theory : Specs.Theory) = struct
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
-  open Nethra_ast.Ast.Term.Builders
-  open Nethra_ast.Ast.Term.Catamorphism
-  open Nethra_ast.Ast.Proof.Builders
+  open Nethra_ast.Ast.Term.Construct
+  open Nethra_ast.Ast.Term.Destruct
+  open Nethra_ast.Ast.Proof.Construct
   open Nethra_ast.Ast.Hypothesis.Access
   open Reduction
   open Substitution

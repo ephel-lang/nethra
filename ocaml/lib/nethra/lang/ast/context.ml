@@ -1,7 +1,7 @@
 module Bindings = struct
   type 'a t = (string * 'a Term.t) list
 
-  module Builders = struct
+  module Construct = struct
     let create = []
   end
 
@@ -19,8 +19,8 @@ module Hypothesis = struct
 
   (* State monad should be use here ... *)
 
-  module Builders = struct
-    let create = (ref 0, Bindings.Builders.create, Bindings.Builders.create)
+  module Construct = struct
+    let create = (ref 0, Bindings.Construct.create, Bindings.Construct.create)
   end
 
   module Access = struct

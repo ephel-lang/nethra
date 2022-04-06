@@ -1,5 +1,5 @@
 open Common
-open Nethra.Ast.Term.Builders
+open Nethra.Ast.Term.Construct
 open Nethra.System.Substitution
 
 let subst_type0 () =

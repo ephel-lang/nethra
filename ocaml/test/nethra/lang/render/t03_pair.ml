@@ -2,19 +2,19 @@ open Nethra.Ast.Term
 open Common
 
 let render_sigma () =
-  let repr = render @@ Builders.(sigma "x" (kind 0) (id "x")) in
+  let repr = render @@ Construct.(sigma "x" (kind 0) (id "x")) in
   Alcotest.(check string) "sigma" "Σ(x:type).x" repr
 
 let render_pair () =
-  let repr = render @@ Builders.(pair (kind 0) (id "x")) in
+  let repr = render @@ Construct.(pair (kind 0) (id "x")) in
   Alcotest.(check string) "sigma" "(type,x)" repr
 
 let render_fst () =
-  let repr = render @@ Builders.(fst (id "x")) in
+  let repr = render @@ Construct.(fst (id "x")) in
   Alcotest.(check string) "fst" "fst x" repr
 
 let render_snd () =
-  let repr = render @@ Builders.(snd (id "x")) in
+  let repr = render @@ Construct.(snd (id "x")) in
   Alcotest.(check string) "snd" "snd x" repr
 
 let cases =

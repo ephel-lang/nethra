@@ -2,15 +2,15 @@ open Nethra.Ast.Term
 open Common
 
 let render_mu () =
-  let repr = render @@ Builders.(mu "x" (id "x")) in
+  let repr = render @@ Construct.(mu "x" (id "x")) in
   Alcotest.(check string) "mu" "μ(x).(x)" repr
 
 let render_fold () =
-  let repr = render @@ Builders.(fold (id "x")) in
+  let repr = render @@ Construct.(fold (id "x")) in
   Alcotest.(check string) "fold" "fold x" repr
 
 let render_unfold () =
-  let repr = render @@ Builders.(unfold (id "x")) in
+  let repr = render @@ Construct.(unfold (id "x")) in
   Alcotest.(check string) "unfold" "unfold x" repr
 
 let cases =

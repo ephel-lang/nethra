@@ -3,9 +3,9 @@ module Impl (Checker : Specs.Checker) = struct
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
-  open Nethra_ast.Term.Builders
-  open Nethra_ast.Term.Catamorphism
-  open Nethra_ast.Proof.Builders
+  open Nethra_ast.Term.Construct
+  open Nethra_ast.Term.Destruct
+  open Nethra_ast.Proof.Construct
   open Nethra_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
@@ -68,9 +68,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   let rec infer_pi hypothesis (name, bound, body, _implicit, _c) =
     let bound', proof = hypothesis |- bound => () in
-    let body', proof' =
-      add_signature hypothesis (name, bound) |- body => ()
-    in
+    let body', proof' = add_signature hypothesis (name, bound) |- body => () in
     (bound' >>= const body', [ proof; proof' ])
 
   (*
@@ -121,9 +119,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_sigma hypothesis (name, bound, body, _c) =
     let bound', proof = hypothesis |- bound => () in
-    let body', proof' =
-      add_signature hypothesis (name, bound) |- body => ()
-    in
+    let body', proof' = add_signature hypothesis (name, bound) |- body => () in
     (bound' >>= const body', [ proof; proof' ])
 
   (*

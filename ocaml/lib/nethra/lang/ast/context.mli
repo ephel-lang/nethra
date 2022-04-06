@@ -1,7 +1,7 @@
 module Bindings : sig
   type 'a t
 
-  module Builders : sig
+  module Construct : sig
     val create : 'a t
   end
 
@@ -15,7 +15,7 @@ end
 module Hypothesis : sig
   type 'a t
 
-  module Builders : sig
+  module Construct : sig
     val create : 'a t
   end
 

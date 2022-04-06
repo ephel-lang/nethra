@@ -1,6 +1,6 @@
 let () =
   Alcotest.(
-    run "Test"
+    run "Render Test"
       [
         T01_basic.cases
       ; T02_function.cases

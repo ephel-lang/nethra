@@ -27,7 +27,7 @@ type 'a t =
   | Unfold of 'a t * 'a option
   | Hole of string * 'a t option ref * 'a option
 
-module Builders = struct
+module Construct = struct
   let kind ?(c = None) i = Type (i, c)
   let int ?(c = None) v = Literal (Int v, c)
   let string ?(c = None) v = Literal (String v, c)
@@ -59,7 +59,7 @@ module Builders = struct
   let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
 end
 
-module Catamorphism = struct
+module Destruct = struct
   let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair ~fst
       ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole = function
     | Type (i, c) -> kind (i, c)
@@ -85,14 +85,12 @@ module Catamorphism = struct
 
   let fold_opt =
     let internal_fold = fold in
-    fun ?(kind = fun _ -> None) ?(int = fun _ -> None) ?(char = fun _ -> None)
-        ?(string = fun _ -> None) ?(id = fun _ -> None) ?(pi = fun _ -> None)
-        ?(lambda = fun _ -> None) ?(apply = fun _ -> None)
-        ?(sigma = fun _ -> None) ?(pair = fun _ -> None) ?(fst = fun _ -> None)
-        ?(snd = fun _ -> None) ?(sum = fun _ -> None) ?(inl = fun _ -> None)
-        ?(inr = fun _ -> None) ?(case = fun _ -> None) ?(mu = fun _ -> None)
-        ?(fold = fun _ -> None) ?(unfold = fun _ -> None)
-        ?(hole = fun _ -> None) term ->
+    let none _ = None in
+    fun ?(kind = none) ?(int = none) ?(char = none) ?(string = none)
+        ?(id = none) ?(pi = none) ?(lambda = none) ?(apply = none)
+        ?(sigma = none) ?(pair = none) ?(fst = none) ?(snd = none) ?(sum = none)
+        ?(inl = none) ?(inr = none) ?(case = none) ?(mu = none) ?(fold = none)
+        ?(unfold = none) ?(hole = none) term ->
       internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
         ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole term
 end

@@ -1,0 +1,5 @@
+(library
+ (name nethra_syntax_source)
+ (public_name nethra.syntax.source)
+ (libraries preface)
+ (modules_without_implementation specs))

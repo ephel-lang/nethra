@@ -2,19 +2,19 @@ open Nethra.Ast.Term
 open Common
 
 let render_sum () =
-  let repr = render @@ Builders.(sum (kind 0) (id "x")) in
+  let repr = render @@ Construct.(sum (kind 0) (id "x")) in
   Alcotest.(check string) "sum" "type | x" repr
 
 let render_inl () =
-  let repr = render @@ Builders.(inl (id "x")) in
+  let repr = render @@ Construct.(inl (id "x")) in
   Alcotest.(check string) "inl" "inl x" repr
 
 let render_inr () =
-  let repr = render @@ Builders.(inr (id "x")) in
+  let repr = render @@ Construct.(inr (id "x")) in
   Alcotest.(check string) "inr" "inr x" repr
 
 let render_case () =
-  let repr = render @@ Builders.(case (id "x") (id "y") (id "z")) in
+  let repr = render @@ Construct.(case (id "x") (id "y") (id "z")) in
   Alcotest.(check string) "case" "case x y z" repr
 
 let cases =

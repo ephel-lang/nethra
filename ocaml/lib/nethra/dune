@@ -1,5 +1,10 @@
 (library
  (name nethra)
  (public_name nethra)
- (libraries nethra.ast nethra.render nethra.system)
+ (libraries
+  nethra.ast
+  nethra.render
+  nethra.system
+  nethra.syntax.source
+  nethra.syntax.parser)
  (modules_without_implementation nethra))
