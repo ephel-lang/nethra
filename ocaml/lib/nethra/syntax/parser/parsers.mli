@@ -42,9 +42,16 @@ end
 module Literal : functor
   (Parsec : Specs.Parsec with type Source.e = char)
   -> sig
-  val in_range : char * char -> char Parsec.t
+  val char : char -> char Parsec.t
+  val char_in_range : char * char -> char Parsec.t
   val digit : char Parsec.t
   val alpha : char Parsec.t
   val natural : int Parsec.t
   val integer : int Parsec.t
+  val string : string -> string Parsec.t
+
+  module Delimited : sig
+    val string : string Parsec.t
+    val char : char Parsec.t
+  end
 end

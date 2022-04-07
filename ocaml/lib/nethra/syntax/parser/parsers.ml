@@ -184,16 +184,21 @@ module Literal (Parsec : Specs.Parsec with type Source.e = char) = struct
   module Operator = Operator (Parsec)
   module Occurrence = Occurrence (Parsec)
 
-  let in_range (l, u) =
+  let char c =
+    let open Operator in
+    let open Atomic in
+    any <?> fun e' -> e' = c
+
+  let char_in_range (l, u) =
     let open Operator in
     let open Atomic in
     any <?> fun e' -> l <= e' && e' <= u
 
-  let digit = in_range ('0', '9')
+  let digit = char_in_range ('0', '9')
 
   let alpha =
     let open Operator in
-    in_range ('a', 'z') <|> in_range ('A', 'Z')
+    char_in_range ('a', 'z') <|> char_in_range ('A', 'Z')
 
   let natural =
     let open Monad in
@@ -211,4 +216,30 @@ module Literal (Parsec : Specs.Parsec with type Source.e = char) = struct
     <|> (opt (atom '+') >~> return Stdlib.Fun.id)
     <~> natural
     <&> fun (f, i) -> f i
+
+  let string s =
+    let open Monad in
+    let open Atomic in
+    let open Nethra_syntax_source.Utils in
+    atoms (chars_of_string s) <&> Stdlib.Fun.const s
+
+  module Delimited = struct
+    let string =
+      let open Monad in
+      let open Atomic in
+      let open Operator in
+      let open Occurrence in
+      let open Nethra_syntax_source.Utils in
+      char '"'
+      >~> opt_rep (not (char '"')) (* TODO: Accept escaped delimiter *)
+      <~< char '"'
+      <&> string_of_chars
+
+    let char =
+      let open Atomic in
+      let open Operator in
+      char '\''
+      >~> not (char '\'') (* TODO: Accept escaped delimiter *)
+      <~< char '\''
+  end
 end
