@@ -194,6 +194,15 @@ module Literal (Parsec : Specs.Parsec with type Source.e = char) = struct
     let open Atomic in
     any <?> fun e' -> l <= e' && e' <= u
 
+  let char_in_list l =
+    let open Operator in
+    let open Atomic in
+    any <?> fun e' -> List.mem e' l
+
+  let char_in_string s =
+    let open Nethra_syntax_source.Utils in
+    char_in_list (chars_of_string s)
+
   let digit = char_in_range ('0', '9')
 
   let alpha =
@@ -223,23 +232,34 @@ module Literal (Parsec : Specs.Parsec with type Source.e = char) = struct
     let open Nethra_syntax_source.Utils in
     atoms (chars_of_string s) <&> Stdlib.Fun.const s
 
+  let sequence p =
+    let open Monad in
+    let open Occurrence in
+    let open Nethra_syntax_source.Utils in
+    rep p <&> string_of_chars
+
   module Delimited = struct
-    let string =
+    let string_delimited =
       let open Monad in
       let open Atomic in
       let open Operator in
       let open Occurrence in
       let open Nethra_syntax_source.Utils in
       char '"'
-      >~> opt_rep (not (char '"')) (* TODO: Accept escaped delimiter *)
+      >~> opt_rep
+            (char '\\' >~> char '"' <&> Stdlib.Fun.const '"' <|> not (char '"'))
       <~< char '"'
       <&> string_of_chars
 
-    let char =
+    let char_delimited =
+      let open Monad in
       let open Atomic in
       let open Operator in
       char '\''
-      >~> not (char '\'') (* TODO: Accept escaped delimiter *)
+      >~> (string "\\\'" <&> Stdlib.Fun.const '\'' <|> not (char '\''))
       <~< char '\''
+
+    let string = string_delimited
+    let char = char_delimited
   end
 end

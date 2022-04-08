@@ -49,6 +49,18 @@ let parser_char_in_range_fail () =
   Alcotest.(check (pair (option char) bool))
     "char in range fail" expected result
 
+let parser_char_in_list () =
+  let open Parsers.Literal (Parsec) in
+  let result = response @@ char_in_list [ 'a'; 'b' ] (Parsec.source [ 'b' ])
+  and expected = (Some 'b', true) in
+  Alcotest.(check (pair (option char) bool)) "char in list" expected result
+
+let parser_char_in_string () =
+  let open Parsers.Literal (Parsec) in
+  let result = response @@ char_in_string "ab" (Parsec.source [ 'b' ])
+  and expected = (Some 'b', true) in
+  Alcotest.(check (pair (option char) bool)) "char in string" expected result
+
 let parser_digit () =
   let open Parsers.Literal (Parsec) in
   let result = response @@ digit (Parsec.source [ '0' ])
@@ -96,6 +108,16 @@ let parser_string () =
   and expected = (Some "Hello", true) in
   Alcotest.(check (pair (option string) bool)) "string" expected result
 
+let parser_sequence () =
+  let open Parsers.Operator (Parsec) in
+  let open Parsers.Literal (Parsec) in
+  let result =
+    response
+    @@ sequence (alpha <|> digit)
+         (Parsec.source (Utils.chars_of_string "Hello123"))
+  and expected = (Some "Hello123", true) in
+  Alcotest.(check (pair (option string) bool)) "sequence" expected result
+
 let parser_delimited_string () =
   let open Parsers.Literal (Parsec) in
   let result =
@@ -105,12 +127,46 @@ let parser_delimited_string () =
   Alcotest.(check (pair (option string) bool))
     "delimited string" expected result
 
+let parser_delimited_string_escaped () =
+  let open Parsers.Literal (Parsec) in
+  let result =
+    response
+    @@ Delimited.string (Parsec.source (Utils.chars_of_string "\"Hel\\\"lo\""))
+  and expected = (Some "Hel\"lo", true) in
+  Alcotest.(check (pair (option string) bool))
+    "delimited string escaped" expected result
+
+let parser_delimited_string_meta () =
+  let open Parsers.Literal (Parsec) in
+  let result =
+    response
+    @@ Delimited.string (Parsec.source (Utils.chars_of_string "\"Hel\nlo\""))
+  and expected = (Some "Hel\nlo", true) in
+  Alcotest.(check (pair (option string) bool))
+    "delimited string meta" expected result
+
 let parser_delimited_char () =
   let open Parsers.Literal (Parsec) in
   let result =
     response @@ Delimited.char (Parsec.source (Utils.chars_of_string "'H'"))
   and expected = (Some 'H', true) in
   Alcotest.(check (pair (option char) bool)) "delimited char" expected result
+
+let parser_delimited_char_escaped () =
+  let open Parsers.Literal (Parsec) in
+  let result =
+    response @@ Delimited.char (Parsec.source (Utils.chars_of_string "'\\''"))
+  and expected = (Some '\'', true) in
+  Alcotest.(check (pair (option char) bool))
+    "delimited char escaped" expected result
+
+let parser_delimited_char_meta () =
+  let open Parsers.Literal (Parsec) in
+  let result =
+    response @@ Delimited.char (Parsec.source (Utils.chars_of_string "'\n'"))
+  and expected = (Some '\n', true) in
+  Alcotest.(check (pair (option char) bool))
+    "delimited char meta" expected result
 
 let cases =
   let open Alcotest in
@@ -122,6 +178,8 @@ let cases =
     ; test_case "in range lower" `Quick parser_char_in_range_lower
     ; test_case "in range upper" `Quick parser_char_in_range_upper
     ; test_case "in range fail" `Quick parser_char_in_range_fail
+    ; test_case "in list" `Quick parser_char_in_list
+    ; test_case "in string" `Quick parser_char_in_string
     ; test_case "digit" `Quick parser_digit
     ; test_case "alpha" `Quick parser_alpha
     ; test_case "natural" `Quick parser_natural
@@ -129,6 +187,12 @@ let cases =
     ; test_case "negative integer" `Quick parser_negative_integer
     ; test_case "positive integer" `Quick parser_positive_integer
     ; test_case "string" `Quick parser_string
+    ; test_case "sequence" `Quick parser_sequence
     ; test_case "delimited string" `Quick parser_delimited_string
+    ; test_case "delimited string escaped" `Quick
+        parser_delimited_string_escaped
+    ; test_case "delimited string meta" `Quick parser_delimited_string_meta
     ; test_case "delimited char" `Quick parser_delimited_char
+    ; test_case "delimited char escaped" `Quick parser_delimited_char_escaped
+    ; test_case "delimited char meta" `Quick parser_delimited_char_escaped
     ] )
