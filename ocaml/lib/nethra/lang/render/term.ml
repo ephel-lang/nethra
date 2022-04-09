@@ -13,19 +13,17 @@ let id ppf (value, initial, _) =
   | None -> fprintf ppf "%s" value
 
 let pi ppf render (n, bound, body, implicit, _) =
-  if implicit
-  then fprintf ppf "Π{%s:%a}.%a" n render bound render body
-  else fprintf ppf "Π(%s:%a).%a" n render bound render body
+  fprintf ppf
+    (if implicit then "Π{%s:%a}.%a" else "Π(%s:%a).%a")
+    n render bound render body
 
 let lambda ppf render (n, body, implicit, _) =
-  if implicit
-  then fprintf ppf "λ{%s}.(%a)" n render body
-  else fprintf ppf "λ(%s).(%a)" n render body
+  fprintf ppf (if implicit then "λ{%s}.(%a)" else "λ(%s).(%a)") n render body
 
 let apply ppf render (abstraction, argument, implicit, _) =
-  if implicit
-  then fprintf ppf "%a {%a}" render abstraction render argument
-  else fprintf ppf "%a %a" render abstraction render argument
+  fprintf ppf
+    (if implicit then "%a {%a}" else "%a %a")
+    render abstraction render argument
 
 let sigma ppf render (n, bound, body, _) =
   fprintf ppf "Σ(%s:%a).%a" n render bound render body
