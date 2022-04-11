@@ -2,9 +2,9 @@
  (name nethra)
  (public_name nethra)
  (libraries
+  nethra.syntax.source
+  nethra.syntax.parser
   nethra.ast
   nethra.render
-  nethra.system
-  nethra.syntax.source
-  nethra.syntax.parser)
+  nethra.system.checker)
  (modules_without_implementation nethra))
