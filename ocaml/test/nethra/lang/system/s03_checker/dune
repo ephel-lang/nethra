@@ -1,3 +1,3 @@
 (test
- (name tests)
+ (name t00_tests)
  (libraries alcotest nethra))
