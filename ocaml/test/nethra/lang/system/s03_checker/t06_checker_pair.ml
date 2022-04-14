@@ -50,9 +50,9 @@ let cases =
   let open Alcotest in
   ( "Check pair terms"
   , [
-      test_case "Γ ⊢ Σ(x:M).x : Type_0" `Quick check_sigma
-    ; test_case "Γ ⊢ (char, 'a') : Σ(x:M).x" `Quick check_pair
-    ; test_case "Γ ⊢ (char, 1) : Σ(x:M).x" `Quick check_pair_wrong
+      test_case "Γ ⊢ Σ(x:Type0).x : Type_0" `Quick check_sigma
+    ; test_case "Γ ⊢ (char, 'a') : Σ(x:Type0).x" `Quick check_pair
+    ; test_case "Γ ⊢ (char, 1) : Σ(x:Type0).x" `Quick check_pair_wrong
     ; test_case "Γ ⊢ fst p : Type_0 " `Quick check_pair_fst
     ; test_case "Γ ⊢ snd p : fst p " `Quick check_pair_snd
     ] )

@@ -13,4 +13,7 @@ let () =
       ; T09_checker_hole.cases
       ; T10_infer_basic.cases
       ; T11_infer_function.cases
+      ; T12_infer_pair.cases
+      ; T13_infer_sum.cases
+      ; T14_infer_mu.cases
       ])
