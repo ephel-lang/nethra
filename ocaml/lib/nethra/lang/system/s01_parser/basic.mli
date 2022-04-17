@@ -6,9 +6,5 @@ module L0 (Source : Nethra_syntax_source.Specs.SOURCE with type e = char) : sig
   val spaces : string Parsec.t
   val skip : string list Parsec.t
   val token : 'a Parsec.t -> 'a Parsec.t
-
-  val localize :
-       'a Parsec.t
-    -> ('a * Nethra_syntax_source.Location.t * Nethra_syntax_source.Location.t)
-       Parsec.t
+  val localize : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
 end

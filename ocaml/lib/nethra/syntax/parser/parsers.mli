@@ -8,11 +8,7 @@ module Monad : functor (Parsec : Specs.PARSEC) ->
   Preface_specs.MONAD with type 'a t = 'a Parsec.t
 
 module Eval : functor (Parsec : Specs.PARSEC) -> sig
-  val locate :
-       'a Parsec.t
-    -> ('a * Nethra_syntax_source.Location.t * Nethra_syntax_source.Location.t)
-       Parsec.t
-
+  val locate : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
   val eos : unit Parsec.t
   val return : 'a -> 'a Parsec.t
   val fail : ?consumed:bool -> 'a Parsec.t

@@ -42,12 +42,14 @@ module Eval (Parsec : Specs.PARSEC) = struct
   module Monad = Monad (Parsec)
 
   let locate p s =
+    let module Region = Nethra_syntax_source.Region.Construct in
     let open Response.Destruct in
     let open Response.Construct in
     let open Parsec.Source.Access in
     let l0 = location s in
     fold
-      ~success:(fun (a, b, s) -> success ((a, l0, location s), b, s))
+      ~success:(fun (a, b, s) ->
+        success ((a, Region.create ~first:l0 ~last:(location s)), b, s) )
       ~failure:(fun (_, _) -> failure (false, s))
       (p s)
 
