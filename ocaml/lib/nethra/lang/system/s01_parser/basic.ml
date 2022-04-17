@@ -1,7 +1,7 @@
 open Nethra_syntax_source
 open Nethra_syntax_parser.Parsers
 
-module L0 (Source : Specs.SOURCE with type e = char) = struct
+module Basic (Source : Specs.SOURCE with type e = char) = struct
   module Parsec = Parsec (Source)
   open Atomic (Parsec)
   open Eval (Parsec)
