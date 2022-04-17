@@ -52,14 +52,14 @@ module L0 (Source : Specs.SOURCE with type e = char) = struct
   let special = char_in_string "@&#-=/:?*$^<>()§![]{}"
   let digit = char_in_range ('0', '9')
 
-  let id =
+  let identifier =
     alpha
     <~> opt_rep (alpha <|> digit)
     <&> (fun (e, l) -> e :: l)
     <&> Utils.string_of_chars
     <?> fun s -> Stdlib.not (List.mem s keywords)
 
-  let op =
+  let operator =
     special
     <~> opt_rep (char '_' <|> special)
     <&> (fun (e, l) -> e :: l)

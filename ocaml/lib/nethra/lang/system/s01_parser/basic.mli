@@ -7,8 +7,8 @@ module L0 (Source : Nethra_syntax_source.Specs.SOURCE with type e = char) : sig
   val skip : string list Parsec.t
   val token : 'a Parsec.t -> 'a Parsec.t
   val localize : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
-  val id : string Parsec.t
-  val op : string Parsec.t
+  val identifier : string Parsec.t
+  val operator : string Parsec.t
 
   module Reserved : sig
     val _ARROW_ : string Parsec.t
