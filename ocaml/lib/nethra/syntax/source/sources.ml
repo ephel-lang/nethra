@@ -1,6 +1,6 @@
 type 'a t = 'a list * Location.t
 
-module FromList (Locator : Specs.Locator) = struct
+module FromList (Locator : Specs.LOCATOR) = struct
   type e = Locator.e
   type nonrec t = e t
 

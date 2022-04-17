@@ -1,13 +1,18 @@
-module Parsec : functor (Source : Nethra_syntax_source.Specs.Source) ->
-  Specs.Parsec with module Source = Source
+module Parsec : functor (Source : Nethra_syntax_source.Specs.SOURCE) ->
+  Specs.PARSEC with module Source = Source
 
-module Functor : functor (Parsec : Specs.Parsec) ->
+module Functor : functor (Parsec : Specs.PARSEC) ->
   Preface_specs.FUNCTOR with type 'a t = 'a Parsec.t
 
-module Monad : functor (Parsec : Specs.Parsec) ->
+module Monad : functor (Parsec : Specs.PARSEC) ->
   Preface_specs.MONAD with type 'a t = 'a Parsec.t
 
-module Eval : functor (Parsec : Specs.Parsec) -> sig
+module Eval : functor (Parsec : Specs.PARSEC) -> sig
+  val locate :
+       'a Parsec.t
+    -> ('a * Nethra_syntax_source.Location.t * Nethra_syntax_source.Location.t)
+       Parsec.t
+
   val eos : unit Parsec.t
   val return : 'a -> 'a Parsec.t
   val fail : ?consumed:bool -> 'a Parsec.t
@@ -17,7 +22,7 @@ module Eval : functor (Parsec : Specs.Parsec) -> sig
   val satisfy : 'a Parsec.t -> ('a -> bool) -> 'a Parsec.t
 end
 
-module Operator : functor (Parsec : Specs.Parsec) -> sig
+module Operator : functor (Parsec : Specs.PARSEC) -> sig
   val ( <~> ) : 'a Parsec.t -> 'b Parsec.t -> ('a * 'b) Parsec.t
   val ( <~< ) : 'a Parsec.t -> 'b Parsec.t -> 'a Parsec.t
   val ( >~> ) : 'a Parsec.t -> 'b Parsec.t -> 'b Parsec.t
@@ -25,7 +30,7 @@ module Operator : functor (Parsec : Specs.Parsec) -> sig
   val ( <?> ) : 'a Parsec.t -> ('a -> bool) -> 'a Parsec.t
 end
 
-module Atomic : functor (Parsec : Specs.Parsec) -> sig
+module Atomic : functor (Parsec : Specs.PARSEC) -> sig
   val any : Parsec.Source.e Parsec.t
   val atom : Parsec.Source.e -> Parsec.Source.e Parsec.t
   val atom_in : Parsec.Source.e list -> Parsec.Source.e Parsec.t
@@ -33,14 +38,14 @@ module Atomic : functor (Parsec : Specs.Parsec) -> sig
   val not : 'a Parsec.t -> Parsec.Source.e Parsec.t
 end
 
-module Occurrence : functor (Parsec : Specs.Parsec) -> sig
+module Occurrence : functor (Parsec : Specs.PARSEC) -> sig
   val opt : 'a Parsec.t -> 'a option Parsec.t
   val rep : 'a Parsec.t -> 'a list Parsec.t
   val opt_rep : 'a Parsec.t -> 'a list Parsec.t
 end
 
 module Literal : functor
-  (Parsec : Specs.Parsec with type Source.e = char)
+  (Parsec : Specs.PARSEC with type Source.e = char)
   -> sig
   val char : char -> char Parsec.t
   val char_in_range : char * char -> char Parsec.t

@@ -6,5 +6,6 @@
   nethra.syntax.parser
   nethra.ast
   nethra.render
+  nethra.system.parser
   nethra.system.checker)
  (modules_without_implementation nethra))

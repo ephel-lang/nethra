@@ -1,10 +1,12 @@
-module type Locator = sig
+module Locator : sig
   type e
 
   val locate : e -> Location.t
 end
 
-module type Source = sig
+module type LOCATOR = module type of Locator
+
+module Source : sig
   type e
   type t
 
@@ -20,3 +22,5 @@ module type Source = sig
     val location : t -> Location.t
   end
 end
+
+module type SOURCE = module type of Source

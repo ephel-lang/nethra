@@ -1,4 +1,4 @@
-module Parsec (Source : Nethra_syntax_source.Specs.Source) = struct
+module Parsec (Source : Nethra_syntax_source.Specs.SOURCE) = struct
   module Source = Source
 
   type 'b t = Source.t -> ('b, Source.t) Response.t
@@ -6,7 +6,7 @@ module Parsec (Source : Nethra_syntax_source.Specs.Source) = struct
   let source c = Source.Construct.create c
 end
 
-module Functor (Parsec : Specs.Parsec) = Preface_make.Functor.Via_map (struct
+module Functor (Parsec : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
   type 'a t = 'a Parsec.t
 
   let map f p s =
@@ -18,7 +18,7 @@ module Functor (Parsec : Specs.Parsec) = Preface_make.Functor.Via_map (struct
       (p s)
 end)
 
-module Monad (Parsec : Specs.Parsec) = Preface_make.Monad.Via_bind (struct
+module Monad (Parsec : Specs.PARSEC) = Preface_make.Monad.Via_bind (struct
   type 'a t = 'a Parsec.t
 
   let return v s =
@@ -38,8 +38,18 @@ module Monad (Parsec : Specs.Parsec) = Preface_make.Monad.Via_bind (struct
       (p s)
 end)
 
-module Eval (Parsec : Specs.Parsec) = struct
+module Eval (Parsec : Specs.PARSEC) = struct
   module Monad = Monad (Parsec)
+
+  let locate p s =
+    let open Response.Destruct in
+    let open Response.Construct in
+    let open Parsec.Source.Access in
+    let l0 = location s in
+    fold
+      ~success:(fun (a, b, s) -> success ((a, l0, location s), b, s))
+      ~failure:(fun (_, _) -> failure (false, s))
+      (p s)
 
   let eos s =
     let open Response.Construct in
@@ -77,7 +87,7 @@ module Eval (Parsec : Specs.Parsec) = struct
     do_try (p >>= fun a -> if f a then return a else fail ~consumed:false)
 end
 
-module Operator (Parsec : Specs.Parsec) = struct
+module Operator (Parsec : Specs.PARSEC) = struct
   module Functor = Functor (Parsec)
   module Eval = Eval (Parsec)
 
@@ -109,7 +119,7 @@ module Operator (Parsec : Specs.Parsec) = struct
     satisfy p f
 end
 
-module Atomic (Parsec : Specs.Parsec) = struct
+module Atomic (Parsec : Specs.PARSEC) = struct
   module Monad = Monad (Parsec)
   module Eval = Eval (Parsec)
   module Operator = Operator (Parsec)
@@ -146,7 +156,7 @@ module Atomic (Parsec : Specs.Parsec) = struct
       (fold_left (fun p e -> p <~< atom e) (return ()) l <&> Stdlib.Fun.const l)
 end
 
-module Occurrence (Parsec : Specs.Parsec) = struct
+module Occurrence (Parsec : Specs.PARSEC) = struct
   module Monad = Monad (Parsec)
   module Eval = Eval (Parsec)
   module Operator = Operator (Parsec)
@@ -178,7 +188,7 @@ module Occurrence (Parsec : Specs.Parsec) = struct
   let opt_rep p = sequence true p
 end
 
-module Literal (Parsec : Specs.Parsec with type Source.e = char) = struct
+module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
   module Monad = Monad (Parsec)
   module Atomic = Atomic (Parsec)
   module Operator = Operator (Parsec)
