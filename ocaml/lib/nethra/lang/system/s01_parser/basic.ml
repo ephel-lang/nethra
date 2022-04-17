@@ -25,5 +25,72 @@ module L0 (Source : Specs.SOURCE with type e = char) = struct
   let spaces = rep (char_in_string " \b\t\n\r") <&> Utils.string_of_chars
   let skip = opt_rep (comment_line <|> comment_block <|> spaces)
   let token p = p <~< skip
-  let localize p = locate (token p)
+  let localize p = token (locate p)
+
+  let operators =
+    [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-" ]
+
+  let keywords =
+    [
+      "sig"
+    ; "def"
+    ; "type"
+    ; "case"
+    ; "inl"
+    ; "inr"
+    ; "fst"
+    ; "snd"
+    ; "rec"
+    ; "fold"
+    ; "unfold"
+    ; "data"
+    ; "let"
+    ; "in"
+    ]
+
+  let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
+  let special = char_in_string "@&#-=/:?*$^<>()§![]{}"
+  let digit = char_in_range ('0', '9')
+
+  let id =
+    alpha
+    <~> opt_rep (alpha <|> digit)
+    <&> (fun (e, l) -> e :: l)
+    <&> Utils.string_of_chars
+    <?> fun s -> Stdlib.not (List.mem s keywords)
+
+  let op =
+    special
+    <~> opt_rep (char '_' <|> special)
+    <&> (fun (e, l) -> e :: l)
+    <&> Utils.string_of_chars
+    <?> fun s -> Stdlib.not (List.mem s operators)
+
+  module Reserved = struct
+    let _ARROW_ = token (string "->")
+    let _DOT_ = token (string ".")
+    let _LPAR_ = token (string "(")
+    let _RPAR_ = token (string ")")
+    let _LACC_ = token (string "{")
+    let _RACC_ = token (string "}")
+    let _COLON_ = token (string ":")
+    let _PRODUCT_ = token (string "*")
+    let _COMMA_ = token (string ",")
+    let _DISJUNCTION_ = token (string "|")
+    let _EQUAL_ = token (string "=")
+    let _SIG_ = token (string "sig")
+    let _DEF_ = token (string "def")
+    let _TYPE_ = token (string "type")
+    let _CASE_ = token (string "case")
+    let _INL_ = token (string "inl")
+    let _INR_ = token (string "inr")
+    let _FST_ = token (string "fst")
+    let _SND_ = token (string "snd")
+    let _REC_ = token (string "rec")
+    let _FOLD_ = token (string "fold")
+    let _UNFOLD_ = token (string "unfold")
+    let _DATA_ = token (string "data")
+    let _LET_ = token (string "let")
+    let _IN_ = token (string "in")
+  end
 end

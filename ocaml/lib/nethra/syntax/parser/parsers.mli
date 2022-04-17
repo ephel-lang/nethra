@@ -52,6 +52,7 @@ module Literal : functor
   val natural : int Parsec.t
   val integer : int Parsec.t
   val string : string -> string Parsec.t
+  val string_in_list : string list -> string Parsec.t
   val sequence : char Parsec.t -> string Parsec.t
 
   module Delimited : sig

@@ -193,6 +193,7 @@ end
 module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
   module Monad = Monad (Parsec)
   module Atomic = Atomic (Parsec)
+  module Eval = Eval (Parsec)
   module Operator = Operator (Parsec)
   module Occurrence = Occurrence (Parsec)
 
@@ -243,6 +244,12 @@ module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
     let open Atomic in
     let open Nethra_syntax_source.Utils in
     atoms (chars_of_string s) <&> Stdlib.Fun.const s
+
+  let string_in_list l =
+    let open List in
+    let open Eval in
+    let open Operator in
+    fold_left (fun p e -> p <|> string e) fail l
 
   let sequence p =
     let open Monad in
