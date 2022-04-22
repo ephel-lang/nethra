@@ -1,5 +1,0 @@
-(library
- (name nethra_system_checker)
- (public_name nethra.system.checker)
- (libraries nethra.ast preface)
- (modules_without_implementation specs))

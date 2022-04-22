@@ -1,4 +1,4 @@
-open Nethra.Ast.Term
+open Nethra.Lang.Ast.Term
 open Common
 
 let render_mu () =

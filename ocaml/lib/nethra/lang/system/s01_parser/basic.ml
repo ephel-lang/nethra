@@ -1,7 +1,7 @@
 open Nethra_syntax_source
 open Nethra_syntax_parser.Parsers
 
-module Basic (Source : Specs.SOURCE with type e = char) = struct
+module Impl (Source : Specs.SOURCE with type e = char) = struct
   module Parsec = Parsec (Source)
   open Atomic (Parsec)
   open Eval (Parsec)
@@ -9,6 +9,7 @@ module Basic (Source : Specs.SOURCE with type e = char) = struct
   open Literal (Parsec)
   open Occurrence (Parsec)
   open Monad (Parsec)
+
 
   let comment_line =
     string "--"

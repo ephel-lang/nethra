@@ -6,10 +6,10 @@ module Impl (Theory : Specs.Theory) = struct
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
-  open Nethra_ast.Ast.Term.Construct
-  open Nethra_ast.Ast.Term.Destruct
-  open Nethra_ast.Ast.Proof.Construct
-  open Nethra_ast.Ast.Hypothesis.Access
+  open Nethra_lang_ast.Term.Construct
+  open Nethra_lang_ast.Term.Destruct
+  open Nethra_lang_ast.Proof.Construct
+  open Nethra_lang_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
 

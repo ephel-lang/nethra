@@ -3,11 +3,11 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   open Stdlib.Fun
   open Preface.Option.Monad
   open Preface.Option.Foldable
-  open Nethra_ast.Term.Construct
-  open Nethra_ast.Term.Destruct
-  open Nethra_ast.Proof
-  open Nethra_ast.Proof.Construct
-  open Nethra_ast.Context.Hypothesis.Access
+  open Nethra_lang_ast.Term.Construct
+  open Nethra_lang_ast.Term.Destruct
+  open Nethra_lang_ast.Proof
+  open Nethra_lang_ast.Proof.Construct
+  open Nethra_lang_ast.Context.Hypothesis.Access
   open Reduction
   open Substitution
   open Equivalence.Impl (Theory)

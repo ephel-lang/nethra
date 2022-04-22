@@ -1,8 +1,8 @@
 open Common
-open Nethra.Ast.Hypothesis.Construct
-open Nethra.Ast.Hypothesis.Access
-open Nethra.Ast.Term.Construct
-open Nethra.System.Reduction
+open Nethra.Lang.Ast.Context.Hypothesis.Construct
+open Nethra.Lang.Ast.Context.Hypothesis.Access
+open Nethra.Lang.Ast.Term.Construct
+open Nethra.Lang.System.Type.Reduction
 
 let reduce_type0 () =
   let term = kind 1 in

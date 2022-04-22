@@ -1,4 +1,3 @@
 (library
- (name nethra_ast)
- (public_name nethra.ast)
- (modules_without_implementation ast))
+ (name nethra_lang_ast)
+ (public_name nethra.lang.ast))

@@ -1,4 +1,4 @@
-open Nethra.Render.Term
+open Nethra.Lang.Render.Term
 
 let render term =
   let buffer = Buffer.create 16 in

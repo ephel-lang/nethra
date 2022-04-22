@@ -1,4 +1,4 @@
-module Basic (Source : Nethra_syntax_source.Specs.SOURCE with type e = char) : sig
+module Impl (Source : Nethra_syntax_source.Specs.SOURCE with type e = char) : sig
   module Parsec : Nethra_syntax_parser.Specs.PARSEC with module Source = Source
 
   val comment_line : string Parsec.t

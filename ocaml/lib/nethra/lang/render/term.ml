@@ -53,8 +53,8 @@ let hole ppf render (value, reference, _) =
   | None -> fprintf ppf "%s" value
 
 let rec render ppf t =
-  Nethra_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf) ~char:(char ppf)
-    ~string:(string ppf) ~id:(id ppf) ~pi:(pi ppf render)
+  Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)
+    ~char:(char ppf) ~string:(string ppf) ~id:(id ppf) ~pi:(pi ppf render)
     ~lambda:(lambda ppf render) ~apply:(apply ppf render)
     ~sigma:(sigma ppf render) ~pair:(pair ppf render) ~fst:(fst ppf render)
     ~snd:(snd ppf render) ~sum:(sum ppf render) ~inl:(inl ppf render)

@@ -1,5 +1,5 @@
-open Nethra_ast.Term
-open Nethra_ast.Term.Construct
+open Nethra_lang_ast.Term
+open Nethra_lang_ast.Term.Construct
 
 let subs_kind (level, c) = kind ~c level
 let subs_int (value, c) = int ~c value

@@ -1,0 +1,5 @@
+(library
+ (name nethra_lang_system_type)
+ (public_name nethra.lang.system.type)
+ (libraries nethra.lang.ast preface)
+ (modules_without_implementation specs))

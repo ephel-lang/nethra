@@ -1,6 +1,6 @@
 open Common
-open Nethra.Ast.Term.Construct
-open Nethra.System.Substitution
+open Nethra.Lang.Ast.Term.Construct
+open Nethra.Lang.System.Type.Substitution
 
 let subst_type0 () =
   let term = kind 1 in

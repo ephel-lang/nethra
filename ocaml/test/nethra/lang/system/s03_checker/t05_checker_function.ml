@@ -1,8 +1,8 @@
-open Nethra.Ast.Term.Construct
-open Nethra.Ast.Proof
-open Nethra.Ast.Hypothesis.Construct
-open Nethra.Ast.Hypothesis.Access
-open Nethra.System
+open Nethra.Lang.Ast.Term.Construct
+open Nethra.Lang.Ast.Proof
+open Nethra.Lang.Ast.Context.Hypothesis.Construct
+open Nethra.Lang.Ast.Context.Hypothesis.Access
+open Nethra.Lang.System.Type
 
 module Theory = struct
   let type_in_type = true
@@ -75,7 +75,6 @@ let check_apply_implicit_tactic () =
   and term = apply (id "y") (int 1)
   and term' = id "int" in
   let proof = TypeChecker.(hypothesis |- term <= term') in
-  let () = Nethra.Render.Proof.render Format.std_formatter proof in
   Alcotest.(check bool) "apply" true (is_success proof)
 
 let cases =

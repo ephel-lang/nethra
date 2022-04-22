@@ -1,7 +1,7 @@
-open Nethra.Ast.Term.Construct
-open Nethra.Ast.Hypothesis.Construct
-open Nethra.Ast.Proof
-open Nethra.System
+open Nethra.Lang.Ast.Term.Construct
+open Nethra.Lang.Ast.Context.Hypothesis.Construct
+open Nethra.Lang.Ast.Proof
+open Nethra.Lang.System.Type
 
 open Equivalence.Impl (struct
   let type_in_type = true
@@ -110,7 +110,7 @@ let equivalence_apply_with_reduce () =
   and term = apply (lambda "x" (apply (id "x") (id "y"))) (id "x")
   and term' = apply (id "x") (id "y") in
   let proof = hypothesis |- term =?= term' in
-  let () = Nethra.Render.Proof.render Format.std_formatter proof in
+  let () = Nethra.Lang.Render.Proof.render Format.std_formatter proof in
   Alcotest.(check bool) "apply with reduce" true (is_success proof)
 
 let equivalence_sigma () =

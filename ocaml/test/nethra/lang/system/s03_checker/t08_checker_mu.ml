@@ -1,8 +1,8 @@
-open Nethra.Ast.Term.Construct
-open Nethra.Ast.Proof
-open Nethra.Ast.Hypothesis.Construct
-open Nethra.Ast.Hypothesis.Access
-open Nethra.System
+open Nethra.Lang.Ast.Term.Construct
+open Nethra.Lang.Ast.Proof
+open Nethra.Lang.Ast.Context.Hypothesis.Construct
+open Nethra.Lang.Ast.Context.Hypothesis.Access
+open Nethra.Lang.System.Type
 
 module Theory = struct
   let type_in_type = true
