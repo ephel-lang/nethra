@@ -1,5 +1,5 @@
 (library
  (name nethra)
  (public_name nethra)
- (libraries nethra.syntax nethra.lang)
+ (libraries nethra.syntax nethra.lang nethra.toy)
  (modules_without_implementation nethra))

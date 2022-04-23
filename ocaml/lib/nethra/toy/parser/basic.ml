@@ -1,15 +1,15 @@
 open Nethra_syntax_source
 open Nethra_syntax_parser.Parsers
 
-module Impl (Source : Specs.SOURCE with type e = char) = struct
-  module Parsec = Parsec (Source)
+module Impl
+    (Parsec : Nethra_syntax_parser.Specs.PARSEC with type Source.e = char) =
+struct
   open Atomic (Parsec)
   open Eval (Parsec)
   open Operator (Parsec)
   open Literal (Parsec)
   open Occurrence (Parsec)
   open Monad (Parsec)
-
 
   let comment_line =
     string "--"

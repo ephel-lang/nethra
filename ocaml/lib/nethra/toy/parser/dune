@@ -1,0 +1,4 @@
+(library
+ (name nethra_toy_parser)
+ (public_name nethra.toy.parser)
+ (libraries nethra.toy.cst nethra.syntax.source nethra.syntax.parser preface))

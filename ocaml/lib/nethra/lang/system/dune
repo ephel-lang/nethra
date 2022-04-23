@@ -1,5 +1,5 @@
 (library
  (name nethra_lang_system)
  (public_name nethra.lang.system)
- (libraries nethra.lang.system.parser nethra.lang.system.type)
+ (libraries nethra.lang.system.type)
  (modules_without_implementation nethra_lang_system))

@@ -1,0 +1,5 @@
+(library
+ (name nethra_toy_cst)
+ (public_name nethra.toy.cst)
+ (libraries nethra.syntax.source)
+ (modules_without_implementation localized term))
