@@ -66,7 +66,7 @@ module Eval (Parsec : Specs.PARSEC) = struct
     let open Response.Construct in
     failure (consumed, s)
 
-  let do_lazy p = p ()
+  let do_lazy p s = p () s
 
   let do_try p s =
     let open Response.Destruct in
