@@ -5,7 +5,7 @@ module Impl
   val spaces : string Parsec.t
   val skip : string list Parsec.t
   val token : 'a Parsec.t -> 'a Parsec.t
-  val localize : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
+  val localize : 'a Parsec.t -> 'a Nethra_toy_cst.Localized.t Parsec.t
   val identifier : string Parsec.t
   val operator : string Parsec.t
 

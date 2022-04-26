@@ -1,5 +1,6 @@
 open Nethra_syntax_source
 open Nethra_syntax_parser.Parsers
+open Nethra_toy_cst.Localized
 
 module Impl
     (Parsec : Nethra_syntax_parser.Specs.PARSEC with type Source.e = char) =
@@ -26,7 +27,7 @@ struct
   let spaces = rep (char_in_string " \b\t\n\r") <&> Utils.string_of_chars
   let skip = opt_rep (comment_line <|> comment_block <|> spaces)
   let token p = p <~< skip
-  let localize p = token (locate p)
+  let localize p = token (locate p <&> fun (a, r) -> Localized (a, r))
 
   let operators =
     [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-" ]
@@ -54,18 +55,18 @@ struct
   let digit = char_in_range ('0', '9')
 
   let identifier =
-    alpha
-    <~> opt_rep (alpha <|> digit)
+    token (alpha
+    <~> opt_rep (char '_' <|> alpha <|> digit)
     <&> (fun (e, l) -> e :: l)
     <&> Utils.string_of_chars
-    <?> fun s -> Stdlib.not (List.mem s keywords)
+    <?> fun s -> Stdlib.not (List.mem s keywords) )
 
   let operator =
-    special
+    token (special
     <~> opt_rep (char '_' <|> special)
     <&> (fun (e, l) -> e :: l)
     <&> Utils.string_of_chars
-    <?> fun s -> Stdlib.not (List.mem s operators)
+    <?> fun s -> Stdlib.not (List.mem s operators) )
 
   module Reserved = struct
     let _ARROW_ = token (string "->")
