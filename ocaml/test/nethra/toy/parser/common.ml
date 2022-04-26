@@ -24,3 +24,8 @@ let render_binding term =
   let () = render_binding formatter term in
   let () = Format.pp_print_flush formatter () in
   Buffer.contents buffer
+
+let rec render_bindings = function
+  | [] -> ""
+  | [a] -> render_binding a
+  | a :: l -> render_binding a ^ " " ^ render_bindings l

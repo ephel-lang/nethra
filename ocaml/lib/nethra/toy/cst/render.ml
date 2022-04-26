@@ -28,7 +28,7 @@ and render_term ppf = function
   | Pi (id, t1, t2, false) ->
     fprintf ppf "(%s:%a) -> %a" id render_localized t1 render_localized t2
   | Sigma ("_", t1, t2) ->
-    fprintf ppf "%a * %a" render_localized t1 render_localized t2
+    fprintf ppf "(%a) * (%a)" render_localized t1 render_localized t2
   | Sigma (id, t1, t2) ->
     fprintf ppf "(%s:%a) * %a" id render_localized t1 render_localized t2
   | Lambda (id, t, true) -> fprintf ppf "{%s}.(%a)" id render_localized t
@@ -46,7 +46,7 @@ and render_term ppf = function
   | Apply (t1, t2, false) ->
     fprintf ppf "%a (%a)" render_localized t1 render_localized t2
   | Sum (t1, t2) ->
-    fprintf ppf "%a | %a" render_localized t1 render_localized t2
-  | Pair (t1, t2) -> fprintf ppf "%a,%a" render_localized t1 render_localized t2
+    fprintf ppf "(%a) | (%a)" render_localized t1 render_localized t2
+  | Pair (t1, t2) -> fprintf ppf "(%a),(%a)" render_localized t1 render_localized t2
 
 and render_localized ppt (Localized (t, _)) = render_term ppt t

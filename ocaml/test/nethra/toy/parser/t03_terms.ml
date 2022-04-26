@@ -32,18 +32,14 @@ let parser_sigma () =
 let parser_simple_sigma () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "b * c")
-  and expected = (Some "b * c", true) in
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "b * c")
+  and expected = (Some "(b) * (c)", true) in
   Alcotest.(check (pair (option string) bool)) "product" expected result
 
 let parser_left () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "left a")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "left a")
   and expected = (Some "left (a)", true) in
   Alcotest.(check (pair (option string) bool)) "left" expected result
 
@@ -59,10 +55,8 @@ let parser_right () =
 let parser_pair () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "b , c")
-  and expected = (Some "b,c", true) in
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "b , c")
+  and expected = (Some "(b),(c)", true) in
   Alcotest.(check (pair (option string) bool)) "pair" expected result
 
 let parser_lambda_implicit () =
@@ -77,9 +71,7 @@ let parser_lambda_implicit () =
 let parser_apply_implicit () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "a {c}")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "a {c}")
   and expected = (Some "a {c}", true) in
   Alcotest.(check (pair (option string) bool)) "apply implicit" expected result
 
@@ -95,9 +87,7 @@ let parser_lambda_explicit () =
 let parser_apply_explicit () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "a c")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "a c")
   and expected = (Some "a (c)", true) in
   Alcotest.(check (pair (option string) bool)) "apply explicit" expected result
 
@@ -122,9 +112,7 @@ let parser_rec () =
 let parser_fold () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "fold a")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "fold a")
   and expected = (Some "fold (a)", true) in
   Alcotest.(check (pair (option string) bool)) "fold" expected result
 
@@ -140,10 +128,8 @@ let parser_unfold () =
 let parser_sum () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "a | b")
-  and expected = (Some "a | b", true) in
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "a | b")
+  and expected = (Some "(a) | (b)", true) in
   Alcotest.(check (pair (option string) bool)) "sum" expected result
 
 let parser_case () =
@@ -158,18 +144,14 @@ let parser_case () =
 let parser_inl () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "inl a")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "inl a")
   and expected = (Some "inl (a)", true) in
   Alcotest.(check (pair (option string) bool)) "inl" expected result
 
 let parser_inr () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render
-    @@ term ()
-    @@ Parsec.source (Utils.chars_of_string "inr a")
+    response render @@ term () @@ Parsec.source (Utils.chars_of_string "inr a")
   and expected = (Some "inr (a)", true) in
   Alcotest.(check (pair (option string) bool)) "inr" expected result
 

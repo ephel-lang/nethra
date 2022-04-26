@@ -55,18 +55,20 @@ struct
   let digit = char_in_range ('0', '9')
 
   let identifier =
-    token (alpha
-    <~> opt_rep (char '_' <|> alpha <|> digit)
-    <&> (fun (e, l) -> e :: l)
-    <&> Utils.string_of_chars
-    <?> fun s -> Stdlib.not (List.mem s keywords) )
+    token
+      ( alpha
+      <~> opt_rep (char '_' <|> alpha <|> digit)
+      <&> (fun (e, l) -> e :: l)
+      <&> Utils.string_of_chars
+      <?> fun s -> Stdlib.not (List.mem s keywords) )
 
   let operator =
-    token (special
-    <~> opt_rep (char '_' <|> special)
-    <&> (fun (e, l) -> e :: l)
-    <&> Utils.string_of_chars
-    <?> fun s -> Stdlib.not (List.mem s operators) )
+    token
+      ( special
+      <~> opt_rep (char '_' <|> special)
+      <&> (fun (e, l) -> e :: l)
+      <&> Utils.string_of_chars
+      <?> fun s -> Stdlib.not (List.mem s operators) )
 
   module Reserved = struct
     let _ARROW_ = token (string "->")

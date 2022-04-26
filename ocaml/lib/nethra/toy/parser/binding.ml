@@ -13,12 +13,18 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   open Expression.Impl (Parsec)
 
   let signature =
-    Reserved._SIG_ >~> identifier <~< Reserved._COLON_ <~> term ()
-    <&> fun (i,t) -> Signature (i,t)
+    Reserved._SIG_
+    >~> identifier
+    <~< Reserved._COLON_
+    <~> term ()
+    <&> fun (i, t) -> Signature (i, t)
 
   let definition =
-    Reserved._DEF_ >~> identifier <~< Reserved._EQUAL_ <~> term ()
-    <&> fun (i,t) -> Definition (i,t)
+    Reserved._DEF_
+    >~> identifier
+    <~< Reserved._EQUAL_
+    <~> term ()
+    <&> fun (i, t) -> Definition (i, t)
 
   let binding () = signature <|> definition
 end
