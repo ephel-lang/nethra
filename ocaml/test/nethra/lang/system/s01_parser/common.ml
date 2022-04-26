@@ -17,3 +17,10 @@ let render term =
   let () = render_localized formatter term in
   let () = Format.pp_print_flush formatter () in
   Buffer.contents buffer
+
+let render_binding term =
+  let buffer = Buffer.create 16 in
+  let formatter = Format.formatter_of_buffer buffer in
+  let () = render_binding formatter term in
+  let () = Format.pp_print_flush formatter () in
+  Buffer.contents buffer

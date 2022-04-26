@@ -71,7 +71,7 @@ let parser_lambda_implicit () =
     response render
     @@ term ()
     @@ Parsec.source (Utils.chars_of_string "{a}.(c)")
-  and expected = (Some "{a}.c", true) in
+  and expected = (Some "{a}.(c)", true) in
   Alcotest.(check (pair (option string) bool)) "lambda implicit" expected result
 
 let parser_apply_implicit () =
@@ -89,7 +89,7 @@ let parser_lambda_explicit () =
     response render
     @@ term ()
     @@ Parsec.source (Utils.chars_of_string "(a).(c)")
-  and expected = (Some "(a).c", true) in
+  and expected = (Some "(a).(c)", true) in
   Alcotest.(check (pair (option string) bool)) "lambda explicit" expected result
 
 let parser_apply_explicit () =

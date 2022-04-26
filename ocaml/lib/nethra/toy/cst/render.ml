@@ -1,6 +1,7 @@
 open Format
-open Localized
+open Binding
 open Term
+open Localized
 
 let render_operation ppf = function
   | Fst -> fprintf ppf "%s" "fst"
@@ -10,7 +11,11 @@ let render_operation ppf = function
   | Fold -> fprintf ppf "%s" "fold"
   | Unfold -> fprintf ppf "%s" "unfold"
 
-let rec render_term ppf = function
+let rec render_binding ppf = function
+  | Signature (n, l) -> fprintf ppf "sig %s : %a" n render_localized l
+  | Definition (n, l) -> fprintf ppf "def %s = %a" n render_localized l
+
+and render_term ppf = function
   | Type i -> fprintf ppf "type%d" i
   | Var n -> fprintf ppf "%s" n
   | Literal (Int i) -> fprintf ppf "%d" i
@@ -26,8 +31,8 @@ let rec render_term ppf = function
     fprintf ppf "%a * %a" render_localized t1 render_localized t2
   | Sigma (id, t1, t2) ->
     fprintf ppf "(%s:%a) * %a" id render_localized t1 render_localized t2
-  | Lambda (id, t, true) -> fprintf ppf "{%s}.%a" id render_localized t
-  | Lambda (id, t, false) -> fprintf ppf "(%s).%a" id render_localized t
+  | Lambda (id, t, true) -> fprintf ppf "{%s}.(%a)" id render_localized t
+  | Lambda (id, t, false) -> fprintf ppf "(%s).(%a)" id render_localized t
   | Let (id, t1, t2) ->
     fprintf ppf "let %s = %a in (%a)" id render_localized t1 render_localized t2
   | Rec (id, t) -> fprintf ppf "rec(%s).(%a)" id render_localized t
