@@ -26,7 +26,8 @@ let parser_program () =
   let open Parsers.Operator (Parsec) in
   let open Basic.Impl (Parsec) in
   let open Binding.Impl (Parsec) in
-  let program = {toy|
+  let program =
+    {toy|
       sig bool : type
       sig true : type
       sig false : type
@@ -35,12 +36,18 @@ let parser_program () =
       sig False : false
 
       def bool = true | false
-  |toy} in
+  |toy}
+  in
   let result =
     response render_bindings
     @@ (skip >~> opt_rep (binding ()))
     @@ Parsec.source (Utils.chars_of_string program)
-  and expected = (Some "sig bool : type0 sig true : type0 sig false : type0 sig True : true sig False : false def bool = (true) | (false)", true) in
+  and expected =
+    ( Some
+        "sig bool : type0 sig true : type0 sig false : type0 sig True : true \
+         sig False : false def bool = (true) | (false)"
+    , true )
+  in
   Alcotest.(check (pair (option string) bool)) "program" expected result
 
 let cases =

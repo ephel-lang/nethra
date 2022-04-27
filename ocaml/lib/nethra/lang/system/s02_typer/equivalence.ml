@@ -10,8 +10,8 @@ module Impl (Theory : Specs.Theory) = struct
   open Nethra_lang_ast.Term.Destruct
   open Nethra_lang_ast.Proof.Construct
   open Nethra_lang_ast.Context.Hypothesis.Access
+  open Nethra_lang_basic.Substitution
   open Reduction
-  open Substitution
 
   let proof_from_option ?(reason = None) o =
     fold_right const o [ failure reason ]

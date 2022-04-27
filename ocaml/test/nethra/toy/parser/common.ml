@@ -27,5 +27,5 @@ let render_binding term =
 
 let rec render_bindings = function
   | [] -> ""
-  | [a] -> render_binding a
+  | [ a ] -> render_binding a
   | a :: l -> render_binding a ^ " " ^ render_bindings l
