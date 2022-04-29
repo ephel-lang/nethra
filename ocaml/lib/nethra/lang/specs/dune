@@ -1,0 +1,4 @@
+(library
+ (name nethra_lang_specs)
+ (public_name nethra.lang.specs)
+ (modules_without_implementation nethra_lang_specs))

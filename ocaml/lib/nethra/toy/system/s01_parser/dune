@@ -1,0 +1,10 @@
+(library
+ (name nethra_toy_parser)
+ (public_name nethra.toy.parser)
+ (libraries
+  preface
+  nethra.lang.specs
+  nethra.syntax.source
+  nethra.syntax.parser
+  nethra.toy.cst)
+ (modules_without_implementation nethra_toy_parser))

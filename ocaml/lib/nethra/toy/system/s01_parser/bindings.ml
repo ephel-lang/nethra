@@ -16,15 +16,16 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     Reserved._SIG_
     >~> identifier
     <~< Reserved._COLON_
-    <~> term ()
+    <~> term
     <&> fun (i, t) -> Signature (i, t)
 
   let definition =
     Reserved._DEF_
     >~> identifier
     <~< Reserved._EQUAL_
-    <~> term ()
+    <~> term
     <&> fun (i, t) -> Definition (i, t)
 
-  let binding () = signature <|> definition
+  let binding = signature <|> definition
+  let bindings = skip >~> opt_rep binding
 end

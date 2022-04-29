@@ -1,5 +1,9 @@
 (library
  (name nethra_lang)
  (public_name nethra.lang)
- (libraries nethra.lang.ast nethra.lang.render nethra.lang.system)
+ (libraries
+  nethra.lang.specs
+  nethra.lang.ast
+  nethra.lang.render
+  nethra.lang.system)
  (modules_without_implementation nethra_lang))

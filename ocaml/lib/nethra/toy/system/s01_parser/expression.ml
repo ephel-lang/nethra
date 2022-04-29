@@ -164,4 +164,6 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       | Localized (a, _), None -> a | a, Some b -> Pi ("_", a, b, false) )
 
   and term () = do_lazy sigma_or_pi <|> do_lazy arrow_or_term
+
+  let term = term ()
 end
