@@ -1,8 +1,8 @@
 module Stage : sig
-  type input
-  type output
+  type 'a input
+  type 'a output
 
-  val run : input -> output
+  val run : 'a input -> 'a output
 end
 
 module type STAGE = module type of Stage

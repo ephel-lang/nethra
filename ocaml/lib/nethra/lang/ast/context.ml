@@ -11,6 +11,7 @@ module Bindings = struct
 
     let add_binding bindings binding = binding :: bindings
     let add_bindings bindings more_bindings = more_bindings @ bindings
+    let bindings l = l
   end
 end
 
@@ -37,9 +38,12 @@ module Hypothesis = struct
     let add_signatures (reference, gamma, delta) signatures =
       (reference, Bindings.Access.add_bindings gamma signatures, delta)
 
+    let signatures (_, l, _) = Bindings.Access.bindings l
     let get_definition (_, _, delta) n = Bindings.Access.get_binding delta n
 
     let add_definition (reference, gamma, delta) binding =
       (reference, gamma, Bindings.Access.add_binding delta binding)
+
+    let definitions (_, l, _) = Bindings.Access.bindings l
   end
 end

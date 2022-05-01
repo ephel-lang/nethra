@@ -1,6 +1,6 @@
 module Impl = struct
-  type input = string
-  type output = (Nethra_toy_cst.Binding.t list, string) Result.t
+  type _ input = string
+  type _ output = (Nethra_toy_cst.Binding.t list, string) Result.t
 
   let run input =
     let open Nethra_syntax_parser in

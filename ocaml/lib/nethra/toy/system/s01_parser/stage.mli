@@ -1,4 +1,4 @@
 module Impl :
   Nethra_lang_specs.STAGE
-    with type input = string
-     and type output = (Nethra_toy_cst.Binding.t list, string) Result.t
+    with type _ input = string
+     and type _ output = (Nethra_toy_cst.Binding.t list, string) Result.t
