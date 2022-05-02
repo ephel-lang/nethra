@@ -1,5 +1,9 @@
 (library
  (name nethra_toy)
  (public_name nethra.toy)
- (libraries nethra.toy.cst nethra.toy.parser nethra.toy.abstractor)
+ (libraries
+  nethra.toy.cst
+  nethra.toy.parser
+  nethra.toy.abstractor
+  nethra.toy.compiler)
  (modules_without_implementation nethra_toy))

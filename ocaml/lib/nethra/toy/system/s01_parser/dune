@@ -3,8 +3,8 @@
  (public_name nethra.toy.parser)
  (libraries
   preface
+  nethra.toy.cst
   nethra.lang.specs
   nethra.syntax.source
-  nethra.syntax.parser
-  nethra.toy.cst)
+  nethra.syntax.parser)
  (modules_without_implementation nethra_toy_parser))

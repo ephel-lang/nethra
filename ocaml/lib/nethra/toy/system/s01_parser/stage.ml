@@ -3,6 +3,7 @@ module Impl = struct
   type _ output = (Nethra_toy_cst.Binding.t list, string) Result.t
 
   let run input =
+    let open Preface_stdlib.Result in
     let open Nethra_syntax_parser in
     let open Nethra_syntax_source in
     let module Parsec = Parsers.Parsec (Sources.FromChars) in
