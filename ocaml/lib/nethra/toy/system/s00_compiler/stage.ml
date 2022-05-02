@@ -13,6 +13,6 @@ module Impl = struct
       type t = string
     end) in
     Nethra_toy_parser.Stage.run input
-    <&> Nethra_toy_abstractor.Stage.run
+    <&> Nethra_toy_abstraction.Stage.run
     <&> Nethra_lang_system_type.Stage.run
 end

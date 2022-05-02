@@ -4,6 +4,6 @@
  (libraries
   nethra.toy.cst
   nethra.toy.parser
-  nethra.toy.abstractor
+  nethra.toy.abstraction
   nethra.toy.compiler)
  (modules_without_implementation nethra_toy))
