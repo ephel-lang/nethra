@@ -1,5 +1,6 @@
 open Nethra.Toy.Compiler
 open Nethra.Lang.Ast.Proof
+open Nethra.Lang.Render.Proof
 
 let rec check = function
   | [] -> true
@@ -8,7 +9,7 @@ let rec check = function
     if is_success proof
     then check l
     else
-      let _ = Nethra.Lang.Render.Proof.render Format.std_formatter proof in
+      let _ = render Format.std_formatter proof in
       check l && false
 
 let compile_basic_int () =
