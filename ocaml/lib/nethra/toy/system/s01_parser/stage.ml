@@ -1,6 +1,6 @@
 module Impl = struct
   type _ input = string
-  type _ output = (Nethra_toy_cst.Binding.t list, string) Result.t
+  type _ output = Nethra_toy_cst.Binding.t list
 
   let run input =
     let open Preface_stdlib.Result in

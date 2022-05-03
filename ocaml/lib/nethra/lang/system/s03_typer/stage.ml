@@ -20,5 +20,5 @@ module Impl = struct
 
   let run h =
     let open Nethra_lang_ast.Context.Hypothesis in
-    (h, List.map (type_check h) (Access.definitions h))
+    Result.Ok (h, List.map (type_check h) (Access.definitions h))
 end

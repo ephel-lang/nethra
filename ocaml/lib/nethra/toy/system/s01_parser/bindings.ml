@@ -27,5 +27,5 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <&> fun (i, t) -> Definition (i, t)
 
   let binding = signature <|> definition
-  let bindings = skip >~> opt_rep binding
+  let bindings = skip >~> opt_rep binding <~< eos
 end

@@ -44,6 +44,6 @@ module Hypothesis = struct
     let add_definition (reference, gamma, delta) binding =
       (reference, gamma, Bindings.Access.add_binding delta binding)
 
-    let definitions (_, l, _) = Bindings.Access.bindings l
+    let definitions (_, _, l) = Bindings.Access.bindings l
   end
 end

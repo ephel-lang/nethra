@@ -58,5 +58,5 @@ module Impl = struct
 
   let run l =
     let open Nethra_lang_ast.Context.Hypothesis.Construct in
-    abstract create l
+    Result.Ok (abstract create l)
 end
