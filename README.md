@@ -191,7 +191,7 @@ l ∈ string
 Γ ⊢ unfold A : N[x=μ(x).N]
 ```
 
-## Nethra language in action
+## Nethra Toy language in action
 
 ### Grammar
 
