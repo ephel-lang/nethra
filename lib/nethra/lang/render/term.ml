@@ -22,7 +22,7 @@ let lambda ppf render (n, body, implicit, _) =
 
 let apply ppf render (abstraction, argument, implicit, _) =
   fprintf ppf
-    (if implicit then "%a {%a}" else "%a %a")
+    (if implicit then "%a {%a}" else "%a (%a)")
     render abstraction render argument
 
 let sigma ppf render (n, bound, body, _) =

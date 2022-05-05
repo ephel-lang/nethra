@@ -5,6 +5,7 @@ module Impl (Checker : Specs.Checker) = struct
   open Preface.Option.Foldable
   open Nethra_lang_ast.Term.Construct
   open Nethra_lang_ast.Term.Destruct
+  open Nethra_lang_ast.Proof
   open Nethra_lang_ast.Proof.Construct
   open Nethra_lang_ast.Context.Hypothesis.Access
   open Nethra_lang_basic.Substitution
@@ -81,7 +82,7 @@ module Impl (Checker : Specs.Checker) = struct
     let bound' = hole ~r:reference name in
     let hypothesis = add_signature hypothesis (name, bound') in
     let body', proof = hypothesis |- body => () in
-    proof_from_option
+    proof_from_option ~reason:(return "infer_lambda")
       ( body'
       <&> fun body' ->
       fold_right const
@@ -102,6 +103,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_apply hypothesis (abstraction, argument, implicit, _c) =
     let pi, proof = hypothesis |- abstraction => () in
     proof_from_option
+      ~reason:(return "Waiting for a Pi term")
       ( pi
       >>= fold_opt ~pi:return
       <&> fun (n, bound, body, implicit', _c') ->
@@ -141,7 +143,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_fst hypothesis (term, _c) =
     let sigma, proof = hypothesis |- term => () in
     proof_from_option
-      ~reason:(return "Waiting for a sigma")
+      ~reason:(return "Waiting for a Sigma term")
       ( sigma
       >>= fold_opt ~sigma:return
       <&> fun (_, bound, _, _) -> (return bound, [ proof ]) )
@@ -155,7 +157,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_snd hypothesis (term, _c) =
     let sigma, proof = hypothesis |- term => () in
     proof_from_option
-      ~reason:(return "Waiting for a sigma")
+      ~reason:(return "Waiting for a Sigma term")
       ( sigma
       >>= fold_opt ~sigma:return
       <&> fun (n, _, body, _) ->
@@ -169,7 +171,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_sum hypothesis (lhd, rhd, _c) =
     let term, proof = hypothesis |- lhd => () in
-    proof_from_option
+    proof_from_option ~reason:(return "infer_sum")
       (term <&> fun term -> (return term, [ hypothesis |- rhd <= term ]))
       [ proof ]
 
@@ -180,7 +182,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_inl hypothesis (term, c) =
     let term, proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~reason:(return "infer_inl")
       ( term
       <&> fun term ->
       let var, _hypothesis = fresh_variable hypothesis "_" in
@@ -194,7 +196,7 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_inr hypothesis (term, c) =
     let term, proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~reason:(return "infer_inr")
       ( term
       <&> fun term ->
       let var, _hypothesis = fresh_variable hypothesis "_" in
@@ -209,6 +211,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_case hypothesis (term, left, right, _c) =
     let term, proof = hypothesis |- term => () in
     proof_from_option
+      ~reason:(return "Waiting for a Sum term")
       ( term
       >>= fold_opt ~sum:return
       <&> fun (lhd, rhd, c) ->
@@ -249,6 +252,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_unfold hypothesis (term, _c) =
     let term, proof = hypothesis |- term => () in
     proof_from_option
+      ~reason:(return "Waiting for a Sum term")
       ( term
       >>= fold_opt ~mu:return
       <&> fun (n, body, c) ->
@@ -262,11 +266,39 @@ module Impl (Checker : Specs.Checker) = struct
   *)
   and infer_hole hypothesis (name, _value, _c) =
     proof_from_option
-      ~reason:(return "Unbound variable")
+      ~reason:(return ("Unbound variable" ^ name))
       (get_signature hypothesis name <&> fun t -> (return t, []))
       []
 
-  and infer_type hypothesis term =
+  and implicit_parameter hypothesis term =
+    proof_from_option
+      ~reason:(return "implicit_parameter")
+      ( fold_opt ~apply:return term
+      <&> fun (abstraction, argument, implicit_apply, _) ->
+      if implicit_apply
+      then (None, [ failure None ])
+      else
+        let term'', proof = hypothesis |- abstraction => () in
+        proof_from_option
+          ~reason:(return "Waiting for a Pi term")
+          ( term''
+          >>= fold_opt ~pi:return
+          <&> fun (n, bound, _, implicit_pi, _) ->
+          if implicit_pi
+          then
+            let var, hypothesis = fresh_variable hypothesis n in
+            let term =
+              apply (apply ~implicit:true abstraction (hole var)) argument
+            in
+            let term', proof' =
+              add_signature hypothesis (var, bound) |- term => ()
+            in
+            (term', [ proof; proof' ])
+          else (None, [ proof; failure None ]) )
+          [ proof ] )
+      []
+
+  and nominal hypothesis term =
     let term', proofs =
       fold ~kind:(infer_kind hypothesis) ~int:(infer_int hypothesis)
         ~char:(infer_char hypothesis) ~string:(infer_string hypothesis)
@@ -280,6 +312,16 @@ module Impl (Checker : Specs.Checker) = struct
         ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis) term
     in
     (term' <&> reduce hypothesis, infer term term' proofs)
+
+  and infer_type hypothesis term =
+    match nominal hypothesis term with
+    | None, proof -> (
+      match implicit_parameter hypothesis term with
+      | None, proofs' ->
+        let proof' = infer term None proofs' in
+        if size proof' > size proof then (None, proof') else (None, proof)
+      | term', proofs' -> (term', infer term term' proofs') )
+    | r -> r
 
   and ( => ) (hypothesis, term) () = infer_type hypothesis term
 end

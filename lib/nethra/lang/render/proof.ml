@@ -23,7 +23,7 @@ let equivalent render render_term prefix ppf (term, kind, proofs) =
 
 let failure prefix ppf reason =
   fprintf ppf "%s%s \n" prefix
-    (match reason with Some s -> "❌ " ^ s | _ -> "❌")
+    (match reason with Some s -> "❌  (" ^ s ^ ")" | _ -> "❌")
 
 let rec render render_term prefix ppf p =
   Nethra_lang_ast.Proof.Destruct.fold

@@ -13,8 +13,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   open Equivalence.Impl (Theory)
   open Infer
 
-  let proof_from_option ?(reason = None) o =
-    fold_right const o [ failure reason ]
+  let proof_from_option ?(proofs = []) ?(reason = None) o =
+    fold_right const o (proofs @ [ failure reason ])
 
   (*
     Γ ⊢
@@ -43,7 +43,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   let check_char hypothesis term' (value, c) =
     let term, proof = hypothesis |- char ~c value => () in
-    proof_from_option
+    proof_from_option ~reason:(return "check_var")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
@@ -53,7 +53,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   let check_string hypothesis term' (value, c) =
     let term, proof = hypothesis |- string ~c value => () in
-    proof_from_option
+    proof_from_option ~reason:(return "check_string")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
@@ -63,7 +63,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   let check_id hypothesis term' (name, initial, c) =
     let term, proof = hypothesis |- id ~c ~initial name => () in
-    proof_from_option
+    proof_from_option ~reason:(return "check_id")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
@@ -94,7 +94,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
         let body' = substitute name' (id ~initial:(return name') var) body'
         and body = substitute name (id ~initial:(return name) var) body in
         [ add_signature hypothesis (var, bound') |- body <= body' ]
-      else [ failure None ] )
+      else [ failure (Some "mixed implicit/explicit") ] )
 
   (*
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
@@ -103,7 +103,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_apply hypothesis term' (abstraction, argument, implicit, _c) =
     let term, proof = hypothesis |- abstraction => () in
-    proof_from_option
+    proof_from_option ~proofs:[ proof ]
+      ~reason:(return "Waiting for a Pi term")
       ( term
       >>= fold_opt ~pi:return
       >>= fun (name, bound, body, implicit', _) ->
@@ -150,7 +151,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_fst hypothesis term' (term, _c) =
     let term'', proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~proofs:[ proof ]
+      ~reason:(return "Waiting for a Sigma term")
       ( term''
       >>= fold_opt ~sigma:return
       <&> fun (_, bound, _, _) -> [ proof; hypothesis |- bound =?= term' ] )
@@ -162,7 +164,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     *)
   and check_snd hypothesis term' (term, _c) =
     let term'', proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~proofs:[ proof ]
+      ~reason:(return "Waiting for a Sigma term")
       ( term''
       >>= fold_opt ~sigma:return
       <&> fun (n, _, body, _) ->
@@ -183,6 +186,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_inl hypothesis term' (term, _c) =
     proof_from_option
+      ~reason:(return "Waiting for a Sum term")
       ( fold_opt ~sum:return term'
       <&> fun (lhd, _, _) -> [ hypothesis |- term <= lhd ] )
 
@@ -193,6 +197,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_inr hypothesis term' (term, _c) =
     proof_from_option
+      ~reason:(return "Waiting for a Sum term")
       ( fold_opt ~sum:return term'
       <&> fun (_, rhd, _) -> [ hypothesis |- term <= rhd ] )
 
@@ -203,7 +208,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_case hypothesis term' (term, left, right, _c) =
     let term'', proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~proofs:[ proof ]
+      ~reason:(return "Waiting for a Sum term")
       ( term''
       >>= fold_opt ~sum:return
       <&> fun (lhd, rhd, _) ->
@@ -228,6 +234,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_fold hypothesis term' (term, _c) =
     proof_from_option
+      ~reason:(return "Waiting for a Sum term")
       ( fold_opt ~mu:return term'
       <&> fun (name', term'', _) ->
       [ hypothesis |- term <= substitute name' term' term'' ] )
@@ -239,7 +246,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_unfold hypothesis term' (term, _c) =
     let term'', proof = hypothesis |- term => () in
-    proof_from_option
+    proof_from_option ~proofs:[ proof ]
+      ~reason:(return "Waiting for a Mu term")
       ( term''
       >>= fold_opt ~mu:return
       <&> fun (name', term'', _) ->
@@ -252,7 +260,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_hole hypothesis term' (name, reference, _c) =
     proof_from_option
-      ~reason:(return "Unbound variable")
+      ~reason:(return ("Unbound variable " ^ name))
       ( get_signature hypothesis name
       <&> fun term ->
       [ hypothesis |- term =?= term' ]
@@ -267,6 +275,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and implicit_argument hypothesis term term' =
     proof_from_option
+      ~reason:(return "implicit_argument")
       (let implicit_lambda =
          fold_right const
            (fold_opt ~lambda:(fun (_, _, i, _) -> return i) term)
@@ -285,13 +294,15 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and implicit_parameter hypothesis term term' =
     proof_from_option
+      ~reason:(return "implicit_parameter")
       ( fold_opt ~apply:return term
       <&> fun (abstraction, argument, implicit_apply, _) ->
       if implicit_apply
       then [ failure None ]
       else
-        let term'', _ = hypothesis |- abstraction => () in
-        proof_from_option
+        let term'', proof = hypothesis |- abstraction => () in
+        proof_from_option ~proofs:[ proof ]
+          ~reason:(return "Waiting for a Pi term")
           ( term''
           >>= fold_opt ~pi:return
           <&> fun (n, bound, _, implicit_pi, _) ->
@@ -301,8 +312,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
             let term =
               apply (apply ~implicit:true abstraction (hole var)) argument
             in
-            [ add_signature hypothesis (var, bound) |- term <= term' ]
-          else [ failure None ] ) )
+            [ proof; add_signature hypothesis (var, bound) |- term <= term' ]
+          else [ proof; failure None ] ) )
 
   (*
     Γ ⊢ t : Type_i
@@ -310,7 +321,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ t : Type_{i+1}
   *)
   and type_level hypothesis term term' =
-    proof_from_option
+    proof_from_option ~reason:(return "type_level")
       ( fold_opt ~kind:return term'
       <&> fun (level, c) ->
       if level > 0
