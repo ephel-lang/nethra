@@ -43,6 +43,9 @@ let compile_recursive_sum () =
         def list = (X).rec(l).(unit | X * l)
         sig nil  : {X:type} -> list X
         sig cons : {X:type} -> X -> list X -> list X
+
+        sig test : list int
+        def test = cons 1 nil
         ------------
       |toy}
     <&> fun (_, l) -> check l
