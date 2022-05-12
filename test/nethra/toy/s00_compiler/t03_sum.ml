@@ -26,7 +26,6 @@ let compile_basic_sum () =
   and expected = Result.Ok true in
   Alcotest.(check (result bool string)) "basic sum type" expected result
 
-(* TODO(didier) *)
 let compile_recursive_sum () =
   let open Preface_stdlib.Result.Functor (struct
     type t = string
@@ -45,7 +44,7 @@ let compile_recursive_sum () =
         sig cons : {X:type} -> X -> list X -> list X
 
         sig test : list int
-        def test = cons 1 nil
+        def test = cons 1 (nil {int})
         ------------
       |toy}
     <&> fun (_, l) -> check l

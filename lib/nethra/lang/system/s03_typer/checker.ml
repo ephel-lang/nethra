@@ -224,8 +224,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     ---------------
     Γ ⊢ μ(x).A : T
   *)
-  and check_mu hypothesis term' (name, body, _c) =
-    [ add_signature hypothesis (name, body) |- body <= term' ]
+  and check_mu hypothesis term' (name, body, c) =
+    [ add_signature hypothesis (name, kind ~c 0) |- body <= term' ]
 
   (*
     Γ ⊢ A : N[x=μ(x).N]
