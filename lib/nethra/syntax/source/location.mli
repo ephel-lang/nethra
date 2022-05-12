@@ -11,3 +11,7 @@ module Access : sig
   val line : t -> int
   val column : t -> int
 end
+
+module Render : sig
+  val render : Format.formatter -> t -> unit
+end

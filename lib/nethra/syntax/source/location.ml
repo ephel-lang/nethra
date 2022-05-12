@@ -16,3 +16,9 @@ module Access = struct
   let line (_, l, _) = l
   let column (_, _, c) = c
 end
+
+module Render = struct
+  let render ppf (_, l, c) =
+    let open Format in
+    fprintf ppf "%d:%d" l c
+end

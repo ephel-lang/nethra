@@ -14,7 +14,7 @@ module Functor (Parsec : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
     let open Response.Construct in
     fold
       ~success:(fun (a, b, s) -> success (f a, b, s))
-      ~failure:(fun (b, s) -> failure (b, s))
+      ~failure:(fun (m, b, s) -> failure (m, b, s))
       (p s)
 end)
 
@@ -32,9 +32,9 @@ module Monad (Parsec : Specs.PARSEC) = Preface_make.Monad.Via_bind (struct
       ~success:(fun (p, b1, s) ->
         fold
           ~success:(fun (a, b2, s) -> success (a, b1 || b2, s))
-          ~failure:(fun (b, s) -> failure (b, s))
+          ~failure:(fun (m, b, s) -> failure (m, b, s))
           (f p s) )
-      ~failure:(fun (b, s) -> failure (b, s))
+      ~failure:(fun (m, b, s) -> failure (m, b, s))
       (p s)
 end)
 
@@ -50,21 +50,21 @@ module Eval (Parsec : Specs.PARSEC) = struct
     fold
       ~success:(fun (a, b, s) ->
         success ((a, Region.create ~first:l0 ~last:(location s)), b, s) )
-      ~failure:(fun (_, _) -> failure (false, s))
+      ~failure:(fun (m, _, _) -> failure (m, false, s))
       (p s)
 
   let eos s =
     let open Response.Construct in
     let open Parsec.Source.Access in
     match next s with
-    | Some _, s' -> failure (false, s')
+    | Some _, s' -> failure (Some "stream not consumed", false, s')
     | None, s' -> success ((), false, s')
 
   let return = Monad.return
 
-  let fail ?(consumed = false) s =
+  let fail ?(consumed = false) ?(message = None) s =
     let open Response.Construct in
-    failure (consumed, s)
+    failure (message, consumed, s)
 
   let do_lazy p s = p () s
 
@@ -73,7 +73,7 @@ module Eval (Parsec : Specs.PARSEC) = struct
     let open Response.Construct in
     fold
       ~success:(fun (a, b, s) -> success (a, b, s))
-      ~failure:(fun (_, _) -> failure (false, s))
+      ~failure:(fun (m, _, _) -> failure (m, false, s))
       (p s)
 
   let lookahead p s =
@@ -81,12 +81,15 @@ module Eval (Parsec : Specs.PARSEC) = struct
     let open Response.Construct in
     fold
       ~success:(fun (a, _, _) -> success (a, false, s))
-      ~failure:(fun (_, _) -> failure (false, s))
+      ~failure:(fun (m, _, _) -> failure (m, false, s))
       (p s)
 
   let satisfy p f =
     let open Monad in
-    do_try (p >>= fun a -> if f a then return a else fail ~consumed:false)
+    do_try
+      ( p
+      >>= fun a -> if f a then return a else fail ~consumed:false ~message:None
+      )
 end
 
 module Operator (Parsec : Specs.PARSEC) = struct
@@ -100,9 +103,9 @@ module Operator (Parsec : Specs.PARSEC) = struct
       ~success:(fun (a1, b1, s1) ->
         fold
           ~success:(fun (a2, b2, s2) -> success ((a1, a2), b1 || b2, s2))
-          ~failure:(fun (b2, s2) -> failure (b1 || b2, s2))
+          ~failure:(fun (m, b2, s2) -> failure (m, b1 || b2, s2))
           (p2 s1) )
-      ~failure:(fun (b1, s1) -> failure (b1, s1))
+      ~failure:(fun (m, b1, s1) -> failure (m, b1, s1))
       (p1 s)
 
   let ( <~< ) p1 p2 = Functor.(p1 <~> p2 <&> fst)
@@ -113,7 +116,7 @@ module Operator (Parsec : Specs.PARSEC) = struct
     let open Response.Construct in
     fold
       ~success:(fun (a, b, s) -> success (a, b, s))
-      ~failure:(fun (b, s) -> if b then failure (b, s) else p2 s)
+      ~failure:(fun (m, b, s) -> if b then failure (m, b, s) else p2 s)
       (p1 s)
 
   let ( <?> ) p f =
@@ -131,14 +134,14 @@ module Atomic (Parsec : Specs.PARSEC) = struct
     let open Parsec.Source.Access in
     match next s with
     | Some e, s' -> success (e, true, s')
-    | None, s' -> failure (false, s')
+    | None, s' -> failure (Some "stream consumed", false, s')
 
   let not p s =
     let open Response.Destruct in
     let open Response.Construct in
     fold
-      ~success:(fun (_, _, s) -> failure (false, s))
-      ~failure:(fun (_, s) -> any s)
+      ~success:(fun (_, _, s) -> failure (None, false, s))
+      ~failure:(fun (_, _, s) -> any s)
       (p s)
 
   let atom e =
@@ -168,7 +171,8 @@ module Occurrence (Parsec : Specs.PARSEC) = struct
     let open Response.Construct in
     fold
       ~success:(fun (a, b, s) -> success (Some a, b, s))
-      ~failure:(fun (b, s) -> if b then failure (b, s) else success (None, b, s))
+      ~failure:(fun (m, b, s) ->
+        if b then failure (m, b, s) else success (None, b, s) )
       (p s)
 
   let sequence optional p s =
@@ -178,9 +182,9 @@ module Occurrence (Parsec : Specs.PARSEC) = struct
     let rec sequence s aux b =
       fold
         ~success:(fun (a, b', s') -> sequence s' (a :: aux) (b || b'))
-        ~failure:(fun (b', s') ->
+        ~failure:(fun (m, b', s') ->
           if b' || (aux = [] && not optional)
-          then failure (b || b', s')
+          then failure (m, b || b', s')
           else success (List.rev aux, b || b', s) )
         (p s)
     in

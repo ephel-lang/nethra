@@ -71,6 +71,7 @@ struct
       <?> fun s -> Stdlib.not (List.mem s operators) )
 
   module Reserved = struct
+    let string s = string s <|> fail ~message:(Some ("Waiting for '" ^ s ^ "'"))
     let _ARROW_ = token (string "->")
     let _DOT_ = token (string ".")
     let _LPAR_ = token (string "(")

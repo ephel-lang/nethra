@@ -20,6 +20,16 @@ let parser_pi_explicit () =
   and expected = (Some "(a:b) -> c", true) in
   Alcotest.(check (pair (option string) bool)) "pi explicit" expected result
 
+(* TODO(didier) *)
+let parser_pi_simplified () =
+  let open Expression.Impl (Parsec) in
+  let result =
+    response render
+    @@ term
+    @@ Parsec.source (Utils.chars_of_string "(type) -> type")
+  and expected = (Some "type0 -> type0", true) in
+  Alcotest.(check (pair (option string) bool)) "pi simplified" expected result
+
 let parser_sigma () =
   let open Expression.Impl (Parsec) in
   let result =
@@ -149,6 +159,7 @@ let cases =
   , [
       test_case "pi implicit" `Quick parser_pi_implicit
     ; test_case "pi explicit" `Quick parser_pi_explicit
+    ; test_case "pi simplified" `Quick parser_pi_simplified
     ; test_case "sigma" `Quick parser_sigma
     ; test_case "product" `Quick parser_simple_sigma
     ; test_case "pair" `Quick parser_pair

@@ -13,8 +13,7 @@ module FromList (Locator : Specs.LOCATOR) = struct
   module Access = struct
     let next = function
       | [], l -> (None, ([], l))
-      | a :: s, l ->
-        (Some a, (s, Location.Construct.(combine l (Locator.locate a))))
+      | a :: s, l -> (Some a, (s, Locator.locate l a))
 
     let eos (s, _) = s = []
     let location (_, l) = l
@@ -24,9 +23,11 @@ end
 module FromChars = FromList (struct
   type e = char
 
-  let locate =
+  let locate l =
     let open Location.Construct in
+    let open Location.Access in
     function
-    | '\n' -> create ~position:1 ~line:1 ~column:0
-    | _ -> create ~position:1 ~line:0 ~column:1
+    | '\n' -> create ~position:(position l + 1) ~line:(line l + 1) ~column:1
+    | _ ->
+      create ~position:(position l + 1) ~line:(line l) ~column:(column l + 1)
 end)

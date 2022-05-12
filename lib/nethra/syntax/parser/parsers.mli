@@ -11,7 +11,7 @@ module Eval : functor (Parsec : Specs.PARSEC) -> sig
   val locate : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
   val eos : unit Parsec.t
   val return : 'a -> 'a Parsec.t
-  val fail : ?consumed:bool -> 'a Parsec.t
+  val fail : ?consumed:bool -> ?message:string option -> 'a Parsec.t
   val do_lazy : (unit -> 'a Parsec.t) -> 'a Parsec.t
   val do_try : 'a Parsec.t -> 'a Parsec.t
   val lookahead : 'a Parsec.t -> 'a Parsec.t

@@ -1,7 +1,7 @@
 module Locator : sig
   type e
 
-  val locate : e -> Location.t
+  val locate : Location.t -> e -> Location.t
 end
 
 module type LOCATOR = module type of Locator
