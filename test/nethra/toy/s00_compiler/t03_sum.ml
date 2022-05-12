@@ -35,8 +35,7 @@ let compile_recursive_sum () =
       {toy|
         --- Preamble
         sig unit : type
-        sig Unit  : unit
-        sig int : type
+        sig int  : type
         ------------
         sig list : (type) -> type
         def list = (X).rec(l).(unit | X * l)

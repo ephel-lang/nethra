@@ -67,14 +67,14 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
   (*
-    Γ ⊢ M : S   Γ, x : M ⊢ N : T
-    ----------------------------
-    Γ ⊢ Π(x:M).N : T
-
+    Γ ⊢ M : S   Γ, x : M ⊢ N : T    Γ ⊢ M : S   Γ, x : M ⊢ N : T
+    ----------------------------    ----------------------------
+    Γ ⊢ Π(x:M).N : T                Γ ⊢ Π{x:M}.N : T
   *)
-  let rec check_pi hypothesis term' (name, bound, body, _implicit, _c) =
+  (* TODO(didier) *)
+  let rec check_pi hypothesis term' (name, bound, body, _implicit, c) =
     [
-      Stdlib.snd (hypothesis |- bound => ())
+      hypothesis |- bound <= (kind ~c 0)
     ; add_signature hypothesis (name, bound) |- body <= term'
     ]
 
@@ -123,9 +123,10 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     ----------------------------
     Γ ⊢ Σ(x:M).N : T
   *)
-  and check_sigma hypothesis term' (name, bound, body, _c) =
+  (* TODO(didier) *)
+  and check_sigma hypothesis term' (name, bound, body, c) =
     [
-      Stdlib.snd (hypothesis |- bound => ())
+      hypothesis |- bound <= (kind ~c 0)
     ; add_signature hypothesis (name, bound) |- body <= term'
     ]
 

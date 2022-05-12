@@ -106,7 +106,7 @@ l ∈ string
 #### Dependant function type and application
 
 ```
-Γ ⊢ M :s Type_i   Γ, x : M ⊢ N : Type_j
+Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
 --------------------------------------
 Γ ⊢ Π(x:M).N : Type_j
 
