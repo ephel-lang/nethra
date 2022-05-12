@@ -74,7 +74,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   (* TODO(didier) *)
   let rec check_pi hypothesis term' (name, bound, body, _implicit, c) =
     [
-      hypothesis |- bound <= (kind ~c 0)
+      hypothesis |- bound <= kind ~c 0
     ; add_signature hypothesis (name, bound) |- body <= term'
     ]
 
@@ -126,7 +126,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   (* TODO(didier) *)
   and check_sigma hypothesis term' (name, bound, body, c) =
     [
-      hypothesis |- bound <= (kind ~c 0)
+      hypothesis |- bound <= kind ~c 0
     ; add_signature hypothesis (name, bound) |- body <= term'
     ]
 

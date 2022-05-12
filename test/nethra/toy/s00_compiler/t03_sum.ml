@@ -35,12 +35,17 @@ let compile_recursive_sum () =
       {toy|
         --- Preamble
         sig unit : type
+        sig Unit : unit
         sig int  : type
         ------------
         sig list : (type) -> type
         def list = (X).rec(l).(unit | X * l)
+
         sig nil  : {X:type} -> list X
+        def nil  = fold inl Unit
+
         sig cons : {X:type} -> X -> list X -> list X
+        def cons = (X).(l).fold inr (X,l)
 
         sig test : list int
         def test = cons 1 (nil {int})

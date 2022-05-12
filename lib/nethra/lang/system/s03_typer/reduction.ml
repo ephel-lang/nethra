@@ -22,10 +22,14 @@ let reduce_apply reduce hypothesis (abstraction, argument, implicit, c) =
   >>= reduce hypothesis
 
 let reduce_fst reduce hypothesis (term, _c) =
-  fold_opt ~pair:(fun (lhd, _, _) -> return lhd) term >>= reduce hypothesis
+  reduce hypothesis term
+  >>= fold_opt ~pair:(fun (lhd, _, _) -> return lhd)
+  >>= reduce hypothesis
 
 let reduce_snd reduce hypothesis (term, _c) =
-  fold_opt ~pair:(fun (_, rhd, _) -> return rhd) term >>= reduce hypothesis
+  reduce hypothesis term
+  >>= fold_opt ~pair:(fun (_, rhd, _) -> return rhd)
+  >>= reduce hypothesis
 
 let reduce_case reduce hypothesis (term, left, right, _) =
   reduce hypothesis term
