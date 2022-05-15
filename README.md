@@ -208,12 +208,12 @@ binding ::=
 term ::=     
     "(" id ":" term ")" ("->" | "*") term    
     "{" id ":" term "}" ("->") term    
-    aterm ("->" term)?
+    aterm (("->"|"*"|",") term)?
 ```
 
 ```
 aterm ::=
-    sterm ("{" term "}" | sterm)* ("|" aterm)? ((","|"*") aterm)? 
+    sterm ("{" term "}" | sterm)* 
 ```
 
 ```

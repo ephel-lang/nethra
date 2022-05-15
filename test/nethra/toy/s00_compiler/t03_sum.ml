@@ -9,11 +9,11 @@ let compile_basic_sum () =
     Stage.run
       {toy|
         --- Preamble
-        sig int : type
+        sig int  : type
         sig char : type
         ------------
         sig ic : int | char -> type
-        def ic = (x).(case x (_).char (_).int)
+        def ic = (x).case x (_).char (_).int
 
         sig m1 : ic (inl 1)
         def m1 = 'c'
@@ -41,14 +41,17 @@ let compile_recursive_sum () =
         sig list : (type) -> type
         def list = (X).rec(l).(unit | X * l)
 
-        sig nil  : {X:type} -> list X
-        def nil  = fold inl Unit
+        sig Nil  : {X:type} -> list X
+        def Nil  = fold inl Unit
 
-        sig cons : {X:type} -> X -> list X -> list X
-        def cons = (X).(l).fold inr (X,l)
+        sig Cons : {X:type} -> X -> list X -> list X
+        def Cons = (X).(l).fold inr (X,l)
 
         sig test : list int
-        def test = cons 1 (nil {int})
+        def test = Cons 1 (Nil {int})
+
+        sig append : {X:type} -> list X -> list X -> list X
+        def append = (l1).(l2).case (unfold l1) (_).l2 (c).(Cons (fst c) (append (snd c) l2))
         ------------
       |toy}
     <&> fun (_, l) -> check l
