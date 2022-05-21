@@ -235,7 +235,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
   and check_fold hypothesis term' (term, _c) =
     proof_from_option
-      ~reason:(return "Waiting for a Sum term")
+      ~reason:(return "Waiting for a Mu term")
       ( fold_opt ~mu:return term'
       <&> fun (name', term'', _) ->
       [ hypothesis |- term <= substitute name' term' term'' ] )

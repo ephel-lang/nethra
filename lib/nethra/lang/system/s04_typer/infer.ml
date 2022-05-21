@@ -252,7 +252,7 @@ module Impl (Checker : Specs.Checker) = struct
   and infer_unfold hypothesis (term, _c) =
     let term, proof = hypothesis |- term => () in
     proof_from_option
-      ~reason:(return "Waiting for a Sum term")
+      ~reason:(return "Waiting for a Mu term")
       ( term
       >>= fold_opt ~mu:return
       <&> fun (n, body, c) ->

@@ -46,7 +46,7 @@ e ::=
     inr e                 -- Right injection
     case e e e            -- Catamorphism
     
-    μ(n).e                -- Recursion
+    μ(n:e).e              -- Recursion
     fold e                -- Fold recursive type
     unfold e              -- Unfold recursive type
     
@@ -118,10 +118,6 @@ l ∈ string
 ---------------------
 Γ ⊢ λ{x}.B : Π{x:A}.T
 
-Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
-----------------------------------
-Γ ⊢ B : Π{x:A}.T
-
 Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M 
 ----------------------------
 Γ ⊢ f e : N[x=e]                        
@@ -130,9 +126,18 @@ l ∈ string
 ----------------------------
 Γ ⊢ f {e} : N[x=e]            
 
-Γ ⊢ f : Π{x:M}.C   Γ, v:M ⊢ f {v} e : N
----------------------------------------
-Γ ⊢ f e : N
+```
+
+#### Implicit type in Dependant function type and application
+
+```
+Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
+----------------------------------
+Γ ⊢ B : Π{x:A}.T
+
+Γ ⊢ f : Π{x:M}.C   Γ, v:M ⊢ f {v} : N   N ≠ Π{x:T}.T' 
+-----------------------------------------------------
+Γ ⊢ f : N
 ```
 
 #### Dependant pair type and deconstructions
