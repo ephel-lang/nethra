@@ -95,19 +95,19 @@ let compile_trait_denotation () =
             }
         }-
 
-        sig Monoid_T : type
-        def Monoid_T = (t:type) * (t * (t -> t -> t))
+        sig Monoid : type
+        def Monoid = (t:type) * (t * (t -> t -> t))
 
-        sig Empty_T : type
-        def Empty_T = (t:type) * t
+        sig Empty : type
+        def Empty = (t:type) * t
 
-        sig Compose_T : type
-        def Compose_T = (t:type) * (t -> t -> t)
+        sig Compose : type
+        def Compose = (t:type) * (t -> t -> t)
 
-        sig empty : Monoid_T -> Empty_T
+        sig empty : Monoid -> Empty
         def empty = (x).(fst x, fst (snd x))
 
-        sig compose : Monoid_T -> Compose_T
+        sig compose : Monoid -> Compose
         def compose = (x).(fst x, snd (snd x))
       |toy}
     <&> fun (_, l) -> check l
@@ -128,19 +128,19 @@ let compile_trait_implementation () =
             }
         }-
 
-        sig Monoid_T : type
-        def Monoid_T = (t:type) * (t * (t -> t -> t))
+        sig Monoid : type
+        def Monoid = (t:type) * (t * (t -> t -> t))
 
-        sig Empty_T : type
-        def Empty_T = (t:type) * t
+        sig Empty : type
+        def Empty = (t:type) * t
 
-        sig Compose_T : type
-        def Compose_T = (t:type) * (t -> t -> t)
+        sig Compose : type
+        def Compose = (t:type) * (t -> t -> t)
 
-        sig empty : Monoid_T -> Empty_T
+        sig empty : Monoid -> Empty
         def empty = (x).(fst x, fst (snd x))
 
-        sig compose : Monoid_T -> Compose_T
+        sig compose : Monoid -> Compose
         def compose = (x).(fst x, snd (snd x))
 
         ------------
@@ -156,7 +156,7 @@ let compile_trait_implementation () =
         sig int : type
         sig add : int -> int -> int
 
-        sig IntMonoid : Monoid_T
+        sig IntMonoid : Monoid
         def IntMonoid = (int, 0, add)
       |toy}
     <&> fun (_, l) -> check l
