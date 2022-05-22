@@ -123,6 +123,7 @@ let compile_trait_implementation () =
       {toy|
         -{
             trait Monoid {
+                sig t       : type
                 sig empty   : t
                 sig compose : t -> t -> t
             }
