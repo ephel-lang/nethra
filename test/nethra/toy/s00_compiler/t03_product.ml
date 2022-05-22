@@ -123,9 +123,8 @@ let compile_trait_implementation () =
       {toy|
         -{
             trait Monoid {
-                sig t       : type
-                sig empty   : t
-                sig compose : t -> t -> t
+                sig empty   : self
+                sig compose : self -> self -> self
             }
         }-
 
@@ -147,8 +146,7 @@ let compile_trait_implementation () =
         ------------
 
         -{
-            impl Monoid {
-                def t       = int
+            impl Monoid for int {
                 def empty   = 0
                 def compose = add
             }
@@ -157,8 +155,8 @@ let compile_trait_implementation () =
         sig int : type
         sig add : int -> int -> int
 
-        sig IntMonoid : Monoid
-        def IntMonoid = (int, 0, add)
+        sig Monoid_for_Int : Monoid
+        def Monoid_for_Int = (int, 0, add)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
