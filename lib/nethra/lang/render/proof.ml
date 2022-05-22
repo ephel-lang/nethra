@@ -32,4 +32,4 @@ let rec render render_term prefix ppf p =
     ~equivalent:(equivalent render render_term prefix ppf)
     ~failure:(failure prefix ppf) p
 
-let render ?(term = Term.render) ppf p = render term "" ppf p
+let render ?(term_render = Term.render) ppf p = render term_render "" ppf p

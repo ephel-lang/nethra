@@ -340,7 +340,25 @@ sig compose : Monoid_T -> Compose_T
 def compose = (x).(fst x, snd (snd x))
 ```
 
-With this denotation the implementation can't be done using internal functions.
+Then an implementation can be easily done using pairs.
+
+```
+impl Monoid {
+    def t       = int
+    def empty   = 0
+    def compose = add   -- int addition
+}
+```
+
+```
+sig int : type
+sig add : int -> int -> int
+
+sig IntMonoid : Monoid_T
+def IntMonoid = (int, 0, add)
+```
+
+With this denotation the implementation can't be done using "internal" functions.
 
 ###### Extensible approach
 
@@ -348,7 +366,7 @@ For this purpose we can review it adding a polymorphic parameter in order to mim
 
 ```
 sig Monoid_T : type -> type
-def Monoid_T = (X).((t:type) * (t * (t -> t -> t) * X))
+def Monoid_T = (X).((t:type) * t * (t -> t -> t) * X)
 
 sig Empty_T : type
 def Empty_T = (t:type) * t
@@ -364,7 +382,7 @@ sig empty : {X:type} -> Monoid_T X -> Empty_T
 def empty = (x).(fst x, fst (snd x))
 
 sig compose : {X:type} -> Monoid_T X -> Compose_T
-def compose = (x).(fst x, fst snd (snd x))
+def compose = (x).(fst x, fst (snd (snd x)))
 ```
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.

@@ -91,7 +91,8 @@ let compile_recursive_sum_with_pseudo_constructors () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "recursive sum type with pseudo constructors" expected result
+  Alcotest.(check (result bool string))
+    "recursive sum type with pseudo constructors" expected result
 
 let compile_peano () =
   let open Preface_stdlib.Result.Functor (struct
