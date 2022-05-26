@@ -18,7 +18,7 @@ module Functor (Parsec : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
       (p s)
 end)
 
-module Monad (Parsec : Specs.PARSEC) = Preface_make.Monad.Via_bind (struct
+module Monad (Parsec : Specs.PARSEC) = Preface_make.Monad.Via_return_and_bind (struct
   type 'a t = 'a Parsec.t
 
   let return v s =

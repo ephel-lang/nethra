@@ -9,4 +9,4 @@
   (description "Core language based on dependent types")
   (depends
    (alcotest :with-test)
-   (preface (>= 0.1.0))))
+   (preface (>= 1.0.0))))

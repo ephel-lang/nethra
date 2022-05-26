@@ -19,38 +19,44 @@ Some References:
 ### Terms
 
 ```
-n in Ident
-i in Int
-c in Char
-s in String
+l ∈ Label
+n ∈ Ident
+i ∈ Int
+c ∈ Char
+s ∈ String
 
 e ::=
-    Type_i                -- Type at level i
-    n                     -- Variable
+    Type_i        -- Type at level i
+    n             -- Variable
+        
+    i             -- Integer literal
+    c             -- Character literal
+    s             -- String literal
     
-    i                     -- Integer literal
-    c                     -- Character literal
-    s                     -- String literal
+    Π(n:e).e      -- Dependant function type
+    Π{n:e}.e      -- Dependant function type possibly implicit
+    λ(n).e        -- Function
+    λ{n}.e        -- Function possibly implicit
+    e e           -- Application
+    e {e}         -- Application possibly implicit
     
-    Π(n:e).e   Π{n:e}.e   -- Dependant function type
-    λ(n).e     λ{n}.e     -- Function
-    e e        e {e}      -- Application
+    Σ(n:e).e      -- Dependant pair type
+    e , e         -- Pair
+    fst e         -- Left projection
+    snd e         -- Right Projection
     
-    Σ(n:e).e              -- Dependant pair type
-    e , e                 -- Pair
-    fst e                 -- Left projection
-    snd e                 -- Right Projection
+    e + e         -- Disjunction
+    inl e         -- Left injection
+    inr e         -- Right injection
+    case e e e    -- Catamorphism
     
-    e + e                 -- Disjunction
-    inl e                 -- Left injection
-    inr e                 -- Right injection
-    case e e e            -- Catamorphism
+    μ(n:e).e      -- Recursion
+    fold e        -- Fold recursive type
+    unfold e      -- Unfold recursive type
     
-    μ(n:e).e              -- Recursion
-    fold e                -- Fold recursive type
-    unfold e              -- Unfold recursive type
+    label         -- Atom / Label
     
-    ?n                    -- Hole for inference
+    ?n            -- Hole for inference
 ```
 
 ### Typing rules
@@ -194,6 +200,14 @@ l ∈ string
 Γ ⊢ A : μ(x).N
 --------------------------
 Γ ⊢ unfold A : N[x=μ(x).N]
+```
+
+#### Constructor
+
+```
+Γ ⊢
+--------------
+Γ ⊢ l : Type_i
 ```
 
 ## Nethra Toy language in action
