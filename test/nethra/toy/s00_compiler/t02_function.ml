@@ -9,6 +9,7 @@ let compile_function () =
     Stage.run
       {toy|
         -----------
+        sig int : type
         sig combine : int -> int -> int
         sig two : int
         def two = combine 1 1
@@ -26,6 +27,7 @@ let compile_polymorphic_function () =
     Stage.run
       {toy|
         -- Preamble
+        sig int : type
         sig combine : (a:type) -> a -> a -> a
         sig two : int
         def two = combine int 1 1
@@ -44,6 +46,7 @@ let compile_implicit_polymorphic_function () =
     Stage.run
       {toy|
         -- Preamble
+        sig int : type
         sig combine : {a:type} -> a -> a -> a
         sig two : int
         def two = combine {int} 1 1
@@ -62,6 +65,7 @@ let compile_inferred_implicit_polymorphic_function () =
     Stage.run
       {toy|
         -- Preamble
+        sig int : type
         sig combine : {a:type} -> a -> a -> a
         sig two : int
         def two = combine 1 1
