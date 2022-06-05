@@ -19,7 +19,6 @@ Some References:
 ### Terms
 
 ```
-l ∈ Label
 n ∈ Ident
 i ∈ Int
 c ∈ Char
@@ -54,9 +53,8 @@ e ::=
     fold e        -- Fold recursive type
     unfold e      -- Unfold recursive type
     
-    label         -- Atom / Label
-    
     ?n            -- Hole for inference
+    e = e         -- Type unification [TODO]  
 ```
 
 ### Typing rules
@@ -75,7 +73,7 @@ By default, the type system is design on top of stratified types.
 Γ ⊢ t : Type_{i+1}
 ```
 
-#### Type in Type
+#### Type in Type i.e. impredicative
 
 It's also possible to enable the type in type capability. In this case, the previous rules can be revisited as follows.
 
@@ -207,7 +205,7 @@ l ∈ string
 ```
 Γ ⊢
 --------------
-Γ ⊢ l : Type_i
+Γ ⊢ l : Type_0
 ```
 
 ## Nethra Toy language in action

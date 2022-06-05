@@ -9,7 +9,7 @@ module Impl (Checker : Specs.Checker) = struct
   open Nethra_lang_ast.Proof.Construct
   open Nethra_lang_ast.Context.Hypothesis.Access
   open Nethra_lang_basic.Substitution
-  open Reduction
+  open Nethra_lang_basic.Reduction
   open Checker
 
   let proof_from_option ?(reason = None) o proofs =

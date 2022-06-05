@@ -2,8 +2,7 @@ let () =
   Alcotest.(
     run "Type checker Test"
       [
-        T01_reduction.cases
-      ; T02_equivalence.cases
+        T02_equivalence.cases
       ; T03_checker_basic.cases
       ; T04_checker_function.cases
       ; T05_checker_pair.cases

@@ -2,7 +2,7 @@ open Common
 open Nethra.Lang.Ast.Context.Hypothesis.Construct
 open Nethra.Lang.Ast.Context.Hypothesis.Access
 open Nethra.Lang.Ast.Term.Construct
-open Nethra.Lang.System.Type.Reduction
+open Nethra.Lang.Basic.Reduction
 
 let reduce_type0 () =
   let term = kind 1 in

@@ -2,7 +2,6 @@
  (name nethra_lang_system_type)
  (public_name nethra.lang.system.type)
  (libraries
-  nethra.syntax.source
   nethra.lang.specs
   nethra.lang.ast
   nethra.lang.basic
