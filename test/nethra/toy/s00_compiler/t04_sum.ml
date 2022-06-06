@@ -66,7 +66,7 @@ let compile_recursive_sum_with_pseudo_constructors () =
     Stage.run
       {toy|
         --- Preamble
-        sig int  : type
+        sig int   : type
         ------------
         sig nilT  : type
         sig Nil   : nilT
@@ -102,8 +102,8 @@ let compile_peano () =
     Stage.run
       {toy|
         ------------
-        sig zeroT  : type
-        sig Zero   : zeroT
+        sig zeroT : type
+        sig Zero  : zeroT
         sig succT : type
         sig Succ  : succT
 
@@ -143,7 +143,7 @@ let compile_reflexivity () =
         sig Refl  : reflT
 
         sig eq : {A:type} -> A -> A -> type
-        def eq = {A}.(a).(_).(reflT * eq {A} a a)
+        def eq = {A}.(a).(b).(reflT * eq {A} a a)
         |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

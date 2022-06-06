@@ -47,10 +47,10 @@ let mu ppf render (n, body, _) = fprintf ppf "μ(%s).(%a)" n render body
 let fold ppf render (term, _) = fprintf ppf "fold %a" render term
 let unfold ppf render (term, _) = fprintf ppf "unfold %a" render term
 
-let hole ppf render (value, reference, _) =
+let hole ppf render (name, reference, _) =
   match !reference with
   | Some value -> fprintf ppf "%a" render value
-  | None -> fprintf ppf "%s" value
+  | None -> fprintf ppf "%s" name
 
 let rec render ppf t =
   Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)

@@ -16,29 +16,29 @@ module Impl (Theory : Specs.Theory) = struct
   let proof_from_option ?(reason = None) o =
     fold_right const o [ failure reason ]
 
-  let equivalent_kind term' (level, _) =
+  let equivalent_kind _hypothesis term' (level, _) =
     proof_from_option
       ( fold_opt ~kind:return term'
       >>= fun (level', _) ->
       if Theory.type_in_type || level = level' then Some [] else None )
   (* Type in Type *)
 
-  let equivalent_int term' (value, _) =
+  let equivalent_int _hypothesis term' (value, _) =
     proof_from_option
       ( fold_opt ~int:return term'
       >>= fun (value', _) -> if value = value' then Some [] else None )
 
-  let equivalent_char term' (value, _) =
+  let equivalent_char _hypothesis term' (value, _) =
     proof_from_option
       ( fold_opt ~char:return term'
       >>= fun (value', _) -> if value = value' then Some [] else None )
 
-  let equivalent_string term' (value, _) =
+  let equivalent_string _hypothesis term' (value, _) =
     proof_from_option
       ( fold_opt ~string:return term'
       >>= fun (value', _) -> if value = value' then Some [] else None )
 
-  let equivalent_id term' (name, _, _) =
+  let equivalent_id _hypothesis term' (name, _, _) =
     proof_from_option
       ( fold_opt ~id:return term'
       >>= fun (name', _, _) -> if name = name' then Some [] else None )
@@ -173,9 +173,12 @@ module Impl (Theory : Specs.Theory) = struct
         (term, term')
     in
     let proofs =
-      fold ~kind:(equivalent_kind term') ~int:(equivalent_int term')
-        ~char:(equivalent_char term') ~string:(equivalent_string term')
-        ~id:(equivalent_id term')
+      fold
+        ~kind:(equivalent_kind hypothesis term')
+        ~int:(equivalent_int hypothesis term')
+        ~char:(equivalent_char hypothesis term')
+        ~string:(equivalent_string hypothesis term')
+        ~id:(equivalent_id hypothesis term')
         ~pi:(equivalent_pi hypothesis term')
         ~lambda:(equivalent_lambda hypothesis term')
         ~apply:(equivalent_apply hypothesis term')

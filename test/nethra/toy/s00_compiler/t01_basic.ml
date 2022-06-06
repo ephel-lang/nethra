@@ -10,6 +10,7 @@ let compile_int () =
       {toy|
         -- Preamble
         sig int : type
+        -----------
         sig one : int
         def one = 1
         -----------
@@ -27,6 +28,7 @@ let compile_string () =
       {toy|
         -- Preamble
         sig string : type
+        -----------
         sig one : string
         def one = "1"
         -----------
@@ -42,8 +44,9 @@ let compile_char () =
   let result =
     Stage.run
       {toy|
-        -----------
+        -- Preamble
         sig char : type
+        -----------
         sig one : char
         def one = '1'
         -----------

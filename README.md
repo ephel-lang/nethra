@@ -52,9 +52,6 @@ e ::=
     μ(n:e).e      -- Recursion
     fold e        -- Fold recursive type
     unfold e      -- Unfold recursive type
-    
-    ?n            -- Hole for inference
-    e = e         -- Type unification [TODO]  
 ```
 
 ### Typing rules
@@ -198,14 +195,6 @@ l ∈ string
 Γ ⊢ A : μ(x).N
 --------------------------
 Γ ⊢ unfold A : N[x=μ(x).N]
-```
-
-#### Constructor
-
-```
-Γ ⊢
---------------
-Γ ⊢ l : Type_0
 ```
 
 ## Nethra Toy language in action
