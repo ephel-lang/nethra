@@ -38,8 +38,8 @@ let reduce_case reduce hypothesis (term, left, right, _) =
         ~inr:(fun (term, _) -> return (apply right term))
   >>= reduce hypothesis
 
-let reduce_hole reduce hypothesis (_, reference, _) =
-  !reference >>= reduce hypothesis
+let reduce_hole reduce hypothesis (name, _, _) =
+  get_substitution hypothesis name >>= reduce hypothesis
 
 let rec reduce_opt hypothesis term =
   fold_right const
