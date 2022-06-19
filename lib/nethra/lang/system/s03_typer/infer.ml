@@ -241,7 +241,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
 
   (*
     Γ ⊢ A : N[x=μ(x:T).N]
-    -------------------
+    ---------------------
     Γ ⊢ fold A : μ(x:T).N
   *)
   and infer_fold _hypothesis (_term, _c) =

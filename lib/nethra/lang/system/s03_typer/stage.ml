@@ -1,4 +1,8 @@
 module Impl = struct
+  open Stdlib.Fun
+  open Preface.Option.Functor
+  open Preface.Option.Foldable
+
   type 'a input = 'a Nethra_lang_ast.Context.Hypothesis.t
 
   type 'a output =
@@ -9,12 +13,25 @@ module Impl = struct
     let type_in_type = true
   end
 
+  module rec TypeInfer : Specs.Infer =
+    Infer.Impl (Theory) (Checker.Impl (Theory) (TypeInfer))
+
   module rec TypeChecker : Specs.Checker =
     Checker.Impl (Theory) (Infer.Impl (Theory) (TypeChecker))
 
   let type_validate h (ident, exp) =
     let open Nethra_lang_ast.Term.Construct in
-    (ident, Some TypeChecker.(h |- exp <= kind 0))
+    let open Nethra_lang_ast.Proof.Construct in
+    let term, proof = TypeInfer.(h |- exp => ()) in
+    ( ident
+    , Some
+        (infer exp term
+           [
+             proof
+           ; fold_right const
+               (term <&> fun term -> TypeChecker.(h |- term <= kind 1))
+               (failure None)
+           ] ) )
 
   let type_check h (ident, exp) =
     let open Preface.Option.Functor in
