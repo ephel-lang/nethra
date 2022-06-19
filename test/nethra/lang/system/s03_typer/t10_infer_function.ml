@@ -11,7 +11,7 @@ module Theory = struct
 end
 
 module rec TypeInfer : Specs.Infer =
-  Infer.Impl (Checker.Impl (Theory) (TypeInfer))
+  Infer.Impl (Theory) (Checker.Impl (Theory) (TypeInfer))
 
 let infer_pi () =
   let hypothesis = create

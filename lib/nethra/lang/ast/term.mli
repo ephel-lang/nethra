@@ -20,7 +20,7 @@ module Construct : sig
   val inl : ?c:'a option -> 'a t -> 'a t
   val inr : ?c:'a option -> 'a t -> 'a t
   val case : ?c:'a option -> 'a t -> 'a t -> 'a t -> 'a t
-  val mu : ?c:'a option -> string -> 'a t -> 'a t
+  val mu : ?c:'a option -> string -> 'a t -> 'a t -> 'a t
   val fold : ?c:'a option -> 'a t -> 'a t
   val unfold : ?c:'a option -> 'a t -> 'a t
   val hole : ?c:'a option -> ?r:'a t option ref -> string -> 'a t
@@ -44,7 +44,7 @@ module Destruct : sig
     -> inl:('a t * 'a option -> 'b)
     -> inr:('a t * 'a option -> 'b)
     -> case:('a t * 'a t * 'a t * 'a option -> 'b)
-    -> mu:(string * 'a t * 'a option -> 'b)
+    -> mu:(string * 'a t * 'a t * 'a option -> 'b)
     -> fold:('a t * 'a option -> 'b)
     -> unfold:('a t * 'a option -> 'b)
     -> hole:(string * 'a t option ref * 'a option -> 'b)
@@ -68,7 +68,7 @@ module Destruct : sig
     -> ?inl:('a t * 'a option -> 'b option)
     -> ?inr:('a t * 'a option -> 'b option)
     -> ?case:('a t * 'a t * 'a t * 'a option -> 'b option)
-    -> ?mu:(string * 'a t * 'a option -> 'b option)
+    -> ?mu:(string * 'a t * 'a t * 'a option -> 'b option)
     -> ?fold:('a t * 'a option -> 'b option)
     -> ?unfold:('a t * 'a option -> 'b option)
     -> ?hole:(string * 'a t option ref * 'a option -> 'b option)

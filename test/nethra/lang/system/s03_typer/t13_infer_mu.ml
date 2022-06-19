@@ -11,11 +11,11 @@ module Theory = struct
 end
 
 module rec TypeInfer : Specs.Infer =
-  Infer.Impl (Checker.Impl (Theory) (TypeInfer))
+  Infer.Impl (Theory) (Checker.Impl (Theory) (TypeInfer))
 
 let infer_mu () =
   let hypothesis = add_signature create ("int", kind 0)
-  and term = mu "x" (pi "_" (id "x") (id "int"))
+  and term = mu "x" (kind 0) (pi "_" (id "x") (id "int"))
   and expect = kind 0 in
   let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
@@ -26,7 +26,7 @@ let infer_mu () =
 let infer_mu_fold () =
   let hypothesis =
     add_signature create
-      ("a", pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int"))
+      ("a", pi "_" (mu "x" (kind 0) (pi "_" (id "x") (id "int"))) (id "int"))
   and term = fold (id "a") in
   let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
@@ -35,9 +35,11 @@ let infer_mu_fold () =
 
 let infer_mu_unfold () =
   let hypothesis =
-    add_signature create ("a", mu "x" (pi "_" (id "x") (id "int")))
+    add_signature create ("a", mu "x" (kind 0) (pi "_" (id "x") (id "int")))
   and term = unfold (id "a")
-  and expect = pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int") in
+  and expect =
+    pi "_" (mu "x" (kind 0) (pi "_" (id "x") (id "int"))) (id "int")
+  in
   let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "mu unfold"

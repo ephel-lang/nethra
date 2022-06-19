@@ -5,12 +5,12 @@ module Impl = struct
     'a Nethra_lang_ast.Context.Hypothesis.t
     * (string * 'a Nethra_lang_ast.Proof.t option) list
 
+  module Theory : Specs.Theory = struct
+    let type_in_type = true
+  end
+
   module rec TypeChecker : Specs.Checker =
-    Checker.Impl
-      (struct
-        let type_in_type = true
-      end)
-      (Infer.Impl (TypeChecker))
+    Checker.Impl (Theory) (Infer.Impl (Theory) (TypeChecker))
 
   let type_validate h (ident, exp) =
     let open Nethra_lang_ast.Term.Construct in

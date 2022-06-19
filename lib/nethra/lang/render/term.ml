@@ -43,7 +43,9 @@ let inr ppf render (term, _) = fprintf ppf "inr %a" render term
 let case ppf render (term, left, right, _) =
   fprintf ppf "case %a %a %a" render term render left render right
 
-let mu ppf render (n, body, _) = fprintf ppf "μ(%s).(%a)" n render body
+let mu ppf render (n, kind, body, _) =
+  fprintf ppf "μ(%s:%a).(%a)" n render kind render body
+
 let fold ppf render (term, _) = fprintf ppf "fold %a" render term
 let unfold ppf render (term, _) = fprintf ppf "unfold %a" render term
 

@@ -71,7 +71,6 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     ----------------------------    ----------------------------
     Γ ⊢ Π(x:M).N : T                Γ ⊢ Π{x:M}.N : T
   *)
-  (* TODO(didier) *)
   let rec check_pi hypothesis term' (name, bound, body, _implicit, c) =
     [
       hypothesis |- bound <= kind ~c 0
@@ -225,8 +224,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     ---------------
     Γ ⊢ μ(x).A : T
   *)
-  and check_mu hypothesis term' (name, body, c) =
-    [ add_signature hypothesis (name, kind ~c 0) |- body <= term' ]
+  and check_mu hypothesis term' (name, kind, body, _c) =
+    [ add_signature hypothesis (name, kind) |- body <= term' ]
 
   (*
     Γ ⊢ A : N[x=μ(x).N]
@@ -237,7 +236,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     proof_from_option
       ~reason:(return "Waiting for a Mu term")
       ( fold_opt ~mu:return term'
-      <&> fun (name', term'', _) ->
+      <&> fun (name', _kind, term'', _) ->
       [ hypothesis |- term <= substitute name' term' term'' ] )
 
   (*
@@ -251,7 +250,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ~reason:(return "Waiting for a Mu term")
       ( term''
       >>= fold_opt ~mu:return
-      <&> fun (name', term'', _) ->
+      <&> fun (name', _kind, term'', _) ->
       [ proof; hypothesis |- term' =?= substitute name' term'' term'' ] )
 
   (*

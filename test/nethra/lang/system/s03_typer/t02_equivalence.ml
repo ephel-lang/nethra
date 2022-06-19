@@ -199,8 +199,8 @@ let equivalence_case_inr () =
 
 let equivalence_mu () =
   let hypothesis = create
-  and term = mu "x" (id "x")
-  and term' = mu "y" (id "y") in
+  and term = mu "x" (kind 0) (id "x")
+  and term' = mu "y" (kind 0) (id "y") in
   let proof = hypothesis |- term =?= term' in
   Alcotest.(check bool) "mu" true (is_success proof)
 

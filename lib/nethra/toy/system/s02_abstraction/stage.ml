@@ -27,7 +27,7 @@ module Impl = struct
       apply ~c:(Some r) ~implicit:false
         (abstract_localized (Localized (Lambda (n, t2, false), r)))
         (abstract_localized t1)
-    | Rec (n, t) -> mu ~c:(Some r) n (abstract_localized t)
+    | Rec (n, t) -> mu ~c:(Some r) n (kind 0) (abstract_localized t)
     | Sum (t1, t2) ->
       sum ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
     | Case (t1, t2, t3) ->

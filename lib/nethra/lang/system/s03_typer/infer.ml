@@ -1,4 +1,4 @@
-module Impl (Checker : Specs.Checker) = struct
+module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   include Judgment
   open Stdlib.Fun
   open Preface.Option.Monad
@@ -10,6 +10,7 @@ module Impl (Checker : Specs.Checker) = struct
   open Nethra_lang_ast.Context.Hypothesis.Access
   open Nethra_lang_basic.Substitution
   open Nethra_lang_basic.Reduction
+  open Equivalence.Impl (Theory)
   open Checker
 
   let proof_from_option ?(reason = None) o proofs =
@@ -227,27 +228,29 @@ module Impl (Checker : Specs.Checker) = struct
 
   (*
     Γ,x : T ⊢ A : T
-    ---------------
-    Γ ⊢ μ(x).A : T
+    ----------------
+    Γ ⊢ μ(x:T).A : T
   *)
-  and infer_mu hypothesis (name, body, c) =
+  and infer_mu hypothesis (name, kind, body, c) =
     let var, hypothesis = fresh_variable hypothesis name in
     let hypothesis = add_signature hypothesis (name, hole ~c var) in
     let term, proof = hypothesis |- body => () in
-    (term, [ proof ])
+    proof_from_option
+      (term <&> fun term -> (return term, [ hypothesis |- kind =?= term ]))
+      [ proof ]
 
   (*
-    Γ ⊢ A : N[x=μ(x).N]
+    Γ ⊢ A : N[x=μ(x:T).N]
     -------------------
-    Γ ⊢ fold A : μ(x).N
+    Γ ⊢ fold A : μ(x:T).N
   *)
   and infer_fold _hypothesis (_term, _c) =
     (None, [ failure @@ return "Cannot infer fold" ])
 
   (*
-    Γ ⊢ A : μ(x).N
-    --------------------------
-    Γ ⊢ unfold A : N[x=μ(x).N]
+    Γ ⊢ A : μ(x:T).N
+    ----------------------------
+    Γ ⊢ unfold A : N[x=μ(x:T).N]
   *)
   and infer_unfold hypothesis (term, _c) =
     let term, proof = hypothesis |- term => () in
@@ -255,8 +258,8 @@ module Impl (Checker : Specs.Checker) = struct
       ~reason:(return "Waiting for a Mu term")
       ( term
       >>= fold_opt ~mu:return
-      <&> fun (n, body, c) ->
-      (return (substitute n (mu ~c n body) body), [ proof ]) )
+      <&> fun (n, kind, body, c) ->
+      (return (substitute n (mu ~c n kind body) body), [ proof ]) )
       [ proof ]
 
   (*

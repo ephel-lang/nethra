@@ -6,14 +6,27 @@ Nethra is an experiment based on well know theories and constructions like:
 - recursive type and
 - core lambda calculus
 
-Some References:
+Some References covering dependent types and more:
 
 - [The calculus of constructions](https://hal.inria.fr/inria-00076024/document)
 - [A simple type-theoretic language: Mini-TT](https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf)
 - [ΠΣ: Dependent Types without the Sugar](http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf)
 - [Cayenne a language with dependent types](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.155&rep=rep1&type=pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
+
+## Works in progress
+
+### Extensional equality 
+
 - [Extensional Equality in Intensional Type Theory](http://www.cs.nott.ac.uk/~psztxa/publ/lics99.pdf)
+
+### Module / Trait transformation
+
+### Pattern matching compilation
+
+### Linearity / Affine type
+
+- [Integrating Dependent and Linear Types](https://www.cl.cam.ac.uk/~nk480/dlnl-paper.pdf)
 
 ## Formal foundations
 
@@ -187,15 +200,15 @@ l ∈ string
 ```
 Γ, x : T ⊢ A : T
 ----------------
-Γ ⊢ μ(x).A : T
+Γ ⊢ μ(x:T).A : T
 
-Γ ⊢ A : N[x=μ(x).N]
--------------------
-Γ ⊢ fold A : μ(x).N
+Γ ⊢ A : N[x=μ(x:T).N]
+---------------------
+Γ ⊢ fold A : μ(x:T).N
 
-Γ ⊢ A : μ(x).N
---------------------------
-Γ ⊢ unfold A : N[x=μ(x).N]
+Γ ⊢ A : μ(x:T).N
+----------------------------
+Γ ⊢ unfold A : N[x=μ(x:T).N]
 ```
 
 ## Nethra Toy language in action
@@ -311,27 +324,26 @@ def m = (char , 'c')
 
 ###### Naive approach
 
-This can be used to encode modules and records. Then for instance:
+This can be used to encode modules and records. Then for instance a trait like:
 
 ```
 trait Monoid {
-    sig t       : type
-    sig empty   : t
-    sig compose : t -> t -> t
+    sig empty   : self
+    sig compose : self -> self -> self
 }
 ```
 
-can be expressed by the type `(t:type) * (t * (t -> t -> t))`. Of course projections facilities provided by a trait should also be expressed thanks to the couple deconstruction using `fst` and `snd`.
+can be expressed by the type `(self:type) * (self * (self -> self -> self))`. Of course projections facilities provided by a trait should also be expressed thanks to the couple deconstruction using `fst` and `snd`.
 
 ```
 sig Monoid : type
-def Monoid = (t:type) * (t * (t -> t -> t))
+def Monoid = (self:type) * (self * (self -> self -> self))
 
 sig Empty : type
-def Empty = (t:type) * t
+def Empty = (self:type) * self
     
 sig Compose : type
-def Compose = (t:type) * (t -> t -> t)
+def Compose = (self:type) * (self -> self -> self)
 ```
 
 ```
@@ -345,8 +357,7 @@ def compose = (x).(fst x, snd (snd x))
 Then an implementation can be easily done using pairs.
 
 ```
-impl Monoid {
-    def t       = int
+impl Monoid for int {
     def empty   = 0
     def compose = add   -- int addition
 }
@@ -389,7 +400,7 @@ def compose = (x).(fst x, fst (snd (snd x)))
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.
 
-#### Recursive and disjunctive types
+#### Recursive and sum types
 
 ```
 sig unit : type
@@ -411,13 +422,13 @@ def bool = true | false
 ```
 sig list : type -> type
 
+def list = (X).rec(l:type).(unit | (X * l)) 
+
 sig nil  : {X:type} -> list X
 def nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
 def cons = (head).(tail).(fold (inr (head,tail)))
-
-def list = (X).rec(l).(unit | (X * l)) 
 ```
 
 ```

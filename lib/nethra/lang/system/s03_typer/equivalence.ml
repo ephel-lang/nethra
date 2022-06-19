@@ -135,14 +135,14 @@ module Impl (Theory : Specs.Theory) = struct
       ; hypothesis |- right =?= right'
       ] )
 
-  and equivalent_mu hypothesis term' (name, body, c) =
+  and equivalent_mu hypothesis term' (name, kind, body, c) =
     proof_from_option
       ( fold_opt ~mu:return term'
-      <&> fun (name', body', c') ->
+      <&> fun (name', kind', body', c') ->
       let var, hypothesis = fresh_variable hypothesis name in
       let body = substitute name (id ~c ~initial:(Some name) var) body
       and body' = substitute name' (id ~c:c' ~initial:(Some name') var) body' in
-      [ hypothesis |- body =?= body' ] )
+      [ hypothesis |- kind =?= kind'; hypothesis |- body =?= body' ] )
 
   and equivalent_fold hypothesis term' (term, _c) =
     proof_from_option

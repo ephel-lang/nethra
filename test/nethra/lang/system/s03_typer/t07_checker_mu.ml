@@ -9,11 +9,11 @@ module Theory = struct
 end
 
 module rec TypeChecker : Specs.Checker =
-  Checker.Impl (Theory) (Infer.Impl (TypeChecker))
+  Checker.Impl (Theory) (Infer.Impl (Theory) (TypeChecker))
 
 let check_mu () =
   let hypothesis = add_signature create ("int", kind 0)
-  and term = mu "x" (pi "_" (id "x") (id "int"))
+  and term = mu "x" (kind 0) (pi "_" (id "x") (id "int"))
   and term' = kind 0 in
   let proof = TypeChecker.(hypothesis |- term <= term') in
   Alcotest.(check bool) "mu" true (is_success proof)
@@ -21,17 +21,19 @@ let check_mu () =
 let check_mu_fold () =
   let hypothesis =
     add_signature create
-      ("a", pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int"))
+      ("a", pi "_" (mu "x" (kind 0) (pi "_" (id "x") (id "int"))) (id "int"))
   and term = fold (id "a")
-  and term' = mu "x" (pi "_" (id "x") (id "int")) in
+  and term' = mu "x" (kind 0) (pi "_" (id "x") (id "int")) in
   let proof = TypeChecker.(hypothesis |- term <= term') in
   Alcotest.(check bool) "mu fold" true (is_success proof)
 
 let check_mu_unfold () =
   let hypothesis =
-    add_signature create ("a", mu "x" (pi "_" (id "x") (id "int")))
+    add_signature create ("a", mu "x" (kind 0) (pi "_" (id "x") (id "int")))
   and term = unfold (id "a")
-  and term' = pi "_" (mu "x" (pi "_" (id "x") (id "int"))) (id "int") in
+  and term' =
+    pi "_" (mu "x" (kind 0) (pi "_" (id "x") (id "int"))) (id "int")
+  in
   let proof = TypeChecker.(hypothesis |- term <= term') in
   Alcotest.(check bool) "mu unfold" true (is_success proof)
 

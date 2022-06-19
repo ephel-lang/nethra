@@ -170,12 +170,15 @@ let subst_case_right () =
     (render term')
 
 let subst_mu_all () =
-  let term = mu "x" (id "y") in
+  let term = mu "x" (kind 0) (id "y") in
   let term' = substitute "y" (id "z") term in
-  Alcotest.(check string) "mu all" (render @@ mu "x" (id "z")) (render term')
+  Alcotest.(check string)
+    "mu all"
+    (render @@ mu "x" (kind 0) (id "z"))
+    (render term')
 
 let subst_not_mu () =
-  let term = mu "x" (id "x") in
+  let term = mu "x" (kind 0) (id "x") in
   let term' = substitute "x" (id "z") term in
   Alcotest.(check string) "not mu" (render term) (render term')
 

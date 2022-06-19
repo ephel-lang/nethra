@@ -22,7 +22,7 @@ type 'a t =
   | Inl of 'a t * 'a option
   | Inr of 'a t * 'a option
   | Case of 'a t * 'a t * 'a t * 'a option
-  | Mu of string * 'a t * 'a option
+  | Mu of string * 'a t * 'a t * 'a option
   | Fold of 'a t * 'a option
   | Unfold of 'a t * 'a option
   | Hole of string * 'a t option ref * 'a option
@@ -53,7 +53,7 @@ module Construct = struct
   let inl ?(c = None) term = Inl (term, c)
   let inr ?(c = None) term = Inr (term, c)
   let case ?(c = None) term left right = Case (term, left, right, c)
-  let mu ?(c = None) self body = Mu (self, body, c)
+  let mu ?(c = None) self kind body = Mu (self, kind, body, c)
   let fold ?(c = None) term = Fold (term, c)
   let unfold ?(c = None) term = Unfold (term, c)
   let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
@@ -78,7 +78,7 @@ module Destruct = struct
     | Inl (term, c) -> inl (term, c)
     | Inr (term, c) -> inr (term, c)
     | Case (term, left, right, c) -> case (term, left, right, c)
-    | Mu (self, body, c) -> mu (self, body, c)
+    | Mu (self, kind, body, c) -> mu (self, kind, body, c)
     | Fold (term, c) -> fold (term, c)
     | Unfold (term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)

@@ -51,8 +51,8 @@ let subs_case substitute name value (term, left, right, c) =
     (substitute name value left)
     (substitute name value right)
 
-let subs_mu substitute name value (n, body, c) =
-  mu ~c n (if n = name then body else substitute name value body)
+let subs_mu substitute name value (n, kind, body, c) =
+  mu ~c n kind (if n = name then body else substitute name value body)
 
 let subs_fold substitute name value (term, c) =
   fold ~c (substitute name value term)

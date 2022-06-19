@@ -9,7 +9,7 @@ module Theory = struct
 end
 
 module rec TypeChecker : Specs.Checker =
-  Checker.Impl (Theory) (Infer.Impl (TypeChecker))
+  Checker.Impl (Theory) (Infer.Impl (Theory) (TypeChecker))
 
 let check_sum () =
   let hypothesis = add_signatures create [ ("int", kind 0); ("char", kind 0) ]

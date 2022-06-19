@@ -162,31 +162,31 @@ let compile_either () =
         -{
             Simulate atoms for constructor definition
         }-
-sig rightT : type
-sig Right  : rightT
-sig leftT  : type
-sig Left   : leftT
+        sig rightT : type
+        sig Right  : rightT
+        sig leftT  : type
+        sig Left   : leftT
 
-sig either : (type) -> (type) -> type
-def either = (A).(B).((leftT * A) | (rightT * B))
+        sig either : (type) -> (type) -> type
+        def either = (A).(B).((leftT * A) | (rightT * B))
 
-sig left   : {A:type} -> {B:type} -> A -> either A B
-def left   = (a).inl (Left, a)
+        sig left   : {A:type} -> {B:type} -> A -> either A B
+        def left   = (a).inl (Left, a)
 
-sig right  : {A:type} -> {B:type} -> B -> either A B
-def right  = (b).inr (Right, b)
+        sig right  : {A:type} -> {B:type} -> B -> either A B
+        def right  = (b).inr (Right, b)
 
-sig map    : {A:type} -> {B:type} -> {C:type} -> (B -> C) -> either A B -> either A C
-def map    = (f).(e).case e (e).(inl e) (e).(inr (fst e,f (snd e)))
+        sig map    : {A:type} -> {B:type} -> {C:type} -> (B -> C) -> either A B -> either A C
+        def map    = (f).(e).case e (e).(inl e) (e).(inr (fst e,f (snd e)))
 
-sig apply  : {A:type} -> {B:type} -> {C:type} -> either A (B -> C) -> either A B -> either A C
-def apply  = (f).(e).case f (f).(inl f) (f).(map (snd f) e)
+        sig apply  : {A:type} -> {B:type} -> {C:type} -> either A (B -> C) -> either A B -> either A C
+        def apply  = (f).(e).case f (f).(inl f) (f).(map (snd f) e)
 
-sig join   : {A:type} -> {B:type} -> either A (either A B) -> either A B
-def join   = (e).case e (e).(inl e) (e).(snd e)
+        sig join   : {A:type} -> {B:type} -> either A (either A B) -> either A B
+        def join   = (e).case e (e).(inl e) (e).(snd e)
 
-sig bind   : {A:type} -> {B:type} -> {C:type} -> (B -> either A C) -> either A B -> either A C
-def bind   = (f).(e).(join (map f e))
+        sig bind   : {A:type} -> {B:type} -> {C:type} -> (B -> either A C) -> either A B -> either A C
+        def bind   = (f).(e).(join (map f e))
         |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
