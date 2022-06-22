@@ -6,7 +6,7 @@ let compile_identity () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -----------
         sig int : type
@@ -25,7 +25,7 @@ let compile_implicit_identity () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -----------
         sig int : type
@@ -45,7 +45,7 @@ let compile_function () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -----------
         sig int : type
@@ -64,7 +64,7 @@ let compile_polymorphic_function () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig int : type
@@ -84,7 +84,7 @@ let compile_implicit_polymorphic_function () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig int : type
@@ -104,7 +104,7 @@ let compile_inferred_implicit_polymorphic_function () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig int : type

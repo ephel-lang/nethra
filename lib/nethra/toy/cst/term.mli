@@ -19,7 +19,7 @@ type t =
   | Sigma of (string * t Localized.t * t Localized.t)
   | Lambda of (string * t Localized.t * bool)
   | Let of (string * t Localized.t * t Localized.t)
-  | Rec of (string * t Localized.t)
+  | Rec of (string * t Localized.t * t Localized.t)
   | Case of (t Localized.t * t Localized.t * t Localized.t)
   | BuildIn of (operation * t Localized.t)
   | Apply of (t Localized.t * t Localized.t * bool)

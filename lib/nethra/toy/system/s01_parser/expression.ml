@@ -80,10 +80,12 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       ( Reserved._REC_
       >~> Reserved._LPAR_
       >~> identifier
+      <~< Reserved._COLON_
+      <~> do_lazy term
       <~< Reserved._RPAR_
       <~< Reserved._DOT_
       <~> do_lazy sterm
-      <&> fun (id, t1) -> Rec (id, t1) )
+      <&> fun ((id, t1), t2) -> Rec (id, t1, t2) )
 
   and case () =
     localize

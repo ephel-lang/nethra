@@ -1,4 +1,4 @@
-module Stage = Stage.Impl
+module Pass = Pass.Impl
 
 (**/**)
 

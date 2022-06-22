@@ -10,7 +10,7 @@ module Impl = struct
     let open Preface_stdlib.Result.Monad (struct
       type t = string
     end) in
-    Nethra_toy_parser.Stage.run
-    >=> Nethra_toy_abstraction.Stage.run
-    >=> Nethra_lang_system_type.Stage.run
+    Nethra_toy_parser.Pass.run
+    >=> Nethra_toy_abstraction.Pass.run
+    >=> Nethra_lang_system_type.Pass.run
 end

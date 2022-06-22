@@ -6,7 +6,7 @@ let compile_basic_sum () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         --- Preamble
         sig int  : type
@@ -31,7 +31,7 @@ let compile_recursive_sum () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         --- Preamble
         sig unit : type
@@ -39,7 +39,7 @@ let compile_recursive_sum () =
         sig int  : type
         ------------
         sig list : (type) -> type
-        def list = (X).rec(l).(unit | X * l)
+        def list = (X).rec(l:type).(unit | X * l)
 
         sig Nil  : {X:type} -> list X
         def Nil  = fold inl Unit
@@ -63,7 +63,7 @@ let compile_recursive_sum_with_pseudo_constructors () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         --- Preamble
         sig int   : type
@@ -74,7 +74,7 @@ let compile_recursive_sum_with_pseudo_constructors () =
         sig Cons  : consT
 
         sig list : (type) -> type
-        def list = (X).rec(l).(nilT | consT * X * l)
+        def list = (X).rec(l:type).(nilT | consT * X * l)
 
         sig nil : {X:type} -> list X
         def nil = fold inl Nil
@@ -99,7 +99,7 @@ let compile_peano () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         ------------
         sig zeroT : type
@@ -108,7 +108,7 @@ let compile_peano () =
         sig Succ  : succT
 
         sig peano : type
-        def peano = rec(p).(zeroT | succT * p)
+        def peano = rec(p:type).(zeroT | succT * p)
 
         sig zero : peano
         def zero = fold inl Zero
@@ -129,7 +129,7 @@ let compile_reflexivity () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -{
             In Agda the reflexivity is expressed thanks to the GADT:
@@ -157,7 +157,7 @@ let compile_either () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -{
             Simulate atoms for constructor definition

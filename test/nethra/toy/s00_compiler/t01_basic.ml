@@ -6,7 +6,7 @@ let compile_int () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig int : type
@@ -24,7 +24,7 @@ let compile_string () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig string : type
@@ -42,7 +42,7 @@ let compile_char () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -- Preamble
         sig char : type

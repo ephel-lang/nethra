@@ -6,7 +6,7 @@ let compile_basic_product () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         sig Unit : type
         sig unit : Unit
@@ -24,7 +24,7 @@ let compile_basic_product_fails () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         sig Unit : type
         sig unit : Unit
@@ -43,7 +43,7 @@ let compile_basic_product_first () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         sig Unit : type
         sig unit : Unit
@@ -64,7 +64,7 @@ let compile_basic_product_second () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         sig Unit : type
         sig unit : Unit
@@ -85,7 +85,7 @@ let compile_trait_denotation () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -{
             trait Monoid {
@@ -119,7 +119,7 @@ let compile_trait_implementation () =
     type t = string
   end) in
   let result =
-    Stage.run
+    Pass.run
       {toy|
         -{
             trait Monoid {
