@@ -9,6 +9,8 @@ module Impl = struct
     'a Nethra_lang_ast.Context.Hypothesis.t
     * (string * 'a Nethra_lang_ast.Proof.t option) list
 
+  type _ error = string
+
   module Theory : Specs.Theory = struct
     let type_in_type = true
   end

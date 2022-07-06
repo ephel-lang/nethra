@@ -5,3 +5,4 @@ module Impl :
       Nethra_syntax_source.Region.t Nethra_lang_ast.Context.Hypothesis.t
       * (string * Nethra_syntax_source.Region.t Nethra_lang_ast.Proof.t option)
         list
+     and type _ error = string

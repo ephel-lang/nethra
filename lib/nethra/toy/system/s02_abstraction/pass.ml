@@ -4,6 +4,8 @@ module Impl = struct
   type _ output =
     Nethra_syntax_source.Region.t Nethra_lang_ast.Context.Hypothesis.t
 
+  type _ error = string
+
   let rec abstract_term r =
     let open Nethra_lang_ast.Term.Construct in
     let open Nethra_toy_cst.Term in
@@ -27,7 +29,8 @@ module Impl = struct
       apply ~c:(Some r) ~implicit:false
         (abstract_localized (Localized (Lambda (n, t2, false), r)))
         (abstract_localized t1)
-    | Rec (n, k, t) -> mu ~c:(Some r) n (abstract_localized k) (abstract_localized t)
+    | Rec (n, k, t) ->
+      mu ~c:(Some r) n (abstract_localized k) (abstract_localized t)
     | Sum (t1, t2) ->
       sum ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
     | Case (t1, t2, t3) ->

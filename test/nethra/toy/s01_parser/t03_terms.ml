@@ -105,7 +105,9 @@ let parser_let_in () =
 let parser_rec () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render @@ term @@ Parsec.source (Utils.chars_of_string "rec(e:type).a")
+    response render
+    @@ term
+    @@ Parsec.source (Utils.chars_of_string "rec(e:type).a")
   and expected = (Some "rec(e:type0).(a)", true) in
   Alcotest.(check (pair (option string) bool)) "rec" expected result
 

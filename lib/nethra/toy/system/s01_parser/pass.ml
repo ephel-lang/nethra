@@ -1,6 +1,7 @@
 module Impl = struct
   type _ input = string
   type _ output = Nethra_toy_cst.Binding.t list
+  type _ error = string
 
   let render l =
     let open Nethra_syntax_source in

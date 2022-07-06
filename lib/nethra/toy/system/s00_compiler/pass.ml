@@ -6,6 +6,8 @@ module Impl = struct
     * (string * Nethra_syntax_source.Region.t Nethra_lang_ast.Proof.t option)
       list
 
+  type _ error = string
+
   let run =
     let open Preface_stdlib.Result.Monad (struct
       type t = string
