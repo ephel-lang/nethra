@@ -1,5 +1,5 @@
 (library
- (name nethra_toy_abstraction)
- (public_name nethra.toy.abstraction)
+ (name nethra_toy_desugar)
+ (public_name nethra.toy.desugar)
  (libraries nethra.toy.cst nethra.lang.specs nethra.lang.ast)
- (modules_without_implementation nethra_toy_abstraction))
+ (modules_without_implementation nethra_toy_desugar))

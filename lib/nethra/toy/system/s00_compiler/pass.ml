@@ -13,6 +13,6 @@ module Impl = struct
       type t = string
     end) in
     Nethra_toy_parser.Pass.run
-    >=> Nethra_toy_abstraction.Pass.run
+    >=> Nethra_toy_desugar.Pass.run
     >=> Nethra_lang_system_type.Pass.run
 end
