@@ -5,7 +5,7 @@
   preface
   nethra.toy.cst
   nethra.toy.parser
-  nethra.toy.desugar
+  nethra.toy.abstract
   nethra.syntax.source
   nethra.syntax.parser
   nethra.lang.specs

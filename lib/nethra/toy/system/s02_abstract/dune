@@ -1,0 +1,5 @@
+(library
+ (name nethra_toy_abstract)
+ (public_name nethra.toy.abstract)
+ (libraries nethra.toy.cst nethra.lang.specs nethra.lang.ast)
+ (modules_without_implementation nethra_toy_abstract))

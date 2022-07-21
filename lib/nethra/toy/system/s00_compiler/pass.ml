@@ -10,9 +10,9 @@ module Impl = struct
 
   let run =
     let open Preface_stdlib.Result.Monad (struct
-      type t = string
+      type t = unit error
     end) in
     Nethra_toy_parser.Pass.run
-    >=> Nethra_toy_desugar.Pass.run
+    >=> Nethra_toy_abstract.Pass.run
     >=> Nethra_lang_system_type.Pass.run
 end
