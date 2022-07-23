@@ -55,7 +55,7 @@ let hole ppf render (name, reference, _) =
   | None -> fprintf ppf "%s" name
 
 let annotation ppf render (term, kind, _) =
-  fprintf ppf "(%a as %a)" render term render kind
+  fprintf ppf "(%a:%a)" render term render kind
 
 let rec render ppf t =
   Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)

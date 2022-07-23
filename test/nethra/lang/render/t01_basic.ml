@@ -27,7 +27,11 @@ let render_id () =
 
 let render_id_initial () =
   let repr = render @@ Construct.id ~initial:(Some "hello") "$42" in
-  Alcotest.(check string) "string" "hello" repr
+  Alcotest.(check string) "id initial" "hello" repr
+
+let render_annotation () =
+  let repr = render @@ Construct.(annotation (int 42) (id "int")) in
+  Alcotest.(check string) "annotation" "(42:int)" repr
 
 let cases =
   let open Alcotest in
@@ -40,4 +44,5 @@ let cases =
     ; test_case "string" `Quick render_string
     ; test_case "id" `Quick render_id
     ; test_case "id with initial" `Quick render_id_initial
+    ; test_case "annotation" `Quick render_annotation
     ] )
