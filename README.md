@@ -446,3 +446,22 @@ def cons = (head).(tail).(fold (inr (head,tail)))
 sig isEmpty : {X:type} -> list X -> bool
 def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 ```
+
+#### Liebnitz equality
+
+```
+sig eq : {A:type} -> (a:A) -> (b:A) -> type
+def eq = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+
+sig reflexive : {A:type} -> {a:A} -> eq a a
+def reflexive = (P).(Pa).Pa
+
+sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> eq a b -> eq b c -> eq a c
+def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
+
+sig symmetric : {A:type} -> {a:A} -> {b:A} -> eq a b -> eq b a
+def symmetric = {A}.{a}.{b}.(eq_a_b).(P).
+    let Qa = reflexive P in
+    let Qb = eq_a_b (c).(P c -> P a) Qa in
+    Qb
+```
