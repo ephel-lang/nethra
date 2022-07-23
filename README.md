@@ -449,7 +449,7 @@ def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 
 #### Leibniz equality
 
-This implementation reproduce the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
+This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
 
 ```
 sig eq : {A:type} -> (a:A) -> (b:A) -> type
