@@ -22,7 +22,7 @@ let compile_equal () =
       def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
 
       sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-      def symmetric = {A}.{a}.{b}.(eq_a_b).(P).
+      def symmetric = (eq_a_b).(P).
             let Qa = reflexive P in
             let Qb = eq_a_b (c).(P c -> P a) Qa in
             Qb

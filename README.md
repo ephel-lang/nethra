@@ -449,7 +449,7 @@ def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 
 #### Leibniz equality
 
-This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
+This implementation reproduce the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
 
 ```
 sig eq : {A:type} -> (a:A) -> (b:A) -> type
@@ -462,7 +462,7 @@ sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> eq a b -> eq b c -> eq a
 def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
 
 sig symmetric : {A:type} -> {a:A} -> {b:A} -> eq a b -> eq b a
-def symmetric = {A}.{a}.{b}.(eq_a_b).(P).
+def symmetric = (eq_a_b).(P).
     let Qa = reflexive P in
     let Qb = eq_a_b (c).(P c -> P a) Qa in
     Qb
