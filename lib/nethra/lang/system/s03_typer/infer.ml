@@ -90,9 +90,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ( !reference
         <&> fun value -> (Some (pi ~implicit ~c name value body'), [ proof ]) )
         ( Some
+            (* Unbound means Generalisable *)
             (pi ~implicit:true name (kind 0)
                (pi ~implicit ~c name bound' body') )
-          (* Why type0 / See type in type? *)
         , [ proof ] ) )
       [ proof ]
 
@@ -273,6 +273,16 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       (get_signature hypothesis name <&> fun t -> (return t, []))
       []
 
+  (*
+    Γ ⊢ n : M    Γ ⊢ M : Type_0
+    ---------------------------
+    Γ ⊢ n as M : M
+   *)
+
+  and infer_annotation hypothesis (term, term'', c) =
+    ( Some term''
+    , [ hypothesis |- term <= term''; hypothesis |- term'' <= kind ~c 0 ] )
+
   and implicit_parameter hypothesis term =
     proof_from_option
       ~reason:(return "implicit_parameter")
@@ -312,7 +322,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ~sum:(infer_sum hypothesis) ~inl:(infer_inl hypothesis)
         ~inr:(infer_inr hypothesis) ~case:(infer_case hypothesis)
         ~mu:(infer_mu hypothesis) ~fold:(infer_fold hypothesis)
-        ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis) term
+        ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis)
+        ~annotation:(infer_annotation hypothesis)
+        term
     in
     (term' <&> reduce hypothesis, infer term term' proofs)
 

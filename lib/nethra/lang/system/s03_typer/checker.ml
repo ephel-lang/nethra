@@ -85,7 +85,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   and check_lambda hypothesis term' (name, body, implicit, _c) =
     proof_from_option
       ~reason:(return "Waiting for a Pi term")
-      ( fold_opt ~pi:(fun p -> return p) term'
+      ( fold_opt ~pi:return term'
       <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
       then
@@ -269,6 +269,19 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
           [] )
 
   (*
+    Γ ⊢ n : M    Γ ⊢ M : Type_0
+    ---------------------------
+    Γ ⊢ n as M : M
+  *)
+
+  and check_annotation hypothesis term' (term, term'', c) =
+    [
+      hypothesis |- term <= term''
+    ; hypothesis |- term'' =?= term'
+    ; hypothesis |- term'' <= kind ~c 0
+    ]
+
+  (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
     ----------------------------------
     Γ ⊢ B : Π{x:A}.T
@@ -350,6 +363,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ~fold:(check_fold hypothesis term')
       ~unfold:(check_unfold hypothesis term')
       ~hole:(check_hole hypothesis term')
+      ~annotation:(check_annotation hypothesis term')
       term
 
   (* type checker main entrypoint *)

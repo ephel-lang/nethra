@@ -12,6 +12,7 @@ Some References covering dependent types and more:
 - [A simple type-theoretic language: Mini-TT](https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf)
 - [ΠΣ: Dependent Types without the Sugar](http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf)
 - [Cayenne a language with dependent types](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.155&rep=rep1&type=pdf)
+- [Implementing Dependent Types in pi-forall](https://arxiv.org/pdf/2207.02129.pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
 
 ## Works in progress
@@ -66,6 +67,8 @@ e ::=
     μ(n:e).e      -- Recursion
     fold e        -- Fold recursive type
     unfold e      -- Unfold recursive type
+    
+    e as e        -- Type annotation
 ```
 
 ### Typing rules
@@ -209,6 +212,14 @@ l ∈ string
 Γ ⊢ A : μ(x:T).N
 ----------------------------
 Γ ⊢ unfold A : N[x=μ(x:T).N]
+```
+
+#### Type annotation
+
+```
+Γ ⊢ n : M    Γ ⊢ M : Type_0    
+---------------------------
+Γ ⊢ n as M : M  
 ```
 
 ## Nethra Toy language in action

@@ -26,6 +26,7 @@ type 'a t =
   | Fold of 'a t * 'a option
   | Unfold of 'a t * 'a option
   | Hole of string * 'a t option ref * 'a option
+  | Annotation of 'a t * 'a t * 'a option
 
 module Construct = struct
   let kind ?(c = None) i = Type (i, c)
@@ -57,11 +58,12 @@ module Construct = struct
   let fold ?(c = None) term = Fold (term, c)
   let unfold ?(c = None) term = Unfold (term, c)
   let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
+  let annotation ?(c = None) term kind = Annotation (term, kind, c)
 end
 
 module Destruct = struct
   let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair ~fst
-      ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole = function
+      ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation = function
     | Type (i, c) -> kind (i, c)
     | Literal (Int i, c) -> int (i, c)
     | Literal (Char i, c) -> char (i, c)
@@ -82,6 +84,7 @@ module Destruct = struct
     | Fold (term, c) -> fold (term, c)
     | Unfold (term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)
+    | Annotation (term, kind, c) -> annotation (term, kind, c)
 
   let fold_opt =
     let internal_fold = fold in
@@ -90,7 +93,7 @@ module Destruct = struct
         ?(id = none) ?(pi = none) ?(lambda = none) ?(apply = none)
         ?(sigma = none) ?(pair = none) ?(fst = none) ?(snd = none) ?(sum = none)
         ?(inl = none) ?(inr = none) ?(case = none) ?(mu = none) ?(fold = none)
-        ?(unfold = none) ?(hole = none) term ->
+        ?(unfold = none) ?(hole = none) ?(annotation = none) term ->
       internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
-        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole term
+        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation term
 end

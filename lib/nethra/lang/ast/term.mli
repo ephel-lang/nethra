@@ -24,6 +24,7 @@ module Construct : sig
   val fold : ?c:'a option -> 'a t -> 'a t
   val unfold : ?c:'a option -> 'a t -> 'a t
   val hole : ?c:'a option -> ?r:'a t option ref -> string -> 'a t
+  val annotation : ?c:'a option -> 'a t -> 'a t -> 'a t
 end
 
 module Destruct : sig
@@ -48,6 +49,7 @@ module Destruct : sig
     -> fold:('a t * 'a option -> 'b)
     -> unfold:('a t * 'a option -> 'b)
     -> hole:(string * 'a t option ref * 'a option -> 'b)
+    -> annotation:('a t * 'a t * 'a option -> 'b)
     -> 'a t
     -> 'b
 
@@ -72,6 +74,7 @@ module Destruct : sig
     -> ?fold:('a t * 'a option -> 'b option)
     -> ?unfold:('a t * 'a option -> 'b option)
     -> ?hole:(string * 'a t option ref * 'a option -> 'b option)
+    -> ?annotation:('a t * 'a t * 'a option -> 'b option)
     -> 'a t
     -> 'b option
 end

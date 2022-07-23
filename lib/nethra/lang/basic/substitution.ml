@@ -62,6 +62,9 @@ let subs_unfold substitute name value (term, c) =
 
 let subs_hole (v, r, c) = hole ~c ~r v
 
+let subs_annotation substitute name value (term, kind, c) =
+  annotation ~c (substitute name value term) (substitute name value kind)
+
 let rec substitute name value term =
   Destruct.fold ~kind:subs_kind ~int:subs_int ~char:subs_char
     ~string:subs_string ~id:(subs_id name value)
@@ -79,4 +82,6 @@ let rec substitute name value term =
     ~mu:(subs_mu substitute name value)
     ~fold:(subs_fold substitute name value)
     ~unfold:(subs_unfold substitute name value)
-    ~hole:subs_hole term
+    ~hole:subs_hole
+    ~annotation:(subs_annotation substitute name value)
+    term

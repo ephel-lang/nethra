@@ -164,6 +164,12 @@ module Impl (Theory : Specs.Theory) = struct
         let () = reference := Some term' in
         [] )
 
+  and equivalent_annotation hypothesis term' (term, kind, _c) =
+    proof_from_option
+      ( fold_opt ~pair:return term'
+      <&> fun (term', kind', _) ->
+      [ hypothesis |- term =?= term'; hypothesis |- kind =?= kind' ] )
+
   and equivalent_terms hypothesis term term' =
     let term = reduce hypothesis term
     and term' = reduce hypothesis term' in
@@ -194,6 +200,7 @@ module Impl (Theory : Specs.Theory) = struct
         ~fold:(equivalent_fold hypothesis term')
         ~unfold:(equivalent_unfold hypothesis term')
         ~hole:(equivalent_hole hypothesis term')
+        ~annotation:(equivalent_annotation hypothesis term')
         term
     in
     equivalent term term' proofs
