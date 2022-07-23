@@ -16,13 +16,13 @@ module Bindings = struct
 end
 
 module Hypothesis = struct
-  type 'a t = int ref * 'a Bindings.t * 'a Bindings.t * 'a Bindings.t
+  type 'a t = int * 'a Bindings.t * 'a Bindings.t * 'a Bindings.t
 
   (* State monad should be use here ... *)
 
   module Construct = struct
     let create =
-      ( ref 0
+      ( 0
       , Bindings.Construct.create
       , Bindings.Construct.create
       , Bindings.Construct.create )
@@ -30,9 +30,8 @@ module Hypothesis = struct
 
   module Access = struct
     let fresh_variable (r, gamma, omega, subst) base =
-      let v = base ^ string_of_int !r in
-      let () = r := !r + 1 in
-      (v, (r, gamma, omega, subst))
+      let v = base ^ string_of_int r in
+      (v, (r + 1, gamma, omega, subst))
 
     (** Signatures *)
 

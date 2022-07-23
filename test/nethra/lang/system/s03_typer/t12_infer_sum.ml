@@ -26,7 +26,7 @@ let infer_sum () =
 let infer_inl () =
   let hypothesis = add_signatures create [ ("int", kind 0); ("char", kind 0) ]
   and term = inl (int 1)
-  and expect = sum (id "int") (hole "_19") in
+  and expect = sum (id "int") (hole "_0") in
   let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "sum inl"
@@ -36,7 +36,7 @@ let infer_inl () =
 let infer_inr () =
   let hypothesis = add_signatures create [ ("int", kind 0); ("char", kind 0) ]
   and term = inr (char '1')
-  and expect = sum (hole "_20") (id "char") in
+  and expect = sum (hole "_0") (id "char") in
   let term', proof = TypeInfer.(hypothesis |- term => ()) in
   Alcotest.(check (pair (option string) bool))
     "sum inr"
