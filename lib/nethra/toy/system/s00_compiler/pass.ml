@@ -9,7 +9,7 @@ module Impl = struct
   type _ error =
     [ `SyntaxError of unit Nethra_toy_parser.Pass.error
     | `AbstractionError of unit Nethra_toy_abstract.Pass.error
-    | `NormalisationError of
+    | `FreeVarsError of
       Nethra_syntax_source.Region.t Nethra_lang_system_normalize.Pass.error
     | `TypeError of
       Nethra_syntax_source.Region.t Nethra_lang_system_type.Pass.error
@@ -28,7 +28,7 @@ module Impl = struct
     in
     let* norm_ast =
       map_snd
-        (fun e -> `NormalisationError e)
+        (fun e -> `FreeVarsError e)
         (Nethra_lang_system_normalize.Pass.run ast)
     in
     map_snd (fun e -> `TypeError e) (Nethra_lang_system_type.Pass.run norm_ast)

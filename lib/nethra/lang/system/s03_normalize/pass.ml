@@ -6,16 +6,16 @@ module Impl = struct
   type 'a output = 'a Nethra_lang_ast.Context.Hypothesis.t
   type 'a error = ('a option * string) list
 
-  let check_free_vars hypothesis (name, term) =
+  let check_free_vars hypothesis (_, term) =
     let bound_variables = Access.signatures hypothesis <&> fst in
-    let free_variables = Term.freevars bound_variables term in
-    match free_variables with
-    | [] -> Result.Ok (name, term)
-    | l -> Result.Error l
+    Term.freevars bound_variables term
 
   let run h =
     let open Nethra_lang_ast.Context.Hypothesis in
-    let _signatures = List.map (check_free_vars h) (Access.signatures h) in
-    let _definitions = List.map (check_free_vars h) (Access.definitions h) in
-    Result.Ok h
+    let open Preface.List.Monad in
+    let signatures = List.map (check_free_vars h) (Access.signatures h)
+    and definitions = List.map (check_free_vars h) (Access.definitions h) in
+    match join signatures @ join definitions with
+    | [] -> Result.Ok h
+    | l -> Result.Error l
 end

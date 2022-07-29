@@ -13,13 +13,11 @@ let rec check = function
 
 let string_of_error r =
   let open Preface_stdlib.Result.Bifunctor in
-  let open Stdlib.Fun in
-  map_snd (const "Error") r
-
-(*
-  | Result.Ok ok -> Result.Ok ok
-  | Result.Error (`AbstractionError s) -> Result.Error s
-  | Result.Error (`Freevars _) -> Result.Error "freevars found"
-  | Result.Error (`SyntaxError _) -> Result.Error "syntax error"
-  | Result.Error (`TypeError s) -> Result.Error s
-*)
+  let to_error = function
+    | `AbstractionError s -> s
+    | `Freevars _ -> "freevars found"
+    | `SyntaxError _ -> "syntax error"
+    | `FreeVarsError _ -> "freevars error"
+    | `TypeError s -> s
+  in
+  map_snd to_error r
