@@ -1,10 +1,11 @@
 open Common
 open Nethra.Toy.Compiler
 
+open Preface_stdlib.Result.Functor (struct
+  type t = Nethra.Syntax.Source.Region.t Pass.error
+end)
+
 let compile_int () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -17,12 +18,10 @@ let compile_int () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic int" expected result
+  Alcotest.(check (result bool string))
+    "basic int" expected (string_of_error result)
 
 let compile_string () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -35,12 +34,10 @@ let compile_string () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic string" expected result
+  Alcotest.(check (result bool string))
+    "basic string" expected (string_of_error result)
 
 let compile_char () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -53,7 +50,8 @@ let compile_char () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic char" expected result
+  Alcotest.(check (result bool string))
+    "basic char" expected (string_of_error result)
 
 let cases =
   let open Alcotest in

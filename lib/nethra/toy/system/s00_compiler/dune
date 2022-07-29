@@ -9,5 +9,6 @@
   nethra.syntax.source
   nethra.syntax.parser
   nethra.lang.specs
+  nethra.lang.system.normalize
   nethra.lang.system.type)
  (modules_without_implementation nethra_toy_compiler))

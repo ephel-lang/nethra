@@ -1,0 +1,10 @@
+(library
+ (name nethra_lang_system_normalize)
+ (public_name nethra.lang.system.normalize)
+ (libraries
+  nethra.lang.specs
+  nethra.lang.ast
+  nethra.lang.basic
+  nethra.lang.render
+  preface)
+ (modules_without_implementation nethra_lang_system_normalize))

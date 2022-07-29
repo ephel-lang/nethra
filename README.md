@@ -453,7 +453,7 @@ This implementation reproduce the Agda version proposed [here](https://homepages
 
 ```
 sig eq : {A:type} -> (a:A) -> (b:A) -> type
-def eq = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+def eq = (a).(b).((P : A -> type) -> P a -> P b)
 
 sig reflexive : {A:type} -> {a:A} -> eq a a
 def reflexive = (P).(Pa).Pa

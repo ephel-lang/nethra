@@ -5,4 +5,11 @@ module Impl :
       Nethra_syntax_source.Region.t Nethra_lang_ast.Context.Hypothesis.t
       * (string * Nethra_syntax_source.Region.t Nethra_lang_ast.Proof.t option)
         list
-     and type _ error = string
+     and type _ error =
+      [ `SyntaxError of unit Nethra_toy_parser.Pass.error
+      | `AbstractionError of unit Nethra_toy_abstract.Pass.error
+      | `NormalisationError of
+        Nethra_syntax_source.Region.t Nethra_lang_system_normalize.Pass.error
+      | `TypeError of
+        Nethra_syntax_source.Region.t Nethra_lang_system_type.Pass.error
+      ]

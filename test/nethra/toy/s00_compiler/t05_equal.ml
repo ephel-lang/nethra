@@ -1,10 +1,11 @@
 open Common
 open Nethra.Toy.Compiler
 
+open Preface_stdlib.Result.Functor (struct
+  type t = Nethra.Syntax.Source.Region.t Pass.error
+end)
+
 let compile_equal () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -22,15 +23,16 @@ let compile_equal () =
       def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
 
       sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-      def symmetric = (eq_a_b).(P).
+      def symmetric = {A}.{a}.{b}.(eq_a_b).(P).
             let Qa = reflexive P in
             let Qb = eq_a_b (c).(P c -> P a) Qa in
             Qb
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic equal" expected result
+  Alcotest.(check (result bool string))
+    "Leibniz equality" expected (string_of_error result)
 
 let cases =
   let open Alcotest in
-  ("Equal Compiler", [ test_case "basic equal" `Quick compile_equal ])
+  ("Equal Compiler", [ test_case "Leibniz equality" `Quick compile_equal ])

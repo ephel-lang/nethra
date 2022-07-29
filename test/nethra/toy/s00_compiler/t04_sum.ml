@@ -1,10 +1,11 @@
 open Common
 open Nethra.Toy.Compiler
 
+open Preface_stdlib.Result.Functor (struct
+  type t = Nethra.Syntax.Source.Region.t Pass.error
+end)
+
 let compile_basic_sum () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -24,12 +25,10 @@ let compile_basic_sum () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic sum type" expected result
+  Alcotest.(check (result bool string))
+    "basic sum type" expected (string_of_error result)
 
 let compile_recursive_sum () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -56,12 +55,10 @@ let compile_recursive_sum () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "recursive sum type" expected result
+  Alcotest.(check (result bool string))
+    "recursive sum type" expected (string_of_error result)
 
 let compile_recursive_sum_with_pseudo_constructors () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -92,12 +89,10 @@ let compile_recursive_sum_with_pseudo_constructors () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "recursive sum type with pseudo constructors" expected result
+    "recursive sum type with pseudo constructors" expected
+    (string_of_error result)
 
 let compile_peano () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -122,12 +117,10 @@ let compile_peano () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "recursive peano type" expected result
+  Alcotest.(check (result bool string))
+    "recursive peano type" expected (string_of_error result)
 
 let compile_reflexivity () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -150,12 +143,10 @@ let compile_reflexivity () =
         |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "reflexivity" expected result
+  Alcotest.(check (result bool string))
+    "reflexivity" expected (string_of_error result)
 
 let compile_either () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -190,7 +181,8 @@ let compile_either () =
         |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "either type" expected result
+  Alcotest.(check (result bool string))
+    "either type" expected (string_of_error result)
 
 let cases =
   let open Alcotest in

@@ -1,9 +1,9 @@
 module Impl = struct
   type _ input = string
   type _ output = Nethra_toy_cst.Binding.t list
-  type _ error = string
+  type _ error = Nethra_syntax_source.Location.t * string
 
-  let render l =
+  let _render l =
     let open Nethra_syntax_source in
     let buffer = Buffer.create 16 in
     let formatter = Format.formatter_of_buffer buffer in
@@ -22,5 +22,5 @@ module Impl = struct
       ~success:(fun (r, _, _) -> Ok r)
       ~failure:(fun (m, _, s) ->
         let message = function None -> "" | Some m -> ": " ^ m in
-        Error (render (Sources.FromChars.Access.location s) ^ message m) )
+        Error (Sources.FromChars.Access.location s, message m) )
 end

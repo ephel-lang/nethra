@@ -13,8 +13,7 @@ module Impl (Theory : Specs.Theory) = struct
   open Nethra_lang_basic.Substitution
   open Nethra_lang_basic.Reduction
 
-  let proof_from_option ?(reason = None) o =
-    fold_right const o [ failure reason ]
+  let proof_from_option o = fold_right const o [ failure None ]
 
   let equivalent_kind _hypothesis term' (level, _) =
     proof_from_option

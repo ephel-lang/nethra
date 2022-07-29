@@ -1,10 +1,11 @@
 open Common
 open Nethra.Toy.Compiler
 
+open Preface_stdlib.Result.Functor (struct
+  type t = Nethra.Syntax.Source.Region.t Pass.error
+end)
+
 let compile_identity () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -18,12 +19,10 @@ let compile_identity () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic identity" expected result
+  Alcotest.(check (result bool string))
+    "basic identity" expected (string_of_error result)
 
 let compile_implicit_identity () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -38,12 +37,9 @@ let compile_implicit_identity () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "basic implicit identity" expected result
+    "basic implicit identity" expected (string_of_error result)
 
 let compile_function () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -57,12 +53,10 @@ let compile_function () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic function" expected result
+  Alcotest.(check (result bool string))
+    "basic function" expected (string_of_error result)
 
 let compile_polymorphic_function () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -77,12 +71,9 @@ let compile_polymorphic_function () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "basic polymorphic function" expected result
+    "basic polymorphic function" expected (string_of_error result)
 
 let compile_implicit_polymorphic_function () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -97,12 +88,9 @@ let compile_implicit_polymorphic_function () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "basic implicit polymorphic function" expected result
+    "basic implicit polymorphic function" expected (string_of_error result)
 
 let compile_inferred_implicit_polymorphic_function () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -117,7 +105,8 @@ let compile_inferred_implicit_polymorphic_function () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "basic inferred implicit polymorphic function" expected result
+    "basic inferred implicit polymorphic function" expected
+    (string_of_error result)
 
 let cases =
   let open Alcotest in

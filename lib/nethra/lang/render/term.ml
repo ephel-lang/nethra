@@ -9,7 +9,7 @@ let string ppf (value, _) = fprintf ppf "\"%s\"" value
 
 let id ppf (value, initial, _) =
   match initial with
-  | Some value -> fprintf ppf "%s" value
+  | Some initial -> fprintf ppf "%s" initial
   | None -> fprintf ppf "%s" value
 
 let pi ppf render (n, bound, body, implicit, _) =

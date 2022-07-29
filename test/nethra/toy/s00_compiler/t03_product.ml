@@ -1,10 +1,11 @@
 open Common
 open Nethra.Toy.Compiler
 
+open Preface_stdlib.Result.Functor (struct
+  type t = Nethra.Syntax.Source.Region.t Pass.error
+end)
+
 let compile_basic_product () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -17,12 +18,10 @@ let compile_basic_product () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic product type" expected result
+  Alcotest.(check (result bool string))
+    "basic product type" expected (string_of_error result)
 
 let compile_basic_product_fails () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -36,12 +35,9 @@ let compile_basic_product_fails () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok false in
   Alcotest.(check (result bool string))
-    "basic product type fails" expected result
+    "basic product type fails" expected (string_of_error result)
 
 let compile_basic_product_first () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -57,12 +53,10 @@ let compile_basic_product_first () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic product first" expected result
+  Alcotest.(check (result bool string))
+    "basic product first" expected (string_of_error result)
 
 let compile_basic_product_second () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -78,12 +72,10 @@ let compile_basic_product_second () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "basic product second" expected result
+  Alcotest.(check (result bool string))
+    "basic product second" expected (string_of_error result)
 
 let compile_trait_denotation () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -112,12 +104,10 @@ let compile_trait_denotation () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "trait denotation" expected result
+  Alcotest.(check (result bool string))
+    "trait denotation" expected (string_of_error result)
 
 let compile_trait_implementation () =
-  let open Preface_stdlib.Result.Functor (struct
-    type t = string
-  end) in
   let result =
     Pass.run
       {toy|
@@ -160,7 +150,8 @@ let compile_trait_implementation () =
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
-  Alcotest.(check (result bool string)) "trait implementation" expected result
+  Alcotest.(check (result bool string))
+    "trait implementation" expected (string_of_error result)
 
 let cases =
   let open Alcotest in
