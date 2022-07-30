@@ -1,18 +1,21 @@
 module Impl = struct
+  open Nethra_syntax_source
+  open Nethra_lang_ast
+  module Parser = Nethra_toy_parser.Pass
+  module Abstraction = Nethra_toy_abstract.Pass
+  module Normalization = Nethra_lang_system_normalize.Pass
+  module Type_checker = Nethra_lang_system_type.Pass
+
   type _ input = string
 
   type _ output =
-    Nethra_syntax_source.Region.t Nethra_lang_ast.Context.Hypothesis.t
-    * (string * Nethra_syntax_source.Region.t Nethra_lang_ast.Proof.t option)
-      list
+    Region.t Context.Hypothesis.t * (string * Region.t Proof.t option) list
 
   type _ error =
-    [ `SyntaxError of unit Nethra_toy_parser.Pass.error
-    | `AbstractionError of unit Nethra_toy_abstract.Pass.error
-    | `FreeVarsError of
-      Nethra_syntax_source.Region.t Nethra_lang_system_normalize.Pass.error
-    | `TypeError of
-      Nethra_syntax_source.Region.t Nethra_lang_system_type.Pass.error
+    [ `SyntaxError of unit Parser.error
+    | `AbstractionError of unit Abstraction.error
+    | `FreeVarsError of Region.t Normalization.error
+    | `TypeError of Region.t Type_checker.error
     ]
 
   let run =
@@ -25,8 +28,8 @@ module Impl = struct
     and abstraction_error e = `AbstractionError e
     and freevars_error e = `FreeVarsError e
     and type_error e = `TypeError e in
-    Nethra_toy_parser.Pass.run %> map_snd syntax_error
-    >=> Nethra_toy_abstract.Pass.run %> map_snd abstraction_error
-    >=> Nethra_lang_system_normalize.Pass.run %> map_snd freevars_error
-    >=> Nethra_lang_system_type.Pass.run %> map_snd type_error
+    Parser.run %> map_snd syntax_error
+    >=> Abstraction.run %> map_snd abstraction_error
+    >=> Normalization.run %> map_snd freevars_error
+    >=> Type_checker.run %> map_snd type_error
 end
