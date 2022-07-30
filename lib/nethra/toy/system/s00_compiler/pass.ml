@@ -15,21 +15,18 @@ module Impl = struct
       Nethra_syntax_source.Region.t Nethra_lang_system_type.Pass.error
     ]
 
-  let run s =
+  let run =
     let open Preface_stdlib.Result.Monad (struct
       type t = unit error
     end) in
     let open Preface_stdlib.Result.Bifunctor in
-    let* cst =
-      map_snd (fun e -> `SyntaxError e) (Nethra_toy_parser.Pass.run s)
-    in
-    let* ast =
-      map_snd (fun e -> `AbstractionError e) (Nethra_toy_abstract.Pass.run cst)
-    in
-    let* norm_ast =
-      map_snd
-        (fun e -> `FreeVarsError e)
-        (Nethra_lang_system_normalize.Pass.run ast)
-    in
-    map_snd (fun e -> `TypeError e) (Nethra_lang_system_type.Pass.run norm_ast)
+    let open Preface_core.Fun in
+    let syntax e = `SyntaxError e
+    and abstraction e = `AbstractionError e
+    and freevars e = `FreeVarsError e
+    and checking e = `TypeError e in
+    Nethra_toy_parser.Pass.run %> map_snd syntax
+    >=> Nethra_toy_abstract.Pass.run %> map_snd abstraction
+    >=> Nethra_lang_system_normalize.Pass.run %> map_snd freevars
+    >=> Nethra_lang_system_type.Pass.run %> map_snd checking
 end
