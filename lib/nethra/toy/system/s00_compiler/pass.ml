@@ -21,12 +21,12 @@ module Impl = struct
     end) in
     let open Preface_stdlib.Result.Bifunctor in
     let open Preface_core.Fun in
-    let syntax e = `SyntaxError e
-    and abstraction e = `AbstractionError e
-    and freevars e = `FreeVarsError e
-    and checking e = `TypeError e in
-    Nethra_toy_parser.Pass.run %> map_snd syntax
-    >=> Nethra_toy_abstract.Pass.run %> map_snd abstraction
-    >=> Nethra_lang_system_normalize.Pass.run %> map_snd freevars
-    >=> Nethra_lang_system_type.Pass.run %> map_snd checking
+    let syntax_error e = `SyntaxError e
+    and abstraction_error e = `AbstractionError e
+    and freevars_error e = `FreeVarsError e
+    and type_error e = `TypeError e in
+    Nethra_toy_parser.Pass.run %> map_snd syntax_error
+    >=> Nethra_toy_abstract.Pass.run %> map_snd abstraction_error
+    >=> Nethra_lang_system_normalize.Pass.run %> map_snd freevars_error
+    >=> Nethra_lang_system_type.Pass.run %> map_snd type_error
 end
