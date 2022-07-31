@@ -68,7 +68,10 @@ e ::=
     fold e        -- Fold recursive type
     unfold e      -- Unfold recursive type
     
-    e as e        -- Type annotation
+    (e:e)         -- Type annotation
+    
+    e = e         -- Equality
+    refl          -- Reflexivity
 ```
 
 ### Typing rules
@@ -219,7 +222,19 @@ l ∈ string
 ```
 Γ ⊢ n : M    Γ ⊢ M : Type_0    
 ---------------------------
-Γ ⊢ n as M : M  
+Γ ⊢ (n:M) : M  
+```
+
+#### Propositional equality
+
+```
+Γ ⊢ n : A    Γ ⊢ m : A
+----------------------
+Γ ⊢ n = m : Type_0
+
+Γ ⊢
+----------------
+Γ ⊢ refl : m = m
 ```
 
 ## Nethra Toy language in action

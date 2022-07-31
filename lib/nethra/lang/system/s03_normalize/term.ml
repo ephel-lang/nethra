@@ -45,6 +45,11 @@ let freevars_hole (_v, _r, _c) = []
 let freevars_annotation freevars variables (term, kind, _c) =
   freevars variables term @ freevars variables kind
 
+let freevars_equals freevars variables (lhd, rhd, _c) =
+  freevars variables lhd @ freevars variables rhd
+
+let freevars_refl _ = []
+
 let rec freevars variables term =
   Destruct.fold ~kind:freevars_kind ~int:freevars_int ~char:freevars_char
     ~string:freevars_string ~id:(freevars_id variables)
@@ -64,4 +69,5 @@ let rec freevars variables term =
     ~unfold:(freevars_unfold freevars variables)
     ~hole:freevars_hole
     ~annotation:(freevars_annotation freevars variables)
-    term
+    ~equals:(freevars_equals freevars variables)
+    ~refl:freevars_refl term

@@ -27,6 +27,8 @@ type 'a t =
   | Unfold of 'a t * 'a option
   | Hole of string * 'a t option ref * 'a option
   | Annotation of 'a t * 'a t * 'a option
+  | Equals of 'a t * 'a t * 'a option
+  | Refl of 'a option
 
 module Construct = struct
   let kind ?(c = None) i = Type (i, c)
@@ -59,11 +61,14 @@ module Construct = struct
   let unfold ?(c = None) term = Unfold (term, c)
   let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
   let annotation ?(c = None) term kind = Annotation (term, kind, c)
+  let equals ?(c = None) lhd rhd = Equals (lhd, rhd, c)
+  let refl ?(c = None) _ = Refl c
 end
 
 module Destruct = struct
   let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair ~fst
-      ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation = function
+      ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation ~equals
+      ~refl = function
     | Type (i, c) -> kind (i, c)
     | Literal (Int i, c) -> int (i, c)
     | Literal (Char i, c) -> char (i, c)
@@ -85,6 +90,8 @@ module Destruct = struct
     | Unfold (term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)
     | Annotation (term, kind, c) -> annotation (term, kind, c)
+    | Equals (lhd, rhd, c) -> equals (lhd, rhd, c)
+    | Refl c -> refl c
 
   let fold_opt =
     let internal_fold = fold in
@@ -93,7 +100,9 @@ module Destruct = struct
         ?(id = none) ?(pi = none) ?(lambda = none) ?(apply = none)
         ?(sigma = none) ?(pair = none) ?(fst = none) ?(snd = none) ?(sum = none)
         ?(inl = none) ?(inr = none) ?(case = none) ?(mu = none) ?(fold = none)
-        ?(unfold = none) ?(hole = none) ?(annotation = none) term ->
+        ?(unfold = none) ?(hole = none) ?(annotation = none) ?(equals = none)
+        ?(refl = none) term ->
       internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
-        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation term
+        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation
+        ~equals ~refl term
 end

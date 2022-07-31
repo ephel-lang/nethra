@@ -282,6 +282,24 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     ]
 
   (*
+    Γ ⊢ n : A    Γ ⊢ m : A
+    ----------------------
+    Γ ⊢ n = m : Type_0
+  *)
+
+  and check_equals _hypothesis _term' (_lhd, _rhd, _c) =
+    [ failure (Some "Equals Not yet implemented") ]
+
+  (*
+    Γ ⊢
+    ----------------
+    Γ ⊢ refl : m = m
+  *)
+
+  and check_refl _hypothesis _term' _c =
+    [ failure (Some "Refl Not yet implemented") ]
+
+  (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
     ----------------------------------
     Γ ⊢ B : Π{x:A}.T
@@ -364,6 +382,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ~unfold:(check_unfold hypothesis term')
       ~hole:(check_hole hypothesis term')
       ~annotation:(check_annotation hypothesis term')
+      ~equals:(check_equals hypothesis term')
+      ~refl:(check_refl hypothesis term')
       term
 
   (* type checker main entrypoint *)

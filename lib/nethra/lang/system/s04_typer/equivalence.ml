@@ -169,6 +169,12 @@ module Impl (Theory : Specs.Theory) = struct
       <&> fun (term', kind', _) ->
       [ hypothesis |- term =?= term'; hypothesis |- kind =?= kind' ] )
 
+  and equivalent_equals _hypothesis _term' (_lhd, _rhd, _c) =
+    [ failure (Some "Not yet implemented") ]
+
+  and equivalent_refl _hypothesis _term' _c =
+    [ failure (Some "Not yet implemented") ]
+
   and equivalent_terms hypothesis term term' =
     let term = reduce hypothesis term
     and term' = reduce hypothesis term' in
@@ -200,6 +206,8 @@ module Impl (Theory : Specs.Theory) = struct
         ~unfold:(equivalent_unfold hypothesis term')
         ~hole:(equivalent_hole hypothesis term')
         ~annotation:(equivalent_annotation hypothesis term')
+        ~equals:(equivalent_equals hypothesis term')
+        ~refl:(equivalent_refl hypothesis term')
         term
     in
     equivalent term term' proofs
