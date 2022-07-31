@@ -32,7 +32,6 @@ module Impl
     val _REC_ : string Parsec.t
     val _FOLD_ : string Parsec.t
     val _UNFOLD_ : string Parsec.t
-    val _DATA_ : string Parsec.t
     val _LET_ : string Parsec.t
     val _IN_ : string Parsec.t
   end

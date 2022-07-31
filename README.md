@@ -426,24 +426,7 @@ def compose = (x).(fst x, fst (snd (snd x)))
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.
 
-#### Recursive and sum types
-
-```
-sig unit : type
-sig Unit : unit
-```
-
-```
-sig bool : type
-
-sig true : type
-sig True : true
-
-sig false : type
-sig False : false
-
-def bool = true | false
-```
+#### Recursive sum types
 
 ```
 sig list : type -> type
@@ -455,11 +438,28 @@ def nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
 def cons = (head).(tail).(fold (inr (head,tail)))
-```
 
-```
 sig isEmpty : {X:type} -> list X -> bool
 def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
+```
+
+#### Encoding sum types
+
+Thanks to `Pi` constructor we are able to encode `data` definition.
+```
+sig Atom  : (a:string) -> type
+sig data  : {A:type} -> (_:A) -> type
+def data  = {A}.(_).A
+
+sig True  : Atom "True"
+sig False : Atom "False"
+
+sig bool : type
+def bool = data True | data False
+
+sig true  : bool
+def true  = inl True
+def false = inr False
 ```
 
 #### Leibniz equality

@@ -45,7 +45,6 @@ struct
     ; "rec"
     ; "fold"
     ; "unfold"
-    ; "data"
     ; "let"
     ; "in"
     ]
@@ -94,7 +93,6 @@ struct
     let _REC_ = token (string "rec")
     let _FOLD_ = token (string "fold")
     let _UNFOLD_ = token (string "unfold")
-    let _DATA_ = token (string "data")
     let _LET_ = token (string "let")
     let _IN_ = token (string "in")
   end

@@ -96,14 +96,17 @@ let compile_peano () =
   let result =
     Pass.run
       {toy|
+        --- Preamble
+        sig string : type
+        sig Atom   : (a:string) -> type
+        sig data   : {A:type} -> (_:A) -> type
+        def data   = {A}.(_).A
         ------------
-        sig zeroT : type
-        sig Zero  : zeroT
-        sig succT : type
-        sig Succ  : succT
+        sig Zero : Atom "Zero"
+        sig Succ : Atom "Succ"
 
         sig peano : type
-        def peano = rec(p:type).(zeroT | succT * p)
+        def peano = rec(p:type).(data "Zero" | data "Succ" * p)
 
         sig zero : peano
         def zero = fold inl Zero
@@ -138,7 +141,7 @@ let compile_reflexivity () =
         sig eq : {A:type} -> A -> A -> type
         def eq = {A}.(a).(b).(reflT * eq {A} a a)
         -{
-            Hum, this example is not really conclusive
+            Hum, this example is not really conclusive ...
         }-
         |toy}
     <&> fun (_, l) -> check l
@@ -153,13 +156,17 @@ let compile_either () =
         -{
             Simulate atoms for constructor definition
         }-
-        sig rightT : type
-        sig Right  : rightT
-        sig leftT  : type
-        sig Left   : leftT
+        --- Preamble
+        sig string : type
+        sig Atom   : (a:string) -> type
+        sig data   : {A:type} -> (_:A) -> type
+        def data   = {A}.(_).A
+        ------------
+        sig Right : Atom "Right"
+        sig Left  : Atom "Left"
 
         sig either : (type) -> (type) -> type
-        def either = (A).(B).((leftT * A) | (rightT * B))
+        def either = (A).(B).((data Left * A) | (data Right * B))
 
         sig left   : {A:type} -> {B:type} -> A -> either A B
         def left   = (a).inl (Left, a)
