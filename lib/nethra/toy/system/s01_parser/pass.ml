@@ -18,9 +18,9 @@ module Impl = struct
     let module Parsec = Parsers.Parsec (Sources.FromChars) in
     let module Bindings = Bindings.Impl (Parsec) in
     Response.Destruct.fold
-      (Bindings.bindings @@ Parsec.source @@ Utils.chars_of_string input)
       ~success:(fun (r, _, _) -> Ok r)
       ~failure:(fun (m, _, s) ->
         let message = function None -> "" | Some m -> ": " ^ m in
         Error (Sources.FromChars.Access.location s, message m) )
+      (Bindings.bindings @@ Parsec.source @@ Utils.chars_of_string input)
 end
