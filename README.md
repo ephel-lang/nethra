@@ -48,10 +48,11 @@ e ::=
     s             -- String literal
     
     Π(n:e).e      -- Dependant function type
-    Π{n:e}.e      -- Dependant function type possibly implicit
     λ(n).e        -- Function
-    λ{n}.e        -- Function possibly implicit
     e e           -- Application
+    
+    Π{n:e}.e      -- Dependant function type possibly implicit
+    λ{n}.e        -- Function possibly implicit
     e {e}         -- Application possibly implicit
     
     Σ(n:e).e      -- Dependant pair type
