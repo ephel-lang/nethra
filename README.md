@@ -205,9 +205,9 @@ l ∈ string
 #### Equi-recursive type
 
 ```
-Γ, x : T ⊢ A : T
+Γ, x : T ⊢ N : T
 ----------------
-Γ ⊢ μ(x:T).A : T
+Γ ⊢ μ(x:T).N : T
 
 Γ ⊢ A : N[x=μ(x:T).N]
 ---------------------
