@@ -458,8 +458,10 @@ sig False : Atom "False"
 sig bool : type
 def bool = data True | data False
 
-sig true  : bool
-def true  = inl True
+sig true : bool
+def true = inl True
+
+sig false : bool
 def false = inr False
 ```
 
