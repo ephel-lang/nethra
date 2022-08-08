@@ -283,11 +283,10 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   *)
 
   and infer_equals hypothesis (lhd, rhd, c) =
-    let tlhd, proof = hypothesis |- lhd => () in
+    let lhd, proof = hypothesis |- lhd => () in
     proof_from_option ~reason:(return "infer_equals") ~proofs:[ proof ]
-      ( tlhd
-      <&> fun tlhd -> (Some (kind ~c 0), [ proof; hypothesis |- rhd <= tlhd ])
-      )
+      ( lhd
+      <&> fun lhd -> (Some (kind ~c 0), [ proof; hypothesis |- rhd <= lhd ]) )
 
   (*
     Γ ⊢

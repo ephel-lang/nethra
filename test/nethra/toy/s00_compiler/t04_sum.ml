@@ -64,14 +64,16 @@ let compile_recursive_sum_with_pseudo_constructors () =
       {toy|
         --- Preamble
         sig int   : type
+        sig string : type
+        sig Atom   : (a:string) -> type
+        sig data   : {A:type} -> (_:A) -> type
+        def data   = {A}.(_).A
         ------------
-        sig nilT  : type
-        sig Nil   : nilT
-        sig consT : type
-        sig Cons  : consT
+        sig Nil   : Atom "Nil"
+        sig Cons  : Atom "Cons"
 
         sig list : (type) -> type
-        def list = (X).rec(l:type).(nilT | consT * X * l)
+        def list = (X).rec(l:type).(data Nil | data Cons * X * l)
 
         sig nil : {X:type} -> list X
         def nil = fold inl Nil
@@ -106,7 +108,7 @@ let compile_peano () =
         sig Succ : Atom "Succ"
 
         sig peano : type
-        def peano = rec(p:type).(data "Zero" | data "Succ" * p)
+        def peano = rec(p:type).(data Zero | data Succ * p)
 
         sig zero : peano
         def zero = fold inl Zero
@@ -135,11 +137,16 @@ let compile_reflexivity () =
             ```
         }-
 
-        sig reflT : type
-        sig Refl  : reflT
+        --- Preamble
+        sig string : type
+        sig Atom   : (a:string) -> type
+        sig data   : {A:type} -> (_:A) -> type
+        def data   = {A}.(_).A
+        ------------
+        sig Refl  : Atom "Refl"
 
         sig eq : {A:type} -> A -> A -> type
-        def eq = {A}.(a).(b).(reflT * eq {A} a a)
+        def eq = {A}.(a).(b).(data Refl * eq {A} a a)
         -{
             Hum, this example is not really conclusive ...
         }-

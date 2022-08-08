@@ -287,8 +287,12 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ n = m : Type_0
   *)
 
-  and check_equals _hypothesis _term' (_lhd, _rhd, _c) =
-    [ failure (Some "Equals Not yet implemented") ]
+  and check_equals hypothesis term' (lhd, rhd, _c) =
+    let lhd, proof = hypothesis |- lhd => () in
+    proof_from_option ~proofs:[ proof ]
+      ( lhd
+      <&> fun lhd ->
+      [ proof; hypothesis |- rhd <= lhd; hypothesis |- term' =?= kind 0 ] )
 
   (*
     Γ ⊢
@@ -296,8 +300,11 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ refl : m = m
   *)
 
-  and check_refl _hypothesis _term' _c =
-    [ failure (Some "Refl Not yet implemented") ]
+  and check_refl hypothesis term' _c =
+    proof_from_option
+      ~reason:(return "Waiting for an equality")
+      ( fold_opt ~equals:return term'
+      <&> fun (lhd, rhd, _c) -> [ hypothesis |- lhd =?= rhd ] )
 
   (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
