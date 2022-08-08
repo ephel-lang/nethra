@@ -205,9 +205,9 @@ l ∈ string
 #### Equi-recursive type
 
 ```
-Γ, x : T ⊢ A : T
+Γ, x : T ⊢ N : T
 ----------------
-Γ ⊢ μ(x:T).A : T
+Γ ⊢ μ(x:T).N : T
 
 Γ ⊢ A : N[x=μ(x:T).N]
 ---------------------
@@ -458,14 +458,16 @@ sig False : Atom "False"
 sig bool : type
 def bool = data True | data False
 
-sig true  : bool
-def true  = inl True
+sig true : bool
+def true = inl True
+
+sig false : bool
 def false = inr False
 ```
 
 #### Leibniz equality
 
-This implementation reproduce the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
+This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
 
 ```
 sig equal : {A:type} -> (a:A) -> (b:A) -> type
