@@ -22,14 +22,13 @@ let render l =
 let string_of_error r =
   let open Preface_stdlib.Result.Bifunctor in
   let to_error = function
-    | `AbstractionError s -> s
-    | `Freevars _ -> "freevars found"
     | `SyntaxError l ->
       "syntax error at " ^ render (fst l) ^ " waiting: " ^ snd l
+    | `AbstractionError s -> s
     | `FreeVarsError l ->
       List.fold_left
         (fun a b -> a ^ " " ^ b)
-        "freevars error: " (List.map snd l)
+        "found free variables:" (List.map snd l)
     | `TypeError s -> s
   in
   map_snd to_error r
