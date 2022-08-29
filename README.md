@@ -3,16 +3,18 @@
 Nethra is an experiment based on well know theories and constructions like:
 - dependent function type,
 - dependent pair type,
-- recursive type and
+- recursive type,
+- sum type
 - core lambda calculus
 
-Some References covering dependent types and more:
+Some References covering dependent types and type checking in general:
 
 - [The calculus of constructions](https://hal.inria.fr/inria-00076024/document)
 - [A simple type-theoretic language: Mini-TT](https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf)
 - [ΠΣ: Dependent Types without the Sugar](http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf)
 - [Cayenne a language with dependent types](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.155&rep=rep1&type=pdf)
 - [Implementing Dependent Types in pi-forall](https://arxiv.org/pdf/2207.02129.pdf)
+- [Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism](https://www.cl.cam.ac.uk/~nk480/bidir.pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
 
 ## Works in progress
@@ -72,7 +74,7 @@ e ::=
     (e:e)         -- Type annotation
     
     e = e         -- Equality
-    refl          -- Reflexivity
+    refl          -- Reflexivity   
 ```
 
 ### Typing rules
@@ -84,7 +86,7 @@ By default, the type system is design on top of stratified types.
 ```
 Γ ⊢
 -----------------------
-Γ ⊢ Type_i : Type_{i+1}
+Γ ⊢ Type_i : Type_{i+1} 
 
 Γ ⊢ t : Type_i
 ------------------

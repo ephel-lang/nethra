@@ -165,7 +165,7 @@ let compile_either () =
         }-
         --- Preamble
         sig string : type
-        sig Atom   : (a:string) -> type
+        sig Atom   : string -> type
         sig data   : {A:type} -> (_:A) -> type
         def data   = {A}.(_).A
         ------------
@@ -182,13 +182,13 @@ let compile_either () =
         def right  = (b).inr (Right, b)
 
         sig map    : {A:type} -> {B:type} -> {C:type} -> (B -> C) -> either A B -> either A C
-        def map    = (f).(e).case e (e).(inl e) (e).(inr (fst e,f (snd e)))
+        def map    = (f).(e).case e (e).(left (snd e)) (e).(right (f (snd e)))
 
         sig apply  : {A:type} -> {B:type} -> {C:type} -> either A (B -> C) -> either A B -> either A C
-        def apply  = (f).(e).case f (f).(inl f) (f).(map (snd f) e)
+        def apply  = (f).(e).case f (f).(left (snd f)) (f).(map (snd f) e)
 
         sig join   : {A:type} -> {B:type} -> either A (either A B) -> either A B
-        def join   = (e).case e (e).(inl e) (e).(snd e)
+        def join   = (e).case e (e).(left (snd e)) (e).(snd e)
 
         sig bind   : {A:type} -> {B:type} -> {C:type} -> (B -> either A C) -> either A B -> either A C
         def bind   = (f).(e).(join (map f e))
@@ -198,6 +198,41 @@ let compile_either () =
   Alcotest.(check (result bool string))
     "either type" expected (string_of_error result)
 
+    let compile_freer () =
+      let result =
+        Pass.run
+          {toy|
+            -{
+                Simulate atoms for constructor definition
+            }-
+            --- Preamble
+            sig string : type
+            sig Atom   : string -> type
+            sig data   : {A:type} -> (_:A) -> type
+            def data   = {A}.(_).A
+            ------------
+            sig Return : Atom "Return"
+            sig Bind   : Atom "Bind"
+    
+            sig Free : ((type) -> type) -> (type) -> type
+            def Free = (F).(A).rec(Free:type).((data Return * A) | (data Bind * F Free))
+
+            sig return : {F:(type)->type} -> {A:type} -> A -> Free F A 
+            def return = (a).fold inl (Return, a)
+
+            sig bind : {F:(type)->type} -> {A:type} -> F (Free F A) -> Free F A 
+            def bind = (a).fold inr (Bind, a)
+
+            sig map_a : {F:(type)->type} -> {A:type} -> {B:type} -> (A -> B ) -> F A -> F B
+            
+            sig map : {F:(type)->type} -> {A:type} -> {B:type} -> (A -> B) -> Free F A -> Free F B
+            def map = (f).(a).case (unfold a) (a).(return (f (snd a))) (a).(bind (map_a (map f) (snd a)))
+            |toy}
+        <&> fun (_, l) -> check l
+      and expected = Result.Ok true in
+      Alcotest.(check (result bool string))
+        "either type" expected (string_of_error result)
+    
 let cases =
   let open Alcotest in
   ( "Sum Compiler"
@@ -209,4 +244,5 @@ let cases =
     ; test_case "recursive peano type" `Quick compile_peano
     ; test_case "reflexivity" `Quick compile_reflexivity
     ; test_case "either type" `Quick compile_either
+    ; test_case "freer type" `Quick compile_freer
     ] )
