@@ -5,7 +5,7 @@ synopsis: "Core language based on dependent types"
 description: "Core language based on dependent types"
 maintainer: ["d.plaindoux@free.fr"]
 depends: [
-  "dune" {>= "2.9"}
+  "dune" {>= "3.4"}
   "alcotest" {with-test}
   "preface" {>= "1.0.0"}
   "odoc" {with-doc}
@@ -19,10 +19,8 @@ build: [
     name
     "-j"
     jobs
-    "--promote-install-files=false"
     "@install"
     "@runtest" {with-test}
     "@doc" {with-doc}
   ]
-  ["dune" "install" "-p" name "--create-install-files" name]
 ]

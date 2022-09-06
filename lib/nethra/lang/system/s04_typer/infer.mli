@@ -1,2 +1,1 @@
-module Impl : functor (Theory : Specs.Theory) (Checker : Specs.Checker) ->
-  Specs.Infer
+module Impl : functor (_ : Specs.Theory) (_ : Specs.Checker) -> Specs.Infer

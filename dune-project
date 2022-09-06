@@ -1,4 +1,4 @@
-(lang dune 2.9)
+(lang dune 3.4)
  (name nethra)
  (version 0.1)
  (maintainers "d.plaindoux@free.fr")

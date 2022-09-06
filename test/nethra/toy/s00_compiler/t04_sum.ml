@@ -16,7 +16,7 @@ let compile_basic_sum () =
         sig ic : int | char -> type
         def ic = (x).case x (_).char (_).int
 
-        sig m1 : ic (inl 1)
+        sig m1 : ic (inl 1) -- char
         def m1 = 'c'
 
         sig m2 : ic (inr m1)
@@ -198,10 +198,10 @@ let compile_either () =
   Alcotest.(check (result bool string))
     "either type" expected (string_of_error result)
 
-    let compile_freer () =
-      let result =
-        Pass.run
-          {toy|
+let compile_freer () =
+  let result =
+    Pass.run
+      {toy|
             -{
                 Simulate atoms for constructor definition
             }-
@@ -228,11 +228,11 @@ let compile_either () =
             sig map : {F:(type)->type} -> {A:type} -> {B:type} -> (A -> B) -> Free F A -> Free F B
             def map = (f).(a).case (unfold a) (a).(return (f (snd a))) (a).(bind (map_a (map f) (snd a)))
             |toy}
-        <&> fun (_, l) -> check l
-      and expected = Result.Ok true in
-      Alcotest.(check (result bool string))
-        "either type" expected (string_of_error result)
-    
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "either type" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Sum Compiler"

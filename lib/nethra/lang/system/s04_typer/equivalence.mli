@@ -1,1 +1,1 @@
-module Impl : functor (Theory : Specs.Theory) -> Specs.Equivalence
+module Impl : functor (_ : Specs.Theory) -> Specs.Equivalence
