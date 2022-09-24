@@ -20,7 +20,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <&> fun (i, t) -> Signature (i, t)
 
   let definition =
-    Reserved._DEF_
+    Reserved._VAL_
     >~> identifier
     <~< Reserved._EQUAL_
     <~> term

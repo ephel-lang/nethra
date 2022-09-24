@@ -207,10 +207,12 @@ module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
     let open Atomic in
     any <?> fun e' -> e' = c
 
-  let char_in_range (l, u) =
+  let char_in_ranges l =
     let open Operator in
     let open Atomic in
-    any <?> fun e' -> l <= e' && e' <= u
+    any <?> fun e' -> List.exists (fun (l, u) -> l <= e' && e' <= u) l
+
+  let char_in_range r = char_in_ranges [ r ]
 
   let char_in_list l =
     let open Operator in
@@ -222,10 +224,7 @@ module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
     char_in_list (chars_of_string s)
 
   let digit = char_in_range ('0', '9')
-
-  let alpha =
-    let open Operator in
-    char_in_range ('a', 'z') <|> char_in_range ('A', 'Z')
+  let alpha = char_in_ranges [ ('a', 'z'); ('A', 'Z') ]
 
   let natural =
     let open Monad in

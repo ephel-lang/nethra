@@ -13,7 +13,7 @@ let compile_basic_product () =
         sig unit : Unit
         ------------
         sig pair : (X:type) * X
-        def pair = (Unit, unit)
+        val pair = (Unit, unit)
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -29,7 +29,7 @@ let compile_basic_product_fails () =
         sig unit : Unit
         ------------
         sig pair : (X:type) * X
-        def pair = (Unit, 1)
+        val pair = (Unit, 1)
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -45,10 +45,10 @@ let compile_basic_product_first () =
         sig unit : Unit
         ------------
         sig pair : (X:type) * X
-        def pair = (Unit, unit)
+        val pair = (Unit, unit)
 
         sig first : type
-        def first = fst pair
+        val first = fst pair
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -64,10 +64,10 @@ let compile_basic_product_second () =
         sig unit : Unit
         ------------
         sig pair : (X:type) * X
-        def pair = (Unit, unit)
+        val pair = (Unit, unit)
 
         sig second : Unit
-        def second = snd pair
+        val second = snd pair
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -88,19 +88,19 @@ let compile_trait_denotation () =
         }-
 
         sig Monoid : type
-        def Monoid = (t:type) * (t * (t -> t -> t))
+        val Monoid = (t:type) * (t * (t -> t -> t))
 
         sig Empty : type
-        def Empty = (t:type) * t
+        val Empty = (t:type) * t
 
         sig Compose : type
-        def Compose = (t:type) * (t -> t -> t)
+        val Compose = (t:type) * (t -> t -> t)
 
         sig empty : Monoid -> Empty
-        def empty = (x).(fst x, fst (snd x))
+        val empty = (x).(fst x, fst (snd x))
 
         sig compose : Monoid -> Compose
-        def compose = (x).(fst x, snd (snd x))
+        val compose = (x).(fst x, snd (snd x))
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -119,26 +119,26 @@ let compile_trait_implementation () =
         }-
 
         sig Monoid : type
-        def Monoid = (t:type) * (t * (t -> t -> t))
+        val Monoid = (t:type) * (t * (t -> t -> t))
 
         sig Empty : type
-        def Empty = (t:type) * t
+        val Empty = (t:type) * t
 
         sig Compose : type
-        def Compose = (t:type) * (t -> t -> t)
+        val Compose = (t:type) * (t -> t -> t)
 
         sig empty : Monoid -> Empty
-        def empty = (x).(fst x, fst (snd x))
+        val empty = (x).(fst x, fst (snd x))
 
         sig compose : Monoid -> Compose
-        def compose = (x).(fst x, snd (snd x))
+        val compose = (x).(fst x, snd (snd x))
 
         ------------
 
         -{
             impl Monoid for int {
-                def empty   = 0
-                def compose = add
+                val empty   = 0
+                val compose = add
             }
         }-
 
@@ -146,7 +146,7 @@ let compile_trait_implementation () =
         sig add : int -> int -> int
 
         sig Monoid_for_Int : Monoid
-        def Monoid_for_Int = (int, 0, add)
+        val Monoid_for_Int = (int, 0, add)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

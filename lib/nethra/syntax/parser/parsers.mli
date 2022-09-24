@@ -45,6 +45,7 @@ module Literal : functor
   -> sig
   val char : char -> char Parsec.t
   val char_in_range : char * char -> char Parsec.t
+  val char_in_ranges : (char * char) list -> char Parsec.t
   val char_in_list : char list -> char Parsec.t
   val char_in_string : string -> char Parsec.t
   val digit : char Parsec.t

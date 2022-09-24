@@ -22,7 +22,7 @@ module Impl
     val _DISJUNCTION_ : string Parsec.t
     val _EQUAL_ : string Parsec.t
     val _SIG_ : string Parsec.t
-    val _DEF_ : string Parsec.t
+    val _VAL_ : string Parsec.t
     val _TYPE_ : string Parsec.t
     val _CASE_ : string Parsec.t
     val _INL_ : string Parsec.t

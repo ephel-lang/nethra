@@ -17,8 +17,8 @@ let parser_definition () =
   let result =
     response render_bindings
     @@ bindings
-    @@ Parsec.source (Utils.chars_of_string "def a = (b).c")
-  and expected = (Some "def a = (b).(c)", true) in
+    @@ Parsec.source (Utils.chars_of_string "val a = (b).c")
+  and expected = (Some "val a = (b).(c)", true) in
   Alcotest.(check (pair (option string) bool)) "definition" expected result
 
 let parser_program () =
@@ -35,7 +35,7 @@ let parser_program () =
       sig True : true
       sig False : false
 
-      def bool = true | false
+      val bool = true | false
   |toy}
   in
   let result =
@@ -45,7 +45,7 @@ let parser_program () =
   and expected =
     ( Some
         "sig bool : type0 sig true : type0 sig false : type0 sig True : true \
-         sig False : false def bool = (true) | (false)"
+         sig False : false val bool = (true) | (false)"
     , true )
   in
   Alcotest.(check (pair (option string) bool)) "program" expected result

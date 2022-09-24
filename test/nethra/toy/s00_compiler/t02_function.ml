@@ -14,7 +14,7 @@ let compile_identity () =
         -----------
         sig id  : (a:type) -> a -> a
         sig one : int
-        def one = id int 1
+        val one = id int 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -31,7 +31,7 @@ let compile_implicit_identity () =
         -----------
         sig id  : {a:type} -> a -> a
         sig one : int
-        def one = id 2
+        val one = id 2
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -48,7 +48,7 @@ let compile_function () =
         -----------
         sig combine : int -> int -> int
         sig two : int
-        def two = combine 1 1
+        val two = combine 1 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -65,7 +65,7 @@ let compile_polymorphic_function () =
         -----------
         sig combine : (a:type) -> a -> a -> a
         sig two : int
-        def two = combine int 1 1
+        val two = combine int 1 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -82,7 +82,7 @@ let compile_implicit_polymorphic_function () =
         -----------
         sig combine : {a:type} -> a -> a -> a
         sig two : int
-        def two = combine {int} 1 1
+        val two = combine {int} 1 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -99,7 +99,7 @@ let compile_inferred_implicit_polymorphic_function () =
         -----------
         sig combine : {a:type} -> a -> a -> a
         sig two : int
-        def two = combine 1 1
+        val two = combine 1 1
         -----------
       |toy}
     <&> fun (_, l) -> check l

@@ -35,7 +35,7 @@ struct
   let keywords =
     [
       "sig"
-    ; "def"
+    ; "val"
     ; "type"
     ; "case"
     ; "inl"
@@ -83,7 +83,7 @@ struct
     let _DISJUNCTION_ = token (string "|")
     let _EQUAL_ = token (string "=")
     let _SIG_ = token (string "sig")
-    let _DEF_ = token (string "def")
+    let _VAL_ = token (string "val")
     let _TYPE_ = token (string "type")
     let _CASE_ = token (string "case")
     let _INL_ = token (string "inl")

@@ -307,19 +307,19 @@ sig combine : {x:type} -> X -> X -> X
 sig add : int -> int -> int
 
 sig combineInt : combine {int}   
-def combineInt = add
+val combineInt = add
 ```
 
 #### Function producing HKT
 
 ```
 sig combine : (x:type) -> type
-def combine = (X).(X -> X -> X)
+val combine = (X).(X -> X -> X)
     
 sig add : int -> int -> int
 
 sig combineInt : combine int   
-def combineInt = add
+val combineInt = add
 ```
 
 #### Type level programming
@@ -330,14 +330,14 @@ Then if the parameter is an `int` it returns the type `char` and if it's a `char
 
 ```
 sig ic : int | char -> type
-def ic = (x).(case x (_).char (_).int)
+val ic = (x).(case x (_).char (_).int)
 ```
 
 Then such function can be used in type level. For instance the expression `ic (inl 1)` produces the type `char`.
 
 ```
 sig m1 : ic (inl 1)
-def m1 = 'c'
+val m1 = 'c'
 ```
 
 #### Dependent pair
@@ -346,7 +346,7 @@ In this example, the dependent pair is illustrated thanks to the couple data str
 
 ```
 sig m : (t:type) * t
-def m = (char , 'c')
+val m = (char , 'c')
 ```
 
 ##### Trait denotation
@@ -366,29 +366,29 @@ can be expressed by the type `(self:type) * (self * (self -> self -> self))`. Of
 
 ```
 sig Monoid : type
-def Monoid = (self:type) * (self * (self -> self -> self))
+val Monoid = (self:type) * (self * (self -> self -> self))
 
 sig Empty : type
-def Empty = (self:type) * self
+val Empty = (self:type) * self
     
 sig Compose : type
-def Compose = (self:type) * (self -> self -> self)
+val Compose = (self:type) * (self -> self -> self)
 ```
 
 ```
 sig empty : Monoid -> Empty
-def empty = (x).(fst x, fst (snd x))
+val empty = (x).(fst x, fst (snd x))
 
 sig compose : Monoid -> Compose
-def compose = (x).(fst x, snd (snd x))
+val compose = (x).(fst x, snd (snd x))
 ```
 
 Then an implementation can be easily done using pairs.
 
 ```
 impl Monoid for int {
-    def empty   = 0
-    def compose = add   -- int addition
+    val empty   = 0
+    val compose = add   -- int addition
 }
 ```
 
@@ -397,7 +397,7 @@ sig int : type
 sig add : int -> int -> int
 
 sig IntMonoid : Monoid
-def IntMonoid = (int, 0, add)
+val IntMonoid = (int, 0, add)
 ```
 
 With this denotation the implementation can't be done using "internal" functions.
@@ -408,23 +408,23 @@ For this purpose we can review it adding a polymorphic parameter in order to mim
 
 ```
 sig Monoid_T : type -> type
-def Monoid_T = (X).((t:type) * t * (t -> t -> t) * X)
+val Monoid_T = (X).((t:type) * t * (t -> t -> t) * X)
 
 sig Empty_T : type
-def Empty_T = (t:type) * t
+val Empty_T = (t:type) * t
     
 sig Compose_T : type
-def Compose_T = (t:type) * (t -> t -> t)
+val Compose_T = (t:type) * (t -> t -> t)
 ```
 
 Then we can propose the functions accessing trait elements.
 
 ```
 sig empty : {X:type} -> Monoid_T X -> Empty_T
-def empty = (x).(fst x, fst (snd x))
+val empty = (x).(fst x, fst (snd x))
 
 sig compose : {X:type} -> Monoid_T X -> Compose_T
-def compose = (x).(fst x, fst (snd (snd x)))
+val compose = (x).(fst x, fst (snd (snd x)))
 ```
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.
@@ -434,16 +434,16 @@ With such approach `X` cannot capture the existential type which is not really s
 ```
 sig list : type -> type
 
-def list = (X).rec(l:type).(unit | (X * l)) 
+val list = (X).rec(l:type).(unit | (X * l)) 
 
 sig nil  : {X:type} -> list X
-def nil  = fold (inl Unit)
+val nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
-def cons = (head).(tail).(fold (inr (head,tail)))
+val cons = (head).(tail).(fold (inr (head,tail)))
 
 sig isEmpty : {X:type} -> list X -> bool
-def isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
+val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 ```
 
 #### Encoding sum types
@@ -452,19 +452,19 @@ Thanks to `Pi` constructor we are able to encode `data` definition.
 ```
 sig Atom  : (a:string) -> type
 sig data  : {A:type} -> (_:A) -> type
-def data  = {A}.(_).A
+val data  = {A}.(_).A
 
 sig True  : Atom "True"
 sig False : Atom "False"
 
 sig bool : type
-def bool = data True | data False
+val bool = data True | data False
 
 sig true : bool
-def true = inl True
+val true = inl True
 
 sig false : bool
-def false = inr False
+val false = inr False
 ```
 
 #### Leibniz equality
@@ -473,16 +473,16 @@ This implementation reproduces the Agda version proposed [here](https://homepage
 
 ```
 sig equal : {A:type} -> (a:A) -> (b:A) -> type
-def equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+val equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
 
 sig reflexive : {A:type} -> {a:A} -> equal a a
-def reflexive = (P).(Pa).Pa
+val reflexive = (P).(Pa).Pa
 
 sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -> equal a c
-def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
+val transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
 
 sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-def symmetric = {A}.{a}.(eq_a_b).(P).
+val symmetric = {A}.{a}.(eq_a_b).(P).
     let Qa = reflexive P in
     let Qb = eq_a_b (c).(P c -> P a) Qa in
     Qb

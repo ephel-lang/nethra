@@ -13,7 +13,7 @@ let compile_int () =
         sig int : type
         -----------
         sig one : int
-        def one = 1
+        val one = 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -29,7 +29,7 @@ let compile_string () =
         sig string : type
         -----------
         sig one : string
-        def one = "1"
+        val one = "1"
         -----------
       |toy}
     <&> fun (_, l) -> check l
@@ -45,7 +45,7 @@ let compile_char () =
         sig char : type
         -----------
         sig one : char
-        def one = '1'
+        val one = '1'
         -----------
       |toy}
     <&> fun (_, l) -> check l

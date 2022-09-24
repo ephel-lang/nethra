@@ -14,16 +14,16 @@ let compile_equal () =
       }-
 
       sig equal : {A:type} -> (a:A) -> (b:A) -> type
-      def equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+      val equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
 
       sig reflexive : {A:type} -> {a:A} -> equal a a
-      def reflexive = (P).(Pa).Pa
+      val reflexive = (P).(Pa).Pa
 
       sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -> equal a c
-      def transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
+      val transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
 
       sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-      def symmetric = {A}.{a}.(eq_a_b).(P).
+      val symmetric = {A}.{a}.(eq_a_b).(P).
             let Qa = reflexive P in
             let Qb = eq_a_b (c).(P c -> P a) Qa in
             Qb
