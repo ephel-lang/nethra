@@ -9,7 +9,7 @@ module Impl = struct
   type _ input = string
 
   type _ output =
-    Region.t Context.Hypothesis.t * (string * Region.t Proof.t option) list
+    Region.t Hypothesis.t * (string * Region.t Proof.t option) list
 
   type _ error =
     [ `SyntaxError of unit Parser.error

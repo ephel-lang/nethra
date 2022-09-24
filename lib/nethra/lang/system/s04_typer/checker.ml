@@ -7,7 +7,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   open Nethra_lang_ast.Term.Destruct
   open Nethra_lang_ast.Proof
   open Nethra_lang_ast.Proof.Construct
-  open Nethra_lang_ast.Context.Hypothesis.Access
+  open Nethra_lang_ast.Hypothesis.Access
   open Nethra_lang_basic.Substitution
   open Nethra_lang_basic.Reduction
   open Equivalence.Impl (Theory)

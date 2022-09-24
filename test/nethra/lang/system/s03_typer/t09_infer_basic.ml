@@ -2,8 +2,8 @@ open Common
 open Preface.Option.Functor
 open Nethra.Lang.Ast.Term.Construct
 open Nethra.Lang.Ast.Proof
-open Nethra.Lang.Ast.Context.Hypothesis.Construct
-open Nethra.Lang.Ast.Context.Hypothesis.Access
+open Nethra.Lang.Ast.Hypothesis.Construct
+open Nethra.Lang.Ast.Hypothesis.Access
 open Nethra.Lang.System.Type
 
 module Theory = struct

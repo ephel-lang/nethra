@@ -1,6 +1,6 @@
 open Nethra_lang_ast.Term.Construct
 open Nethra_lang_ast.Term.Destruct
-open Nethra_lang_ast.Context.Hypothesis.Access
+open Nethra_lang_ast.Hypothesis.Access
 open Substitution
 open Stdlib.Fun
 open Preface.Option.Monad

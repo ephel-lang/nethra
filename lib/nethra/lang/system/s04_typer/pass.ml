@@ -3,10 +3,10 @@ module Impl = struct
   open Preface.Option.Functor
   open Preface.Option.Foldable
 
-  type 'a input = 'a Nethra_lang_ast.Context.Hypothesis.t
+  type 'a input = 'a Nethra_lang_ast.Hypothesis.t
 
   type 'a output =
-    'a Nethra_lang_ast.Context.Hypothesis.t
+    'a Nethra_lang_ast.Hypothesis.t
     * (string * 'a Nethra_lang_ast.Proof.t option) list
 
   type _ error = string
@@ -37,13 +37,13 @@ module Impl = struct
 
   let type_check h (ident, exp) =
     let open Preface.Option.Functor in
-    let open Nethra_lang_ast.Context.Hypothesis in
+    let open Nethra_lang_ast.Hypothesis in
     ( ident
     , Access.get_signature h ident
       <&> fun spec -> TypeChecker.(h |- exp <= spec) )
 
   let run h =
-    let open Nethra_lang_ast.Context.Hypothesis in
+    let open Nethra_lang_ast.Hypothesis in
     Result.Ok
       ( h
       , List.map (type_validate h) (Access.signatures h)

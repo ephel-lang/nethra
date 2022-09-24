@@ -1,5 +1,5 @@
 open Nethra.Lang.Ast.Term.Construct
-open Nethra.Lang.Ast.Context.Hypothesis.Construct
+open Nethra.Lang.Ast.Hypothesis.Construct
 open Nethra.Lang.Ast.Proof
 open Nethra.Lang.System.Type
 

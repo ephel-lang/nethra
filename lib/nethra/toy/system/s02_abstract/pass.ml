@@ -1,9 +1,6 @@
 module Impl = struct
   type _ input = Nethra_toy_cst.Binding.t list
-
-  type _ output =
-    Nethra_syntax_source.Region.t Nethra_lang_ast.Context.Hypothesis.t
-
+  type _ output = Nethra_syntax_source.Region.t Nethra_lang_ast.Hypothesis.t
   type _ error = string
 
   let rec abstract_term r =
@@ -50,7 +47,7 @@ module Impl = struct
     function Localized (t, r) -> abstract_term r t
 
   let rec abstract hypothesis =
-    let open Nethra_lang_ast.Context.Hypothesis.Access in
+    let open Nethra_lang_ast.Hypothesis.Access in
     let open Nethra_toy_cst.Binding in
     function
     | [] -> hypothesis
@@ -60,6 +57,6 @@ module Impl = struct
       abstract (add_definition hypothesis (n, abstract_localized t)) bindings
 
   let run l =
-    let open Nethra_lang_ast.Context.Hypothesis.Construct in
+    let open Nethra_lang_ast.Hypothesis.Construct in
     Result.Ok (abstract create l)
 end
