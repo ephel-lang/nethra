@@ -24,7 +24,9 @@ module Impl = struct
   let type_validate h (ident, exp) =
     let open Nethra_lang_ast.Term.Construct in
     let open Nethra_lang_ast.Proof.Construct in
-    let term, proof = TypeInfer.(h |- exp => ()) in
+    let open Nethra_lang_ast.Proof.Destruct in
+    let proof = TypeInfer.(h |- exp => ()) in
+    let term = get_type proof in
     ( ident
     , Some
         (infer exp term

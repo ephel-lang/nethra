@@ -2,6 +2,7 @@ open Common
 open Preface.Option.Functor
 open Nethra.Lang.Ast.Term.Construct
 open Nethra.Lang.Ast.Proof
+open Nethra.Lang.Ast.Proof.Destruct
 open Nethra.Lang.Ast.Hypothesis.Construct
 open Nethra.Lang.Ast.Hypothesis.Access
 open Nethra.Lang.System.Type
@@ -17,7 +18,8 @@ let infer_sigma () =
   let hypothesis = create
   and term = sigma "x" (kind 0) (id "x")
   and expect = kind 0 in
-  let term', proof = TypeInfer.(hypothesis |- term => ()) in
+  let proof = TypeInfer.(hypothesis |- term => ()) in
+  let term' = get_type proof in
   Alcotest.(check (pair (option string) bool))
     "sigma"
     (Some (render expect), true)
@@ -27,7 +29,8 @@ let infer_pair () =
   let hypothesis = add_signature create ("char", kind 0)
   and term = pair (id "char") (char 'c')
   and expect = sigma "_" (kind 0) (id "char") in
-  let term', proof = TypeInfer.(hypothesis |- term => ()) in
+  let proof = TypeInfer.(hypothesis |- term => ()) in
+  let term' = get_type proof in
   Alcotest.(check (pair (option string) bool))
     "pair"
     (Some (render expect), true)
@@ -37,7 +40,8 @@ let infer_pair_fst () =
   let hypothesis = add_signature create ("p", sigma "n" (kind 0) (id "n"))
   and term = fst (id "p")
   and expect = kind 0 in
-  let term', proof = TypeInfer.(hypothesis |- term => ()) in
+  let proof = TypeInfer.(hypothesis |- term => ()) in
+  let term' = get_type proof in
   Alcotest.(check (pair (option string) bool))
     "pair fst"
     (Some (render expect), true)
@@ -47,7 +51,8 @@ let infer_pair_snd () =
   let hypothesis = add_signature create ("p", sigma "n" (kind 0) (id "n"))
   and term = snd (id "p")
   and expect = fst (id "p") in
-  let term', proof = TypeInfer.(hypothesis |- term => ()) in
+  let proof = TypeInfer.(hypothesis |- term => ()) in
+  let term' = get_type proof in
   Alcotest.(check (pair (option string) bool))
     "pair snd"
     (Some (render expect), true)

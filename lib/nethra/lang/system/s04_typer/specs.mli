@@ -32,7 +32,7 @@ module type Infer = sig
   val ( => ) :
        'a Nethra_lang_ast.Hypothesis.t * 'a Nethra_lang_ast.Term.t
     -> unit
-    -> 'a Nethra_lang_ast.Term.t option * 'a Nethra_lang_ast.Proof.t
+    -> 'a Nethra_lang_ast.Proof.t
   (** The type inference provides an intuitive DSL
 
       ``` hypothesis |- term => () ``` *)

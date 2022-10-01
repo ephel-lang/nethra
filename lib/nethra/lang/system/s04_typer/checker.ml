@@ -13,6 +13,10 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   open Equivalence.Impl (Theory)
   open Infer
 
+  let get_type p =
+    let open Nethra_lang_ast.Proof.Destruct in
+    get_type p
+
   let proof_from_option ?(proofs = []) ?(reason = None) o =
     fold_right const o (proofs @ [ failure reason ])
 
@@ -22,7 +26,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ Type_i : Type_{i+1}
   *)
   let check_kind hypothesis term' (level, c) =
-    let term, proof = hypothesis |- kind ~c level => () in
+    let proof = hypothesis |- kind ~c level => () in
+    let term = get_type proof in
     proof_from_option
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
@@ -32,7 +37,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ l : int
   *)
   let check_int hypothesis term' (value, c) =
-    let term, proof = hypothesis |- int ~c value => () in
+    let proof = hypothesis |- int ~c value => () in
+    let term = get_type proof in
     proof_from_option
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
@@ -42,7 +48,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ l : char
   *)
   let check_char hypothesis term' (value, c) =
-    let term, proof = hypothesis |- char ~c value => () in
+    let proof = hypothesis |- char ~c value => () in
+    let term = get_type proof in
     proof_from_option ~reason:(return "check_var")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
@@ -52,7 +59,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ l : string
   *)
   let check_string hypothesis term' (value, c) =
-    let term, proof = hypothesis |- string ~c value => () in
+    let proof = hypothesis |- string ~c value => () in
+    let term = get_type proof in
     proof_from_option ~reason:(return "check_string")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
@@ -62,7 +70,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ, x : T ⊢ x : T
   *)
   let check_id hypothesis term' (name, initial, c) =
-    let term, proof = hypothesis |- id ~c ~initial name => () in
+    let proof = hypothesis |- id ~c ~initial name => () in
+    let term = get_type proof in
     proof_from_option ~reason:(return "check_id")
       (term <&> fun term -> [ proof; hypothesis |- term =?= term' ])
 
@@ -101,7 +110,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]
   *)
   and check_apply hypothesis term' (abstraction, argument, implicit, _c) =
-    let term, proof = hypothesis |- abstraction => () in
+    let proof = hypothesis |- abstraction => () in
+    let term = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Pi term")
       ( term
@@ -150,7 +160,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ fst p : M
   *)
   and check_fst hypothesis term' (term, _c) =
-    let term'', proof = hypothesis |- term => () in
+    let proof = hypothesis |- term => () in
+    let term'' = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Sigma term")
       ( term''
@@ -163,7 +174,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ snd p : N[x=fst p]
     *)
   and check_snd hypothesis term' (term, _c) =
-    let term'', proof = hypothesis |- term => () in
+    let proof = hypothesis |- term => () in
+    let term'' = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Sigma term")
       ( term''
@@ -207,7 +219,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ case a l r : C
   *)
   and check_case hypothesis term' (term, left, right, _c) =
-    let term'', proof = hypothesis |- term => () in
+    let proof = hypothesis |- term => () in
+    let term'' = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Sum term")
       ( term''
@@ -245,7 +258,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ unfold A : N[x=μ(x).N]
   *)
   and check_unfold hypothesis term' (term, _c) =
-    let term'', proof = hypothesis |- term => () in
+    let proof = hypothesis |- term => () in
+    let term'' = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Mu term")
       ( term''
@@ -288,7 +302,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
 
   and check_equals hypothesis term' (lhd, rhd, _c) =
-    let lhd, proof = hypothesis |- lhd => () in
+    let proof = hypothesis |- lhd => () in
+    let lhd = get_type proof in
     proof_from_option ~proofs:[ proof ]
       ( lhd
       <&> fun lhd ->
@@ -323,7 +338,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
        <&> fun (n, implicit_pi) ->
        if (not implicit_lambda) && implicit_pi
        then [ hypothesis |- lambda ~implicit:true n term <= term' ]
-       else [ failure None ] )
+       else [ failure (Some "mixed implicit/explicit") ] )
 
   (*
     Γ ⊢ f : Π{x:M}.C   Γ, v:M ⊢ f {v} e : N
@@ -336,9 +351,10 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ( fold_opt ~apply:return term
       <&> fun (abstraction, argument, implicit_apply, _) ->
       if implicit_apply
-      then [ failure None ]
+      then [ failure (Some "mixed implicit/explicit") ]
       else
-        let term'', proof = hypothesis |- abstraction => () in
+        let proof = hypothesis |- abstraction => () in
+        let term'' = get_type proof in
         proof_from_option ~proofs:[ proof ]
           ~reason:(return "Waiting for a Pi term")
           ( term''
@@ -351,7 +367,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
               apply (apply ~implicit:true abstraction (hole var)) argument
             in
             [ proof; add_signature hypothesis (var, bound) |- term <= term' ]
-          else [ proof; failure None ] ) )
+          else [ proof; failure (Some "mixed implicit/explicit") ] ) )
 
   (*
     Γ ⊢ t : Type_i
@@ -364,7 +380,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (level, c) ->
       if level > 0
       then [ hypothesis |- term <= kind ~c (level - 1) ]
-      else [ failure None ] )
+      else [ failure (Some "incompatible type level") ] )
 
   and nominal hypothesis term term' =
     fold

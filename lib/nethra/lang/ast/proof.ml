@@ -22,6 +22,14 @@ module Destruct = struct
     | Step (Infer (term, kind), steps) -> infer (term, kind, steps)
     | Step (Equivalent (lhd, rhd), steps) -> equivalent (lhd, rhd, steps)
     | Fail reason -> failure reason
+
+  let get_type p =
+    fold
+      ~check:(fun (_, kind, _) -> Some kind)
+      ~infer:(fun (_, kind, _) -> kind)
+      ~equivalent:(fun (_, _, _) -> None)
+      ~failure:(fun _ -> None)
+      p
 end
 
 let rec is_success step =

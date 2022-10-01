@@ -8,25 +8,33 @@ type lit =
   | String of string
 
 type 'a t =
+  (* Basic type, identifier and literals *)
   | Type of int * 'a option
-  | Literal of lit * 'a option
   | Id of string * string option * 'a option
+  | Literal of lit * 'a option
+  (* Function type and data *)
   | Pi of string * 'a t * 'a t * implicit * 'a option
   | Lambda of string * 'a t * implicit * 'a option
   | Apply of 'a t * 'a t * implicit * 'a option
+  (* Pair type and data *)
   | Sigma of string * 'a t * 'a t * 'a option
   | Pair of 'a t * 'a t * 'a option
   | Fst of 'a t * 'a option
   | Snd of 'a t * 'a option
+  (* Sum type and data *)
   | Sum of 'a t * 'a t * 'a option
   | Inl of 'a t * 'a option
   | Inr of 'a t * 'a option
   | Case of 'a t * 'a t * 'a t * 'a option
+  (* Recursion *)
   | Mu of string * 'a t * 'a t * 'a option
   | Fold of 'a t * 'a option
   | Unfold of 'a t * 'a option
+  (* Type for inference *)
   | Hole of string * 'a t option ref * 'a option
+  (* Type annotation *)
   | Annotation of 'a t * 'a t * 'a option
+  (* Propositional equality *)
   | Equals of 'a t * 'a t * 'a option
   | Refl of 'a option
 

@@ -17,6 +17,8 @@ module Destruct : sig
     -> failure:(string option -> 'b)
     -> 'a t
     -> 'b
+
+  val get_type : 'a t -> 'a Term.t option
 end
 
 val is_success : 'a t -> bool
