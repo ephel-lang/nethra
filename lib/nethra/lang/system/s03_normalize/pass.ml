@@ -8,7 +8,7 @@ module Impl = struct
 
   let check_free_vars hypothesis (_, term) =
     let bound_variables = Access.signatures hypothesis <&> fst in
-    Term.freevars bound_variables term
+    Term.free_vars bound_variables term
 
   let run h =
     let open Nethra_lang_ast.Hypothesis in

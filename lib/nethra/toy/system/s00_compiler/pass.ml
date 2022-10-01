@@ -26,10 +26,10 @@ module Impl = struct
     let open Preface_core.Fun in
     let syntax_error e = `SyntaxError e
     and abstraction_error e = `AbstractionError e
-    and freevars_error e = `FreeVarsError e
+    and free_vars_error e = `FreeVarsError e
     and type_error e = `TypeError e in
     Parser.run %> map_snd syntax_error
     >=> Abstraction.run %> map_snd abstraction_error
-    >=> Normalization.run %> map_snd freevars_error
+    >=> Normalization.run %> map_snd free_vars_error
     >=> Type_checker.run %> map_snd type_error
 end

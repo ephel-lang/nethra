@@ -1,73 +1,76 @@
 open Nethra_lang_ast.Term
 
-let freevars_kind (_level, _c) = []
-let freevars_int (_value, _c) = []
-let freevars_char (_value, _c) = []
-let freevars_string (_value, _c) = []
+let free_vars_kind (_level, _c) = []
+let free_vars_int (_value, _c) = []
+let free_vars_char (_value, _c) = []
+let free_vars_string (_value, _c) = []
 
-let freevars_id variables (n, _initial, c) =
+let free_vars_id variables (n, _initial, c) =
   if List.mem n variables then [] else [ (c, n) ]
 
-let freevars_pi freevars variables (n, bound, body, _implicit, _c) =
-  freevars variables bound @ freevars (n :: variables) body
+let free_vars_pi free_vars variables (n, bound, body, _implicit, _c) =
+  free_vars variables bound @ free_vars (n :: variables) body
 
-let freevars_lambda freevars variables (n, body, _implicit, _c) =
-  freevars (n :: variables) body
+let free_vars_lambda free_vars variables (n, body, _implicit, _c) =
+  free_vars (n :: variables) body
 
-let freevars_apply freevars variables (abstraction, parameter, _implicit, _c) =
-  freevars variables abstraction @ freevars variables parameter
+let free_vars_apply free_vars variables (abstraction, parameter, _implicit, _c)
+    =
+  free_vars variables abstraction @ free_vars variables parameter
 
-let freevars_sigma freevars variables (n, bound, body, _c) =
-  freevars variables bound @ freevars (n :: variables) body
+let free_vars_sigma free_vars variables (n, bound, body, _c) =
+  free_vars variables bound @ free_vars (n :: variables) body
 
-let freevars_pair freevars variables (lhd, rhd, _c) =
-  freevars variables lhd @ freevars variables rhd
+let free_vars_pair free_vars variables (lhd, rhd, _c) =
+  free_vars variables lhd @ free_vars variables rhd
 
-let freevars_fst freevars variables (term, _c) = freevars variables term
-let freevars_snd freevars variables (term, _c) = freevars variables term
+let free_vars_fst free_vars variables (term, _c) = free_vars variables term
+let free_vars_snd free_vars variables (term, _c) = free_vars variables term
 
-let freevars_sum freevars variables (lhd, rhd, _c) =
-  freevars variables lhd @ freevars variables rhd
+let free_vars_sum free_vars variables (lhd, rhd, _c) =
+  free_vars variables lhd @ free_vars variables rhd
 
-let freevars_inl freevars variables (term, _c) = freevars variables term
-let freevars_inr freevars variables (term, _c) = freevars variables term
+let free_vars_inl free_vars variables (term, _c) = free_vars variables term
+let free_vars_inr free_vars variables (term, _c) = free_vars variables term
 
-let freevars_case freevars variables (term, left, right, _c) =
-  freevars variables term @ freevars variables left @ freevars variables right
+let free_vars_case free_vars variables (term, left, right, _c) =
+  free_vars variables term
+  @ free_vars variables left
+  @ free_vars variables right
 
-let freevars_mu freevars variables (n, kind, body, _c) =
-  freevars variables kind @ freevars (n :: variables) body
+let free_vars_mu free_vars variables (n, kind, body, _c) =
+  free_vars variables kind @ free_vars (n :: variables) body
 
-let freevars_fold freevars variables (term, _c) = freevars variables term
-let freevars_unfold freevars variables (term, _c) = freevars variables term
-let freevars_hole (_v, _r, _c) = []
+let free_vars_fold free_vars variables (term, _c) = free_vars variables term
+let free_vars_unfold free_vars variables (term, _c) = free_vars variables term
+let free_vars_hole (_v, _r, _c) = []
 
-let freevars_annotation freevars variables (term, kind, _c) =
-  freevars variables term @ freevars variables kind
+let free_vars_annotation free_vars variables (term, kind, _c) =
+  free_vars variables term @ free_vars variables kind
 
-let freevars_equals freevars variables (lhd, rhd, _c) =
-  freevars variables lhd @ freevars variables rhd
+let free_vars_equals free_vars variables (lhd, rhd, _c) =
+  free_vars variables lhd @ free_vars variables rhd
 
-let freevars_refl _ = []
+let free_vars_refl _ = []
 
-let rec freevars variables term =
-  Destruct.fold ~kind:freevars_kind ~int:freevars_int ~char:freevars_char
-    ~string:freevars_string ~id:(freevars_id variables)
-    ~pi:(freevars_pi freevars variables)
-    ~lambda:(freevars_lambda freevars variables)
-    ~apply:(freevars_apply freevars variables)
-    ~sigma:(freevars_sigma freevars variables)
-    ~pair:(freevars_pair freevars variables)
-    ~fst:(freevars_fst freevars variables)
-    ~snd:(freevars_snd freevars variables)
-    ~sum:(freevars_sum freevars variables)
-    ~inl:(freevars_inl freevars variables)
-    ~inr:(freevars_inr freevars variables)
-    ~case:(freevars_case freevars variables)
-    ~mu:(freevars_mu freevars variables)
-    ~fold:(freevars_fold freevars variables)
-    ~unfold:(freevars_unfold freevars variables)
-    ~hole:freevars_hole
-    ~annotation:(freevars_annotation freevars variables)
-    ~equals:(freevars_equals freevars variables)
-    ~refl:freevars_refl term
+let rec free_vars variables term =
+  Destruct.fold ~kind:free_vars_kind ~int:free_vars_int ~char:free_vars_char
+    ~string:free_vars_string ~id:(free_vars_id variables)
+    ~pi:(free_vars_pi free_vars variables)
+    ~lambda:(free_vars_lambda free_vars variables)
+    ~apply:(free_vars_apply free_vars variables)
+    ~sigma:(free_vars_sigma free_vars variables)
+    ~pair:(free_vars_pair free_vars variables)
+    ~fst:(free_vars_fst free_vars variables)
+    ~snd:(free_vars_snd free_vars variables)
+    ~sum:(free_vars_sum free_vars variables)
+    ~inl:(free_vars_inl free_vars variables)
+    ~inr:(free_vars_inr free_vars variables)
+    ~case:(free_vars_case free_vars variables)
+    ~mu:(free_vars_mu free_vars variables)
+    ~fold:(free_vars_fold free_vars variables)
+    ~unfold:(free_vars_unfold free_vars variables)
+    ~hole:free_vars_hole
+    ~annotation:(free_vars_annotation free_vars variables)
+    ~equals:(free_vars_equals free_vars variables)
+    ~refl:free_vars_refl term
