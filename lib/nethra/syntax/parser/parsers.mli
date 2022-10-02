@@ -1,63 +1,68 @@
 module Parsec : functor (Source : Nethra_syntax_source.Specs.SOURCE) ->
   Specs.PARSEC with module Source = Source
 
-module Functor : functor (Parsec : Specs.PARSEC) ->
-  Preface_specs.FUNCTOR with type 'a t = 'a Parsec.t
+module Functor : functor (P : Specs.PARSEC) ->
+  Preface_specs.FUNCTOR with type 'a t = 'a P.t
 
-module Monad : functor (Parsec : Specs.PARSEC) ->
-  Preface_specs.MONAD with type 'a t = 'a Parsec.t
+module Monad : functor (P : Specs.PARSEC) ->
+  Preface_specs.MONAD with type 'a t = 'a P.t
 
-module Eval : functor (Parsec : Specs.PARSEC) -> sig
-  val locate : 'a Parsec.t -> ('a * Nethra_syntax_source.Region.t) Parsec.t
-  val eos : unit Parsec.t
-  val return : 'a -> 'a Parsec.t
-  val fail : ?consumed:bool -> ?message:string option -> 'a Parsec.t
-  val do_lazy : (unit -> 'a Parsec.t) -> 'a Parsec.t
-  val do_try : 'a Parsec.t -> 'a Parsec.t
-  val lookahead : 'a Parsec.t -> 'a Parsec.t
-  val satisfy : 'a Parsec.t -> ('a -> bool) -> 'a Parsec.t
+module Eval : functor (P : Specs.PARSEC) -> sig
+  val locate : 'a P.t -> ('a * Nethra_syntax_source.Region.t) P.t
+  val eos : unit P.t
+  val return : 'a -> 'a P.t
+  val fail : ?consumed:bool -> ?message:string option -> 'a P.t
+  val do_lazy : (unit -> 'a P.t) -> 'a P.t
+  val do_try : 'a P.t -> 'a P.t
+  val lookahead : 'a P.t -> 'a P.t
+  val satisfy : 'a P.t -> ('a -> bool) -> 'a P.t
 end
 
-module Operator : functor (Parsec : Specs.PARSEC) -> sig
-  val ( <~> ) : 'a Parsec.t -> 'b Parsec.t -> ('a * 'b) Parsec.t
-  val ( <~< ) : 'a Parsec.t -> 'b Parsec.t -> 'a Parsec.t
-  val ( >~> ) : 'a Parsec.t -> 'b Parsec.t -> 'b Parsec.t
-  val ( <|> ) : 'a Parsec.t -> 'a Parsec.t -> 'a Parsec.t
-  val ( <?> ) : 'a Parsec.t -> ('a -> bool) -> 'a Parsec.t
+module Operator : functor (P : Specs.PARSEC) -> sig
+  val ( <~> ) : 'a P.t -> 'b P.t -> ('a * 'b) P.t
+  val ( <~< ) : 'a P.t -> 'b P.t -> 'a P.t
+  val ( >~> ) : 'a P.t -> 'b P.t -> 'b P.t
+  val ( <|> ) : 'a P.t -> 'a P.t -> 'a P.t
+  val ( <?> ) : 'a P.t -> ('a -> bool) -> 'a P.t
 end
 
-module Atomic : functor (Parsec : Specs.PARSEC) -> sig
-  val any : Parsec.Source.e Parsec.t
-  val atom : Parsec.Source.e -> Parsec.Source.e Parsec.t
-  val atom_in : Parsec.Source.e list -> Parsec.Source.e Parsec.t
-  val atoms : Parsec.Source.e list -> Parsec.Source.e list Parsec.t
-  val not : 'a Parsec.t -> Parsec.Source.e Parsec.t
+module Atomic : functor (P : Specs.PARSEC) -> sig
+  val any : P.Source.e P.t
+  val atom : P.Source.e -> P.Source.e P.t
+  val atom_in : P.Source.e list -> P.Source.e P.t
+  val atoms : P.Source.e list -> P.Source.e list P.t
+  val not : 'a P.t -> P.Source.e P.t
 end
 
-module Occurrence : functor (Parsec : Specs.PARSEC) -> sig
-  val opt : 'a Parsec.t -> 'a option Parsec.t
-  val rep : 'a Parsec.t -> 'a list Parsec.t
-  val opt_rep : 'a Parsec.t -> 'a list Parsec.t
+module Occurrence : functor (P : Specs.PARSEC) -> sig
+  val opt : 'a P.t -> 'a option P.t
+  val rep : 'a P.t -> 'a list P.t
+  val opt_rep : 'a P.t -> 'a list P.t
 end
 
-module Literal : functor
-  (Parsec : Specs.PARSEC with type Source.e = char)
-  -> sig
-  val char : char -> char Parsec.t
-  val char_in_range : char * char -> char Parsec.t
-  val char_in_ranges : (char * char) list -> char Parsec.t
-  val char_in_list : char list -> char Parsec.t
-  val char_in_string : string -> char Parsec.t
-  val digit : char Parsec.t
-  val alpha : char Parsec.t
-  val natural : int Parsec.t
-  val integer : int Parsec.t
-  val string : string -> string Parsec.t
-  val string_in_list : string list -> string Parsec.t
-  val sequence : char Parsec.t -> string Parsec.t
+module Expr : functor (P : Specs.PARSEC) -> sig
+  val term : ('a -> 'a) P.t -> 'a P.t -> ('a -> 'a) P.t -> 'a P.t
+  val infixN : ('a -> 'a -> 'a) P.t -> 'a P.t -> 'a -> 'a P.t
+  val infixL : ('a -> 'a -> 'a) P.t -> 'a P.t -> 'a -> 'a P.t
+  val infixR : ('a -> 'a -> 'a) P.t -> 'a P.t -> 'a -> 'a P.t
+end
+
+module Literal : functor (P : Specs.PARSEC with type Source.e = char) -> sig
+  val char : char -> char P.t
+  val char_in_range : char * char -> char P.t
+  val char_in_ranges : (char * char) list -> char P.t
+  val char_in_list : char list -> char P.t
+  val char_in_string : string -> char P.t
+  val digit : char P.t
+  val alpha : char P.t
+  val natural : int P.t
+  val integer : int P.t
+  val string : string -> string P.t
+  val string_in_list : string list -> string P.t
+  val sequence : char P.t -> string P.t
 
   module Delimited : sig
-    val string : string Parsec.t
-    val char : char Parsec.t
+    val string : string P.t
+    val char : char P.t
   end
 end

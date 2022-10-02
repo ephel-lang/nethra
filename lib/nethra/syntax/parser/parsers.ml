@@ -6,8 +6,8 @@ module Parsec (Source : Nethra_syntax_source.Specs.SOURCE) = struct
   let source c = Source.Construct.create c
 end
 
-module Functor (Parsec : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
-  type 'a t = 'a Parsec.t
+module Functor (P : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
+  type 'a t = 'a P.t
 
   let map f p s =
     let open Response.Destruct in
@@ -18,9 +18,8 @@ module Functor (Parsec : Specs.PARSEC) = Preface_make.Functor.Via_map (struct
       (p s)
 end)
 
-module Monad (Parsec : Specs.PARSEC) =
-Preface_make.Monad.Via_return_and_bind (struct
-  type 'a t = 'a Parsec.t
+module Monad (P : Specs.PARSEC) = Preface_make.Monad.Via_return_and_bind (struct
+  type 'a t = 'a P.t
 
   let return v s =
     let open Response.Construct in
@@ -39,14 +38,14 @@ Preface_make.Monad.Via_return_and_bind (struct
       (p s)
 end)
 
-module Eval (Parsec : Specs.PARSEC) = struct
-  module Monad = Monad (Parsec)
+module Eval (P : Specs.PARSEC) = struct
+  module Monad = Monad (P)
 
   let locate p s =
     let module Region = Nethra_syntax_source.Region.Construct in
     let open Response.Destruct in
     let open Response.Construct in
-    let open Parsec.Source.Access in
+    let open P.Source.Access in
     let l0 = location s in
     fold
       ~success:(fun (a, b, s) ->
@@ -56,7 +55,7 @@ module Eval (Parsec : Specs.PARSEC) = struct
 
   let eos s =
     let open Response.Construct in
-    let open Parsec.Source.Access in
+    let open P.Source.Access in
     match next s with
     | Some _, s' -> failure (Some "stream not consumed", false, s')
     | None, s' -> success ((), false, s')
@@ -93,9 +92,9 @@ module Eval (Parsec : Specs.PARSEC) = struct
       )
 end
 
-module Operator (Parsec : Specs.PARSEC) = struct
-  module Functor = Functor (Parsec)
-  module Eval = Eval (Parsec)
+module Operator (P : Specs.PARSEC) = struct
+  module Functor = Functor (P)
+  module Eval = Eval (P)
 
   let ( <~> ) p1 p2 s =
     let open Response.Destruct in
@@ -125,14 +124,14 @@ module Operator (Parsec : Specs.PARSEC) = struct
     satisfy p f
 end
 
-module Atomic (Parsec : Specs.PARSEC) = struct
-  module Monad = Monad (Parsec)
-  module Eval = Eval (Parsec)
-  module Operator = Operator (Parsec)
+module Atomic (P : Specs.PARSEC) = struct
+  module Monad = Monad (P)
+  module Eval = Eval (P)
+  module Operator = Operator (P)
 
   let any s =
     let open Response.Construct in
-    let open Parsec.Source.Access in
+    let open P.Source.Access in
     match next s with
     | Some e, s' -> success (e, true, s')
     | None, s' -> failure (Some "stream consumed", false, s')
@@ -162,10 +161,10 @@ module Atomic (Parsec : Specs.PARSEC) = struct
       (fold_left (fun p e -> p <~< atom e) (return ()) l <&> Stdlib.Fun.const l)
 end
 
-module Occurrence (Parsec : Specs.PARSEC) = struct
-  module Monad = Monad (Parsec)
-  module Eval = Eval (Parsec)
-  module Operator = Operator (Parsec)
+module Occurrence (P : Specs.PARSEC) = struct
+  module Monad = Monad (P)
+  module Eval = Eval (P)
+  module Operator = Operator (P)
 
   let opt p s =
     let open Response.Destruct in
@@ -195,12 +194,57 @@ module Occurrence (Parsec : Specs.PARSEC) = struct
   let opt_rep p = sequence true p
 end
 
-module Literal (Parsec : Specs.PARSEC with type Source.e = char) = struct
-  module Monad = Monad (Parsec)
-  module Atomic = Atomic (Parsec)
-  module Eval = Eval (Parsec)
-  module Operator = Operator (Parsec)
-  module Occurrence = Occurrence (Parsec)
+(* See https://hackage.haskell.org/package/parser-combinators-1.3.0/docs/src/Control.Monad.Combinators.Expr.html#Operator *)
+module Expr (P : Specs.PARSEC) = struct
+  module Monad = Monad (P)
+  module Operator = Operator (P)
+
+  let option x p =
+    let open Monad in
+    let open Operator in
+    p <|> return x
+
+  let term prefix t postfix =
+    let open Stdlib.Fun in
+    let open Monad in
+    let open Monad.Syntax in
+    let* pre = option id prefix in
+    let* x = t in
+    let* post = option id postfix in
+    return @@ post (pre x)
+
+  let infixN op p x =
+    let open Monad in
+    let open Monad.Syntax in
+    let* f = op in
+    let* y = p in
+    return @@ f x y
+
+  let rec infixL op p x =
+    let open Monad in
+    let open Monad.Syntax in
+    let open Operator in
+    let* f = op in
+    let* y = p in
+    let r = f x y in
+    infixL op p r <|> return r
+
+  let rec infixR op p x =
+    let open Monad in
+    let open Monad.Syntax in
+    let open Monad.Infix in
+    let open Operator in
+    let* f = op in
+    let* y = p >>= fun r -> infixR op p r <|> return r in
+    return @@ f x y
+end
+
+module Literal (P : Specs.PARSEC with type Source.e = char) = struct
+  module Monad = Monad (P)
+  module Atomic = Atomic (P)
+  module Eval = Eval (P)
+  module Operator = Operator (P)
+  module Occurrence = Occurrence (P)
 
   let char c =
     let open Operator in
