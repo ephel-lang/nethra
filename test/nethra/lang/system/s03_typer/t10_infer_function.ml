@@ -98,12 +98,12 @@ let cases =
   let open Alcotest in
   ( "Infer function terms"
   , [
-      test_case "Γ ⊢ Π(x:M).N : Type_0" `Quick infer_pi
-    ; test_case "Γ ⊢ λ(x).(plus x) : Π(x:int).int" `Quick infer_lambda_explicit
-    ; test_case "Γ ⊢ λ(x).x : Π{x:Type_0}.Π(x:int).int" `Quick
+      test_case "Γ ⊢ (x:M) -> N : Type_0" `Quick infer_pi
+    ; test_case "Γ ⊢ (x).(plus x) : (x:int) -> int" `Quick infer_lambda_explicit
+    ; test_case "Γ ⊢ (x).x : {x:Type_0} -> (x:int) -> int" `Quick
         infer_lambda_general_explicit
-    ; test_case "Γ ⊢ λ{x}.(plus x) : Π{x:int}.int" `Quick infer_lambda_implicit
-    ; test_case "Γ ⊢ λ{x}.x : Π{x:Type_0}.Π{x:int}.int" `Quick
+    ; test_case "Γ ⊢ {x}.(plus x) : {x:int} -> int" `Quick infer_lambda_implicit
+    ; test_case "Γ ⊢ {x}.x :{x:Type_0} -> {x:int} -> int" `Quick
         infer_lambda_general_implicit
     ; test_case "Γ ⊢ plus 1 : int" `Quick infer_apply_explicit
     ; test_case "Γ ⊢ plus {1} : int" `Quick infer_apply_implicit

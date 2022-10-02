@@ -54,7 +54,7 @@ let cases =
   let open Alcotest in
   ( "Infer recursive terms"
   , [
-      test_case "Γ ⊢ μ(x).(x -> int) : Type_O" `Quick infer_mu
-    ; test_case "Γ ⊢ fold a : μ(x).(x -> int)" `Quick infer_mu_fold
-    ; test_case "Γ ⊢ unfold a : μ(x).(x -> int) -> int" `Quick infer_mu_fold
+      test_case "Γ ⊢ rec(x).(x -> int) : Type_O" `Quick infer_mu
+    ; test_case "Γ ⊢ fold a : rec(x).(x -> int)" `Quick infer_mu_fold
+    ; test_case "Γ ⊢ unfold a : rec(x).(x -> int) -> int" `Quick infer_mu_fold
     ] )

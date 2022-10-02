@@ -13,12 +13,15 @@ let id ppf (value, initial, _) =
   | None -> fprintf ppf "%s" value
 
 let pi ppf render (n, bound, body, implicit, _) =
-  fprintf ppf
-    (if implicit then "Π{%s:%a}.%a" else "Π(%s:%a).%a")
-    n render bound render body
+  if n = "_"
+  then fprintf ppf "%a -> %a" render bound render body
+  else
+    fprintf ppf
+      (if implicit then "{%s:%a} -> %a" else "(%s:%a) -> %a")
+      n render bound render body
 
 let lambda ppf render (n, body, implicit, _) =
-  fprintf ppf (if implicit then "λ{%s}.(%a)" else "λ(%s).(%a)") n render body
+  fprintf ppf (if implicit then "{%s}.(%a)" else "(%s).(%a)") n render body
 
 let apply ppf render (abstraction, argument, implicit, _) =
   fprintf ppf
@@ -26,7 +29,9 @@ let apply ppf render (abstraction, argument, implicit, _) =
     render abstraction render argument
 
 let sigma ppf render (n, bound, body, _) =
-  fprintf ppf "Σ(%s:%a).%a" n render bound render body
+  if n = "_"
+  then fprintf ppf "%a * %a" render bound render body
+  else fprintf ppf "(%s:%a) * %a" n render bound render body
 
 let pair ppf render (left, right, _) =
   fprintf ppf "(%a,%a)" render left render right
@@ -44,7 +49,7 @@ let case ppf render (term, left, right, _) =
   fprintf ppf "case %a %a %a" render term render left render right
 
 let mu ppf render (n, kind, body, _) =
-  fprintf ppf "μ(%s:%a).(%a)" n render kind render body
+  fprintf ppf "rec(%s:%a).(%a)" n render kind render body
 
 let fold ppf render (term, _) = fprintf ppf "fold %a" render term
 let unfold ppf render (term, _) = fprintf ppf "unfold %a" render term

@@ -62,8 +62,8 @@ let cases =
   let open Alcotest in
   ( "Infer pair terms"
   , [
-      test_case "Γ ⊢ Σ(x:Type0).x : Type_0" `Quick infer_sigma
-    ; test_case "Γ ⊢ (char, 'a') : Σ(x:Type0).char" `Quick infer_pair
+      test_case "Γ ⊢ (x:Type0) * x : Type_0" `Quick infer_sigma
+    ; test_case "Γ ⊢ (char, 'a') : (x:Type0) * char" `Quick infer_pair
     ; test_case "Γ ⊢ fst p : Type_0 " `Quick infer_pair_fst
     ; test_case "Γ ⊢ snd p : fst p " `Quick infer_pair_snd
     ] )
