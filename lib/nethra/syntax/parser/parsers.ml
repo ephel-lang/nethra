@@ -211,7 +211,7 @@ module Expr (P : Specs.PARSEC) = struct
     let* pre = option id prefix in
     let* x = t in
     let* post = option id postfix in
-    return @@ post (pre x)
+    return @@ post @@ pre x
 
   let infixN op p x =
     let open Monad in

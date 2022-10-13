@@ -1,3 +1,6 @@
+open Stdlib.Fun
+open Preface.Option.Monad
+open Preface.Option.Foldable
 open Nethra_lang_ast.Term
 open Nethra_lang_ast.Term.Construct
 
@@ -91,3 +94,9 @@ let rec substitute name value term =
     ~annotation:(subs_annotation substitute name value)
     ~equals:(subs_equals substitute name value)
     ~refl:subs_refl term
+
+let try_substitute id value term =
+  fold_right const
+    ( Destruct.fold_opt ~id:return id
+    <&> fun (n, _, _) -> substitute n value term )
+    term

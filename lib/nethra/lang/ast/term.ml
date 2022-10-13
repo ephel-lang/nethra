@@ -7,6 +7,14 @@ type lit =
   | Char of char
   | String of string
 
+type builtin =
+  | Fst
+  | Snd
+  | Inl
+  | Inr
+  | Fold
+  | Unfold
+
 type 'a t =
   (* Basic type, identifier and literals *)
   | Type of int * 'a option
@@ -19,17 +27,13 @@ type 'a t =
   (* Pair type and data *)
   | Sigma of string * 'a t * 'a t * 'a option
   | Pair of 'a t * 'a t * 'a option
-  | Fst of 'a t * 'a option
-  | Snd of 'a t * 'a option
   (* Sum type and data *)
   | Sum of 'a t * 'a t * 'a option
-  | Inl of 'a t * 'a option
-  | Inr of 'a t * 'a option
   | Case of 'a t * 'a t * 'a t * 'a option
   (* Recursion *)
   | Mu of string * 'a t * 'a t * 'a option
-  | Fold of 'a t * 'a option
-  | Unfold of 'a t * 'a option
+  (* builtin  *)
+  | BuiltIn of builtin * 'a t * 'a option
   (* Type for inference *)
   | Hole of string * 'a t option ref * 'a option
   (* Type annotation *)
@@ -58,15 +62,15 @@ module Construct = struct
 
   let sigma ?(c = None) n bound body = Sigma (n, bound, body, c)
   let pair ?(c = None) left right = Pair (left, right, c)
-  let fst ?(c = None) term = Fst (term, c)
-  let snd ?(c = None) term = Snd (term, c)
+  let fst ?(c = None) term = BuiltIn (Fst, term, c)
+  let snd ?(c = None) term = BuiltIn (Snd, term, c)
   let sum ?(c = None) left right = Sum (left, right, c)
-  let inl ?(c = None) term = Inl (term, c)
-  let inr ?(c = None) term = Inr (term, c)
+  let inl ?(c = None) term = BuiltIn (Inl, term, c)
+  let inr ?(c = None) term = BuiltIn (Inr, term, c)
   let case ?(c = None) term left right = Case (term, left, right, c)
   let mu ?(c = None) self kind body = Mu (self, kind, body, c)
-  let fold ?(c = None) term = Fold (term, c)
-  let unfold ?(c = None) term = Unfold (term, c)
+  let fold ?(c = None) term = BuiltIn (Fold, term, c)
+  let unfold ?(c = None) term = BuiltIn (Unfold, term, c)
   let hole ?(c = None) ?(r = ref None) n = Hole (n, r, c)
   let annotation ?(c = None) term kind = Annotation (term, kind, c)
   let equals ?(c = None) lhd rhd = Equals (lhd, rhd, c)
@@ -87,15 +91,15 @@ module Destruct = struct
     | Apply (abs, arg, implicit, c) -> apply (abs, arg, implicit, c)
     | Sigma (n, bound, body, c) -> sigma (n, bound, body, c)
     | Pair (first, second, c) -> pair (first, second, c)
-    | Fst (term, c) -> fst (term, c)
-    | Snd (term, c) -> snd (term, c)
+    | BuiltIn (Fst, term, c) -> fst (term, c)
+    | BuiltIn (Snd, term, c) -> snd (term, c)
     | Sum (lhd, rhd, c) -> sum (lhd, rhd, c)
-    | Inl (term, c) -> inl (term, c)
-    | Inr (term, c) -> inr (term, c)
+    | BuiltIn (Inl, term, c) -> inl (term, c)
+    | BuiltIn (Inr, term, c) -> inr (term, c)
     | Case (term, left, right, c) -> case (term, left, right, c)
     | Mu (self, kind, body, c) -> mu (self, kind, body, c)
-    | Fold (term, c) -> fold (term, c)
-    | Unfold (term, c) -> unfold (term, c)
+    | BuiltIn (Fold, term, c) -> fold (term, c)
+    | BuiltIn (Unfold, term, c) -> unfold (term, c)
     | Hole (n, body, c) -> hole (n, body, c)
     | Annotation (term, kind, c) -> annotation (term, kind, c)
     | Equals (lhd, rhd, c) -> equals (lhd, rhd, c)

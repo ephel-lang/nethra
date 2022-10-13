@@ -214,6 +214,10 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (_, rhd, _) -> [ hypothesis |- term <= rhd ] )
 
   (*
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a=inl l]   Γ ⊢ r : Π(_:B).T[a=inr r]   a is id
+    -------------------------------------------------------------------------------
+    Γ ⊢ case a l r : C
+
     Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
     ---------------------------------------------------
     Γ ⊢ case a l r : C
@@ -228,8 +232,13 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (lhd, rhd, _) ->
       [
         proof
-      ; hypothesis |- left <= pi "_" lhd term'
-      ; hypothesis |- right <= pi "_" rhd term'
+      ; hypothesis
+        |- left
+        <= pi "_" lhd (reduce hypothesis @@ try_substitute term (inl left) term')
+      ; hypothesis
+        |- right
+        <= pi "_" rhd
+             (reduce hypothesis @@ try_substitute term (inr right) term')
       ] )
 
   (*

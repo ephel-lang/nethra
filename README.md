@@ -71,7 +71,7 @@ e ::=
     fold e        -- Fold recursive type
     unfold e      -- Unfold recursive type
     
-    (e:e)         -- Type annotation
+    (e:e)         -- Type ascription
     
     e = e         -- Equality
     refl          -- Reflexivity   
@@ -199,8 +199,12 @@ l ∈ string
 -----------------
 Γ ⊢ inr A : M + N
 
-Γ ⊢ a : A + B   Γ ⊢ l : A -> C   Γ ⊢ r : B -> C
------------------------------------------------
+a ∈ id   Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a=inl l]   Γ ⊢ r : Π(_:B).T[a=inr r]   
+------------------------------------------------------------------------------
+Γ ⊢ case a l r : C
+
+a ∉ id   Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
+------------------------------------------------------------
 Γ ⊢ case a l r : C
 ```
 
@@ -289,8 +293,6 @@ sterm ::=
     "unfold" sterm
     
     "(" term ")"
-    
-    ?id
     
     int 
     char

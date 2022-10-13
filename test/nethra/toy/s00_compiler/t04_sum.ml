@@ -28,6 +28,35 @@ let compile_basic_sum () =
   Alcotest.(check (result bool string))
     "basic sum type" expected (string_of_error result)
 
+let compile_bool () =
+  let result =
+    Pass.run
+      {toy|
+        --- Preamble
+        sig Unit : type
+        sig unit : Unit
+        ------------
+        sig Bool : type
+        val Bool = Unit | Unit
+
+        sig true  : Bool
+        val true  = inl unit
+
+        sig false  : Bool
+        val false  = inr unit
+
+        sig Test : Bool -> type
+        val Test = (b).case b (_).Unit (_).Bool
+
+        sig test : (b:Bool) -> Test b
+        val test = (b).case b (_).unit (_).true
+        ------------
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "bool type" expected (string_of_error result)
+
 let compile_recursive_sum () =
   let result =
     Pass.run
@@ -238,6 +267,7 @@ let cases =
   ( "Sum Compiler"
   , [
       test_case "basic sum type" `Quick compile_basic_sum
+    ; test_case "bool type" `Quick compile_bool
     ; test_case "recursive sum type" `Quick compile_recursive_sum
     ; test_case "recursive sum type with pseudo constructors" `Quick
         compile_recursive_sum_with_pseudo_constructors
