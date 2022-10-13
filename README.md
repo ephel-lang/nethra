@@ -303,7 +303,7 @@ sterm ::=
 
 #### HKT
 
-```
+```ocaml
 sig combine : {x:type} -> X -> X -> X
     
 sig add : int -> int -> int
@@ -314,7 +314,7 @@ val combineInt = add
 
 #### Function producing HKT
 
-```
+```ocaml
 sig combine : (x:type) -> type
 val combine = (X).(X -> X -> X)
     
@@ -330,23 +330,45 @@ In this example with first define a function returning a type depending on the p
 
 Then if the parameter is an `int` it returns the type `char` and if it's a `char` it returns an `int`.
 
-```
+```ocaml
 sig ic : int | char -> type
 val ic = (x).(case x (_).char (_).int)
 ```
 
 Then such function can be used in type level. For instance the expression `ic (inl 1)` produces the type `char`.
 
-```
+```ocaml
 sig m1 : ic (inl 1)
 val m1 = 'c'
+```
+
+An advanced usage can be proposed thanks to dependent types
+
+```ocaml
+sig Unit : type
+sig unit : Unit
+------------
+sig Bool : type
+val Bool = Unit | Unit
+
+sig true  : Bool
+val true  = inl unit
+
+sig false  : Bool
+val false  = inr unit
+
+sig Test : Bool -> type
+val Test = (b).case b (_).Unit (_).Bool
+
+sig test : (b:Bool) -> Test b
+val test = (b).case b (_).unit (_).true
 ```
 
 #### Dependent pair
 
 In this example, the dependent pair is illustrated thanks to the couple data structure.
 
-```
+```ocaml
 sig m : (t:type) * t
 val m = (char , 'c')
 ```
@@ -357,7 +379,7 @@ val m = (char , 'c')
 
 This can be used to encode modules and records. Then for instance a trait like:
 
-```
+```rust
 trait Monoid {
     sig empty   : self
     sig compose : self -> self -> self
@@ -366,7 +388,7 @@ trait Monoid {
 
 can be expressed by the type `(self:type) * (self * (self -> self -> self))`. Of course projections facilities provided by a trait should also be expressed thanks to the couple deconstruction using `fst` and `snd`.
 
-```
+```ocaml
 sig Monoid : type
 val Monoid = (self:type) * (self * (self -> self -> self))
 
@@ -377,7 +399,7 @@ sig Compose : type
 val Compose = (self:type) * (self -> self -> self)
 ```
 
-```
+```ocaml
 sig empty : Monoid -> Empty
 val empty = (x).(fst x, fst (snd x))
 
@@ -387,14 +409,14 @@ val compose = (x).(fst x, snd (snd x))
 
 Then an implementation can be easily done using pairs.
 
-```
+```trust
 impl Monoid for int {
     val empty   = 0
     val compose = add   -- int addition
 }
 ```
 
-```
+```ocaml
 sig int : type
 sig add : int -> int -> int
 
@@ -408,7 +430,7 @@ With this denotation the implementation can't be done using "internal" functions
 
 For this purpose we can review it adding a polymorphic parameter in order to mimic the row polymorphism.
 
-```
+```ocaml
 sig Monoid_T : type -> type
 val Monoid_T = (X).((t:type) * t * (t -> t -> t) * X)
 
@@ -421,7 +443,7 @@ val Compose_T = (t:type) * (t -> t -> t)
 
 Then we can propose the functions accessing trait elements.
 
-```
+```ocaml
 sig empty : {X:type} -> Monoid_T X -> Empty_T
 val empty = (x).(fst x, fst (snd x))
 
@@ -433,7 +455,7 @@ With such approach `X` cannot capture the existential type which is not really s
 
 #### Recursive sum types
 
-```
+```ocaml
 sig list : type -> type
 
 val list = (X).rec(l:type).(unit | (X * l)) 
@@ -451,7 +473,8 @@ val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 #### Encoding sum types
 
 Thanks to `Pi` constructor we are able to encode `data` definition.
-```
+
+```ocaml
 sig Atom  : (a:string) -> type
 sig data  : {A:type} -> (_:A) -> type
 val data  = {A}.(_).A
@@ -473,7 +496,7 @@ val false = inr False
 
 This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
 
-```
+```ocaml
 sig equal : {A:type} -> (a:A) -> (b:A) -> type
 val equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
 
