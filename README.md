@@ -65,7 +65,7 @@ e ::=
     e + e         -- Disjunction
     inl e         -- Left injection
     inr e         -- Right injection
-    case e e e    -- Catamorphism
+    case n e e    -- Catamorphism
     
     μ(n:e).e      -- Recursion
     fold e        -- Fold recursive type
@@ -199,12 +199,8 @@ l ∈ string
 -----------------
 Γ ⊢ inr A : M + N
 
-a ∈ id   Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a=inl l]   Γ ⊢ r : Π(_:B).T[a=inr r]   
-------------------------------------------------------------------------------
-Γ ⊢ case a l r : C
-
-a ∉ id   Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
-------------------------------------------------------------
+Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a=inl l]   Γ ⊢ r : Π(_:B).T[a=inr r]   
+---------------------------------------------------------------------
 Γ ⊢ case a l r : C
 ```
 
