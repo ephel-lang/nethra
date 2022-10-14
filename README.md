@@ -343,7 +343,7 @@ An advanced usage can be proposed thanks to dependent types
 ```ocaml
 sig Unit : type
 sig unit : Unit
-------------
+
 sig Bool : type
 val Bool = Unit | Unit
 
