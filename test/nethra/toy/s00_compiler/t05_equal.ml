@@ -5,7 +5,29 @@ open Preface_stdlib.Result.Functor (struct
   type t = Nethra.Syntax.Source.Region.t Pass.error
 end)
 
-let compile_equal () =
+let compile_propositional_equal () =
+  let result =
+    Pass.run
+      {toy|
+      -{
+        Propositional equality
+      }-
+
+      sig reflexive : {A:type} -> {a:A} -> equals a a
+      val reflexive = refl
+
+      sig symetric : {A:type} -> {a:A} -> {b:A} -> equals a b -> equals b a
+      --val symetric = (_).refl
+
+      sig transitivity : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equals a b -> equals b c -> equals a c
+      --val transitivity = (_).(_).refl
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "Propositional equality" expected (string_of_error result)
+
+let compile_leibniz_equal () =
   let result =
     Pass.run
       {toy|
@@ -35,4 +57,8 @@ let compile_equal () =
 
 let cases =
   let open Alcotest in
-  ("Equal Compiler", [ test_case "Leibniz equality" `Quick compile_equal ])
+  ( "Equal Compiler"
+  , [
+      test_case "Propositional equality" `Quick compile_propositional_equal
+    ; test_case "Leibniz equality" `Quick compile_leibniz_equal
+    ] )

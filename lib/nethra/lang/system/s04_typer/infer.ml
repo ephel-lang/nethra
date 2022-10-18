@@ -315,8 +315,10 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     Γ ⊢ refl : m = m
   *)
 
-  and infer_refl _hypothesis _c =
-    (None, [ failure (Some "Cannot infer reflexivity") ])
+  and infer_refl hypothesis c =
+    let var, _ = fresh_variable hypothesis "refl" in
+    let term = hole ~c var in
+    (Some (equals term term), [ ])
 
   and implicit_parameter hypothesis term =
     proof_from_option

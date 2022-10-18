@@ -41,6 +41,9 @@ module Impl = struct
     | BuildIn (Inr, t) -> inr ~c:(Some r) (abstract_localized t)
     | BuildIn (Fold, t) -> fold ~c:(Some r) (abstract_localized t)
     | BuildIn (Unfold, t) -> unfold ~c:(Some r) (abstract_localized t)
+    | Equal (t1, t2) ->
+      equals ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
+    | Refl -> refl ~c:(Some r) ()
 
   and abstract_localized =
     let open Nethra_toy_cst.Localized in

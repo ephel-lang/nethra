@@ -16,6 +16,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   let kind =
     localize (Reserved._TYPE_ >~> (integer <|> return 0) <&> fun a -> Type a)
 
+  let refl = localize (Reserved._REFL_ <&> fun _ -> Refl)
   let var = localize (identifier <&> fun a -> Var a)
   let int = localize (integer <&> fun a -> Literal (Int a))
   let string = localize (Delimited.string <&> fun a -> Literal (String a))
@@ -64,6 +65,13 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <&> fun (id, b) -> Lambda (id, b, true) )
 
   and lambda () = do_lazy lambda_explicit <|> do_lazy lambda_implicit
+
+  and equal () =
+    localize
+      ( Reserved._REFL_EQUALS_
+      >~> do_lazy sterm
+      <~> do_lazy sterm
+      <&> fun (t1, t2) -> Equal (t1, t2) )
 
   and let_in () =
     localize
@@ -118,6 +126,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <|> do_lazy case
     <|> do_lazy all_build_in
     <|> do_lazy block
+    <|> refl
+    <|> do_lazy equal
 
   and term_and_apply () =
     do_lazy sterm

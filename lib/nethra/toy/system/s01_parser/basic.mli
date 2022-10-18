@@ -34,5 +34,7 @@ module Impl
     val _UNFOLD_ : string Parsec.t
     val _LET_ : string Parsec.t
     val _IN_ : string Parsec.t
+    val _REFL_ : string Parsec.t
+    val _REFL_EQUALS_ : string Parsec.t
   end
 end

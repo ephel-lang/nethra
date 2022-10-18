@@ -50,5 +50,8 @@ and render_term ppf = function
     fprintf ppf "(%a) | (%a)" render_localized t1 render_localized t2
   | Pair (t1, t2) ->
     fprintf ppf "(%a),(%a)" render_localized t1 render_localized t2
+  | Equal (t1, t2) ->
+    fprintf ppf "(%a) =(%a)" render_localized t1 render_localized t2
+  | Refl -> fprintf ppf "refl"
 
 and render_localized ppt (Localized (t, _)) = render_term ppt t

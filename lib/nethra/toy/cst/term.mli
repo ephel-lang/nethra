@@ -25,3 +25,5 @@ type t =
   | Apply of (t Localized.t * t Localized.t * bool)
   | Sum of (t Localized.t * t Localized.t)
   | Pair of (t Localized.t * t Localized.t)
+  | Equal of (t Localized.t * t Localized.t)
+  | Refl
