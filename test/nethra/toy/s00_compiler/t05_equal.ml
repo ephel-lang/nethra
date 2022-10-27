@@ -17,7 +17,7 @@ let compile_propositional_equal () =
       val reflexive = refl
 
       sig symmetric : {A:type} -> {a:A} -> {b:A} -> equals a b -> equals b a
-      --val symmetric = (_).refl
+      -- val symmetric = (_).refl
 
       sig transitivity : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equals a b -> equals b c -> equals a c
       --val transitivity = (_).(_).refl

@@ -433,7 +433,9 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
           match success with
           | Some _ -> (success, [])
           | None ->
-            let proof = check term term' (tactic hypothesis term term') in
+            let proof =
+              check hypothesis term term' (tactic hypothesis term term')
+            in
             if is_success proof
             then (return proof, [])
             else (None, proof :: failures) )

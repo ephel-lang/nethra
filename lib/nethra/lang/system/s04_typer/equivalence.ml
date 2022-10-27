@@ -210,7 +210,7 @@ module Impl (Theory : Specs.Theory) = struct
         ~refl:(equivalent_refl hypothesis term')
         term
     in
-    equivalent term term' proofs
+    equivalent hypothesis term term' proofs
 
   and ( =?= ) (hypothesis, term) term' = equivalent_terms hypothesis term term'
 end

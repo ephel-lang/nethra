@@ -318,7 +318,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_refl hypothesis c =
     let var, _ = fresh_variable hypothesis "refl" in
     let term = hole ~c var in
-    (Some (equals term term), [ ])
+    (Some (equals term term), [])
 
   and implicit_parameter hypothesis term =
     proof_from_option
@@ -363,16 +363,16 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ~equals:(infer_equals hypothesis) ~refl:(infer_refl hypothesis) term
     in
     let term' = term' <&> reduce hypothesis in
-    (term', infer term term' proofs)
+    (term', infer hypothesis term term' proofs)
 
   and infer_type hypothesis term =
     match nominal hypothesis term with
     | None, proof -> (
       match implicit_parameter hypothesis term with
       | None, proofs' ->
-        let proof' = infer term None proofs' in
+        let proof' = infer hypothesis term None proofs' in
         if size proof' > size proof then proof' else proof
-      | term', proofs' -> infer term term' proofs' )
+      | term', proofs' -> infer hypothesis term term' proofs' )
     | _, r -> r
 
   and ( => ) (hypothesis, term) () = infer_type hypothesis term

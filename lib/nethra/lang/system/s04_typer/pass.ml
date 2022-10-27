@@ -29,7 +29,7 @@ module Impl = struct
     let term = get_type proof in
     ( ident
     , Some
-        (infer exp term
+        (infer h exp term
            [
              proof
            ; fold_right const
