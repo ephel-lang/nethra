@@ -19,10 +19,4 @@ module Access : sig
   val definitions : 'a t -> (string * 'a Term.t) list
   val get_definition : 'a t -> string -> 'a Term.t option
   val add_definition : 'a t -> string * 'a Term.t -> 'a t
-
-  (** Substitutions *)
-
-  val substitutions : 'a t -> (string * 'a Term.t) list
-  val get_substitution : 'a t -> string -> 'a Term.t option
-  val add_substitution : 'a t -> string * 'a Term.t -> 'a t
 end

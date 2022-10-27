@@ -38,9 +38,6 @@ let reduce_case reduce hypothesis (term, left, right, _) =
         ~inr:(fun (term, _) -> return (apply right term))
   >>= reduce hypothesis
 
-let reduce_hole reduce hypothesis (name, _, _) =
-  get_substitution hypothesis name >>= reduce hypothesis
-
 let rec reduce_opt hypothesis term =
   fold_right const
     (fold_opt
@@ -49,7 +46,6 @@ let rec reduce_opt hypothesis term =
        ~fst:(reduce_fst reduce_opt hypothesis)
        ~snd:(reduce_snd reduce_opt hypothesis)
        ~case:(reduce_case reduce_opt hypothesis)
-       ~hole:(reduce_hole reduce_opt hypothesis)
        term )
     term
   |> return

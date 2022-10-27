@@ -50,12 +50,4 @@ module Access = struct
 
   let add_definition (reference, gamma, delta, subst) binding =
     (reference, gamma, Bindings.Access.add_binding delta binding, subst)
-
-  (** Substitutions *)
-
-  let substitutions (_, _, _, subst) = Bindings.Access.bindings subst
-  let get_substitution (_, _, _, subst) n = Bindings.Access.get_binding subst n
-
-  let add_substitution (reference, gamma, delta, subst) binding =
-    (reference, gamma, delta, Bindings.Access.add_binding subst binding)
 end
