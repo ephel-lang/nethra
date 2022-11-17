@@ -503,6 +503,19 @@ sig false : bool
 val false = inr False
 ```
 
+#### Propositional equality
+
+```ocaml
+sig reflexive : {A:type} -> {a:A} -> equals a a
+val reflexive = refl
+
+sig symmetric : {A:type} -> {a:A} -> {b:A} -> equals a b -> equals b a
+val symmetric = (a_eq_b).subst refl by a_eq_b
+
+sig transitivity : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equals a b -> equals b c -> equals a c
+val transitivity = (a_eq_b).(b_eq_c).subst (subst refl by a_eq_b) by b_eq_c
+```
+
 #### Leibniz equality
 
 This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).

@@ -334,7 +334,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       Γ ⊢ b : x = B    Γ ⊢ a : A[B/x]    Γ ⊢ b : B = x    Γ ⊢ a : A[B/x]
       -------------------------------    -------------------------------
       Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
-    *)
+  *)
 
   and check_subst hypothesis tA (a, b, _c) =
     let proof = hypothesis |- b => () in
