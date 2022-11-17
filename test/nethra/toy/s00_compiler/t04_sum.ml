@@ -154,37 +154,6 @@ let compile_peano () =
   Alcotest.(check (result bool string))
     "recursive peano type" expected (string_of_error result)
 
-let compile_reflexivity () =
-  let result =
-    Pass.run
-      {toy|
-        -{
-            In Agda the reflexivity is expressed thanks to the GADT:
-            ```agda
-            data _≡_ {A : Set} (x : A) : A → Set where
-                refl : x ≡ x
-            ```
-        }-
-
-        --- Preamble
-        sig string : type
-        sig Atom   : (a:string) -> type
-        sig data   : {A:type} -> (_:A) -> type
-        val data   = {A}.(_).A
-        ------------
-        sig Refl  : Atom "Refl"
-
-        sig eq : {A:type} -> A -> A -> type
-        val eq = {A}.(a).(b).(data Refl * eq {A} a a)
-        -{
-            Hum, this example is not really conclusive ...
-        }-
-        |toy}
-    <&> fun (_, l) -> check l
-  and expected = Result.Ok true in
-  Alcotest.(check (result bool string))
-    "reflexivity" expected (string_of_error result)
-
 let compile_either () =
   let result =
     Pass.run
@@ -272,7 +241,6 @@ let cases =
     ; test_case "recursive sum type with pseudo constructors" `Quick
         compile_recursive_sum_with_pseudo_constructors
     ; test_case "recursive peano type" `Quick compile_peano
-    ; test_case "reflexivity" `Quick compile_reflexivity
     ; test_case "either type" `Quick compile_either
     ; test_case "freer type" `Quick compile_freer
     ] )
