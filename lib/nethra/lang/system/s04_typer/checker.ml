@@ -341,16 +341,17 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     let tB = get_type proof in
     proof_from_option
       ~reason:(return "Waiting for an equality")
+      ~proofs:[ proof ]
       ( tB
-      >>= fun t ->
-      fold_opt ~equals:return t
-      <&> fun (eql, eqr, _c) ->
-      let tA' = try_substitute eql eqr tA in
-      if tA = tA'
-      then
-        let tA' = try_substitute eqr eql tA in
-        if tA = tA' then [ failure None ] else [ hypothesis |- a <= tA' ]
-      else [ hypothesis |- a <= tA' ] )
+      >>= fold_opt ~equals:return
+      <&> (fun (eql, eqr, _c) ->
+            let tA' = try_substitute eql eqr tA in
+            if tA = tA'
+            then
+              let tA' = try_substitute eqr eql tA in
+              if tA = tA' then tA else tA'
+            else tA' )
+      <&> fun tA -> [ proof; hypothesis |- a <= tA ] )
 
   (*
     Γ ⊢
