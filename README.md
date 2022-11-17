@@ -305,6 +305,10 @@ sterm ::=
     
     "(" term ")"
     
+    "equals" term term
+    "refl"
+    "subst" term "by" term
+    
     int 
     char
     string
