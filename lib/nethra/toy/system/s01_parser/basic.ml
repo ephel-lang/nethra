@@ -49,6 +49,8 @@ struct
     ; "in"
     ; "refl"
     ; "equals"
+    ; "subst"
+    ; "by"
     ]
 
   let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
@@ -99,5 +101,7 @@ struct
     let _IN_ = token (string "in")
     let _REFL_ = token (string "refl")
     let _REFL_EQUALS_ = token (string "equals")
+    let _SUBST_ = token (string "subst")
+    let _BY_ = token (string "by")
   end
 end

@@ -218,8 +218,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     -------------------------------------------------------------------------------
     Γ ⊢ case a l r : C
 
-    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T
-    ---------------------------------------------------
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T    a is not a id
+    --------------------------------------------------------------------
     Γ ⊢ case a l r : C
   *)
   and check_case hypothesis term' (term, left, right, _c) =
@@ -336,8 +336,21 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
     *)
 
-  and check_subst _hypothesis _term' (_lhd, _rhd, _c) =
-    [ failure (Some "Not implemented") ]
+  and check_subst hypothesis tA (a, b, _c) =
+    let proof = hypothesis |- b => () in
+    let tB = get_type proof in
+    proof_from_option
+      ~reason:(return "Waiting for an equality")
+      ( tB
+      >>= fun t ->
+      fold_opt ~equals:return t
+      <&> fun (eql, eqr, _c) ->
+      let tA' = try_substitute eql eqr tA in
+      if tA = tA'
+      then
+        let tA' = try_substitute eqr eql tA in
+        if tA = tA' then [ failure None ] else [ hypothesis |- a <= tA' ]
+      else [ hypothesis |- a <= tA' ] )
 
   (*
     Γ ⊢

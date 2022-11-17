@@ -36,5 +36,7 @@ module Impl
     val _IN_ : string Parsec.t
     val _REFL_ : string Parsec.t
     val _REFL_EQUALS_ : string Parsec.t
+    val _SUBST_ : string Parsec.t
+    val _BY_ : string Parsec.t
   end
 end

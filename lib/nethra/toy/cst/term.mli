@@ -27,3 +27,4 @@ type t =
   | Pair of (t Localized.t * t Localized.t)
   | Equal of (t Localized.t * t Localized.t)
   | Refl
+  | Subst of (t Localized.t * t Localized.t)

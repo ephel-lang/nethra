@@ -44,6 +44,8 @@ module Impl = struct
     | Equal (t1, t2) ->
       equals ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
     | Refl -> refl ~c:(Some r) ()
+    | Subst (t1, t2) ->
+      subst ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
 
   and abstract_localized =
     let open Nethra_toy_cst.Localized in

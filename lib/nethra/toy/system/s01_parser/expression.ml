@@ -73,6 +73,14 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <~> do_lazy sterm
       <&> fun (t1, t2) -> Equal (t1, t2) )
 
+  and subst () =
+    localize
+      ( Reserved._SUBST_
+      >~> do_lazy sterm
+      <~< Reserved._BY_
+      <~> do_lazy sterm
+      <&> fun (t1, t2) -> Subst (t1, t2) )
+
   and let_in () =
     localize
       ( Reserved._LET_
@@ -128,6 +136,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <|> do_lazy block
     <|> refl
     <|> do_lazy equal
+    <|> do_lazy subst
 
   and term_and_apply () =
     do_lazy sterm
