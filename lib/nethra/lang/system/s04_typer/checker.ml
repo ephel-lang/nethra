@@ -98,7 +98,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (name', bound', body', implicit', _c') ->
       if implicit = implicit'
       then
-        let var, hypothesis = fresh_variable hypothesis name' in
+        let var, hypothesis = fresh_variable hypothesis name in
         let body' = substitute name' (id ~initial:(return name') var) body'
         and body = substitute name (id ~initial:(return name) var) body in
         [ add_signature hypothesis (var, bound') |- body <= body' ]
@@ -331,6 +331,37 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (lhd, rhd, _c) -> [ hypothesis |- lhd =?= rhd ] )
 
   (*
+      Γ ⊢ b : x = B    Γ ⊢ a : A[B/x]    Γ ⊢ b : B = x    Γ ⊢ a : A[B/x]
+      -------------------------------    -------------------------------
+      Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
+    *)
+
+  and check_subst _hypothesis _term' (_lhd, _rhd, _c) =
+    [ failure (Some "Not implemented") ]
+
+  (*
+    Γ ⊢
+    ----------------
+    Γ ⊢
+  *)
+
+  and check_record _hypothesis term' (_l, _c) =
+    proof_from_option
+      ~reason:(return "Waiting for a record")
+      (fold_opt ~record:return term' <&> fun (_r, _c) -> [ failure None ])
+
+  (*
+    Γ ⊢
+    ----------------
+    Γ ⊢
+  *)
+
+  and check_access _hypothesis _term' (_t, _n, _c) =
+    [ failure (Some "Not implemented") ]
+
+  (* Additional rules for implicits ... *)
+
+  (*
     Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
     ----------------------------------
     Γ ⊢ B : Π{x:A}.T
@@ -416,6 +447,9 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ~annotation:(check_annotation hypothesis term')
       ~equals:(check_equals hypothesis term')
       ~refl:(check_refl hypothesis term')
+      ~subst:(check_subst hypothesis term')
+      ~record:(check_record hypothesis term')
+      ~access:(check_access hypothesis term')
       term
 
   (* type checker main entrypoint *)

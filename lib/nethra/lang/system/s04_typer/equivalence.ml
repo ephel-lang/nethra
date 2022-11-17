@@ -169,11 +169,17 @@ module Impl (Theory : Specs.Theory) = struct
       <&> fun (term', kind', _) ->
       [ hypothesis |- term =?= term'; hypothesis |- kind =?= kind' ] )
 
-  and equivalent_equals _hypothesis _term' (_lhd, _rhd, _c) =
+  and equivalent_equals _hypothesis _term' (_lhd, _rhd, _c) = [ failure None ]
+
+  and equivalent_refl _hypothesis term' _c =
+    proof_from_option (fold_opt ~refl:return term' <&> fun _ -> [])
+
+  and equivalent_subst _hypothesis _term' (_lhd, _rhd, _c) = [ failure None ]
+
+  and equivalent_record _hypothesis _term' (_l, _c) =
     [ failure (Some "Not yet implemented") ]
 
-  and equivalent_refl _hypothesis _term' _c =
-    [ failure (Some "Not yet implemented") ]
+  and equivalent_access _hypothesis _term' (_t, _n, _c) = [ failure None ]
 
   and equivalent_terms hypothesis term term' =
     let term = reduce hypothesis term
@@ -208,6 +214,9 @@ module Impl (Theory : Specs.Theory) = struct
         ~annotation:(equivalent_annotation hypothesis term')
         ~equals:(equivalent_equals hypothesis term')
         ~refl:(equivalent_refl hypothesis term')
+        ~subst:(equivalent_subst hypothesis term')
+        ~record:(equivalent_record hypothesis term')
+        ~access:(equivalent_access hypothesis term')
         term
     in
     equivalent hypothesis term term' proofs

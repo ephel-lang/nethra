@@ -320,6 +320,33 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     let term = hole ~c var in
     (Some (equals term term), [])
 
+  (*
+      Γ ⊢ b : x = B    Γ ⊢ a : A[B/x]    Γ ⊢ b : B = x    Γ ⊢ a : A[B/x]
+      -------------------------------    -------------------------------
+      Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
+    *)
+
+  and infer_subst _hypothesis (_lhd, _rhd, _c) =
+    (None, [ failure (Some "Not Yet implemented") ])
+
+  (*
+    Γ ⊢
+    ----------------
+    Γ ⊢
+  *)
+
+  and infer_record _hypothesis (_l, _c) =
+    (None, [ failure (Some "Not Yet implemented") ])
+
+  (*
+    Γ ⊢
+    ----------------
+    Γ ⊢
+  *)
+
+  and infer_access _hypothesis (_t, _n, _c) =
+    (None, [ failure (Some "Not Yet implemented") ])
+
   and implicit_parameter hypothesis term =
     proof_from_option
       ~reason:(return "implicit_parameter")
@@ -360,7 +387,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ~mu:(infer_mu hypothesis) ~fold:(infer_fold hypothesis)
         ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis)
         ~annotation:(infer_annotation hypothesis)
-        ~equals:(infer_equals hypothesis) ~refl:(infer_refl hypothesis) term
+        ~equals:(infer_equals hypothesis) ~refl:(infer_refl hypothesis)
+        ~subst:(infer_subst hypothesis) ~record:(infer_record hypothesis)
+        ~access:(infer_access hypothesis) term
     in
     let term' = term' <&> reduce hypothesis in
     (term', infer hypothesis term term' proofs)

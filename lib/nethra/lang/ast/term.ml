@@ -41,6 +41,10 @@ type 'a t =
   (* Propositional equality *)
   | Equals of 'a t * 'a t * 'a option
   | Refl of 'a option
+  | Subst of 'a t * 'a t * 'a option
+  (* Record type and Access *)
+  | Record of (string * 'a t) list * 'a option
+  | Access of 'a t * string * 'a option
 
 module Construct = struct
   let kind ?(c = None) i = Type (i, c)
@@ -75,12 +79,15 @@ module Construct = struct
   let annotation ?(c = None) term kind = Annotation (term, kind, c)
   let equals ?(c = None) lhd rhd = Equals (lhd, rhd, c)
   let refl ?(c = None) _ = Refl c
+  let subst ?(c = None) lhd rhd = Subst (lhd, rhd, c)
+  let record ?(c = None) l = Record (l, c)
+  let access ?(c = None) t n = Access (t, n, c)
 end
 
 module Destruct = struct
   let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair ~fst
       ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation ~equals
-      ~refl = function
+      ~refl ~subst ~record ~access = function
     | Type (i, c) -> kind (i, c)
     | Literal (Int i, c) -> int (i, c)
     | Literal (Char i, c) -> char (i, c)
@@ -104,6 +111,9 @@ module Destruct = struct
     | Annotation (term, kind, c) -> annotation (term, kind, c)
     | Equals (lhd, rhd, c) -> equals (lhd, rhd, c)
     | Refl c -> refl c
+    | Subst (lhd, rhd, c) -> subst (lhd, rhd, c)
+    | Record (l, c) -> record (l, c)
+    | Access (l, n, c) -> access (l, n, c)
 
   let fold_opt =
     let internal_fold = fold in
@@ -113,8 +123,8 @@ module Destruct = struct
         ?(sigma = none) ?(pair = none) ?(fst = none) ?(snd = none) ?(sum = none)
         ?(inl = none) ?(inr = none) ?(case = none) ?(mu = none) ?(fold = none)
         ?(unfold = none) ?(hole = none) ?(annotation = none) ?(equals = none)
-        ?(refl = none) term ->
+        ?(refl = none) ?(subst = none) ?(record = none) ?(access = none) term ->
       internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
         ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation
-        ~equals ~refl term
+        ~equals ~refl ~subst ~record ~access term
 end

@@ -67,6 +67,12 @@ let equals ppf render (lhd, rhd, _) =
 
 let refl ppf _ = fprintf ppf "refl"
 
+let subst ppf render (lhd, rhd, _) =
+  fprintf ppf "subst %a by %a" render lhd render rhd
+
+let record ppf _ (_l, _) = fprintf ppf "{}"
+let access ppf render (t, n, _) = fprintf ppf "%a.%s" render t n
+
 let rec render ppf t =
   Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)
     ~char:(char ppf) ~string:(string ppf) ~id:(id ppf) ~pi:(pi ppf render)
@@ -76,4 +82,5 @@ let rec render ppf t =
     ~inr:(inr ppf render) ~case:(case ppf render) ~mu:(mu ppf render)
     ~fold:(fold ppf render) ~unfold:(unfold ppf render) ~hole:(hole ppf render)
     ~annotation:(annotation ppf render) ~equals:(equals ppf render)
-    ~refl:(refl ppf) t
+    ~refl:(refl ppf) ~subst:(subst ppf render) ~record:(record ppf render)
+    ~access:(access ppf render) t

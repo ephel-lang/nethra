@@ -52,7 +52,6 @@ e ::=
     Π(n:e).e      -- Dependant function type
     λ(n).e        -- Function
     e e           -- Application
-    
     Π{n:e}.e      -- Dependant function type possibly implicit
     λ{n}.e        -- Function possibly implicit
     e {e}         -- Application possibly implicit
@@ -75,6 +74,10 @@ e ::=
     
     e = e         -- Equality
     refl          -- Reflexivity   
+    subs e by e   -- Substitution 
+    
+    { n : e, ...} -- Record
+    e . e         -- Field access
 ```
 
 ### Typing rules
@@ -238,7 +241,19 @@ l ∈ string
 Γ ⊢
 ----------------
 Γ ⊢ refl : m = m
+
+Γ ⊢ b : x = B    Γ ⊢ a : A[B/x]
+-------------------------------    
+Γ ⊢ subst a by b : A               
+
+Γ ⊢ b : B = x    Γ ⊢ a : A[B/x]
+-------------------------------
+Γ ⊢ subst a by b : A
 ```
+
+#### Record type
+
+TODO
 
 ## Nethra Toy language in action
 

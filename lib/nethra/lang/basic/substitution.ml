@@ -73,6 +73,15 @@ let subs_equals substitute name value (lhd, rhd, c) =
 
 let subs_refl c = refl ~c ()
 
+let subs_subst substitute name value (lhd, rhd, c) =
+  subst ~c (substitute name value lhd) (substitute name value rhd)
+
+let subs_record substitute name value (l, c) =
+  record ~c (List.map (fun (n, t) -> (n, substitute name value t)) l)
+
+let subs_access substitute name value (t, n, c) =
+  access ~c (substitute name value t) n
+
 let rec substitute name value term =
   Destruct.fold ~kind:subs_kind ~int:subs_int ~char:subs_char
     ~string:subs_string ~id:(subs_id name value)
@@ -93,7 +102,11 @@ let rec substitute name value term =
     ~hole:subs_hole
     ~annotation:(subs_annotation substitute name value)
     ~equals:(subs_equals substitute name value)
-    ~refl:subs_refl term
+    ~refl:subs_refl
+    ~subst:(subs_subst substitute name value)
+    ~record:(subs_record substitute name value)
+    ~access:(subs_access substitute name value)
+    term
 
 let try_substitute id value term =
   fold_right const

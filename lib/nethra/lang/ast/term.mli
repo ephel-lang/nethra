@@ -26,7 +26,10 @@ module Construct : sig
   val hole : ?c:'a option -> ?r:'a t option ref -> string -> 'a t
   val annotation : ?c:'a option -> 'a t -> 'a t -> 'a t
   val equals : ?c:'a option -> 'a t -> 'a t -> 'a t
+  val subst : ?c:'a option -> 'a t -> 'a t -> 'a t
   val refl : ?c:'a option -> unit -> 'a t
+  val record : ?c:'a option -> (string * 'a t) list -> 'a t
+  val access : ?c:'a option -> 'a t -> string -> 'a t
 end
 
 module Destruct : sig
@@ -54,6 +57,9 @@ module Destruct : sig
     -> annotation:('a t * 'a t * 'a option -> 'b)
     -> equals:('a t * 'a t * 'a option -> 'b)
     -> refl:('a option -> 'b)
+    -> subst:('a t * 'a t * 'a option -> 'b)
+    -> record:((string * 'a t) list * 'a option -> 'b)
+    -> access:('a t * string * 'a option -> 'b)
     -> 'a t
     -> 'b
 
@@ -81,6 +87,9 @@ module Destruct : sig
     -> ?annotation:('a t * 'a t * 'a option -> 'b option)
     -> ?equals:('a t * 'a t * 'a option -> 'b option)
     -> ?refl:('a option -> 'b option)
+    -> ?subst:('a t * 'a t * 'a option -> 'b option)
+    -> ?record:((string * 'a t) list * 'a option -> 'b option)
+    -> ?access:('a t * string * 'a option -> 'b option)
     -> 'a t
     -> 'b option
 end

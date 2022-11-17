@@ -53,6 +53,14 @@ let free_vars_equals free_vars variables (lhd, rhd, _c) =
 
 let free_vars_refl _ = []
 
+let free_vars_subst free_vars variables (lhd, rhd, _c) =
+  free_vars variables lhd @ free_vars variables rhd
+
+let free_vars_record free_vars variables (l, _c) =
+  List.concat_map (fun (_n, t) -> free_vars variables t) l
+
+let free_vars_access free_vars variables (t, _n, _c) = free_vars variables t
+
 let rec free_vars variables term =
   Destruct.fold ~kind:free_vars_kind ~int:free_vars_int ~char:free_vars_char
     ~string:free_vars_string ~id:(free_vars_id variables)
@@ -73,4 +81,8 @@ let rec free_vars variables term =
     ~hole:free_vars_hole
     ~annotation:(free_vars_annotation free_vars variables)
     ~equals:(free_vars_equals free_vars variables)
-    ~refl:free_vars_refl term
+    ~refl:free_vars_refl
+    ~subst:(free_vars_subst free_vars variables)
+    ~record:(free_vars_record free_vars variables)
+    ~access:(free_vars_access free_vars variables)
+    term
