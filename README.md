@@ -304,6 +304,10 @@ sterm ::=
     "type" int?
     
     id
+    int 
+    char
+    string 
+    
     
     "case" sterm sterm sterm
     "inl" sterm
@@ -321,9 +325,8 @@ sterm ::=
     "refl"
     "subst" term "by" term
     
-    int 
-    char
-    string
+    "{|" id ":" sterm (";" id ":" sterm)*)? "|}"
+    sterm "@" id
 ```
 
 ### Some examples

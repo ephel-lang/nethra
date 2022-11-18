@@ -359,10 +359,25 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
   *)
 
-  and check_record _hypothesis term' (_l, _c) =
+  and check_record hypothesis term' (l, _c) =
     proof_from_option
       ~reason:(return "Waiting for a record")
-      (fold_opt ~record:return term' <&> fun (_r, _c) -> [ failure None ])
+      ( fold_opt ~record:return term'
+      <&> fun (lT, _c) ->
+      let proofs =
+        if List.length l = List.length lT
+        then []
+        else [ failure (Some "Record should have the same size") ]
+      in
+      List.fold_right
+        (fun (n, e) p ->
+          proof_from_option
+            ~reason:(Some (n ^ " type not found"))
+            ~proofs:p
+            ( List.find_opt (fun (n', _) -> n' = n) lT
+            <&> (fun (_, t) -> t)
+            <&> fun t -> (hypothesis |- e <= t) :: p ) )
+        l proofs )
 
   (*
     Γ ⊢ e : { n_i : T_i }_i

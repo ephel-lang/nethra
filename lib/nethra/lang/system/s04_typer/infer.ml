@@ -363,6 +363,10 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
       <&> fun (_, t) -> (Some t, [ proof ]) )
 
+  (*
+    Additional inference rule dedicated to implicit parameters
+  *)
+
   and implicit_parameter hypothesis term =
     proof_from_option
       ~reason:(return "implicit_parameter")

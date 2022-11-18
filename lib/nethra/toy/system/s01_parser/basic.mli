@@ -14,6 +14,8 @@ module Impl
     val _DOT_ : string Parsec.t
     val _LPAR_ : string Parsec.t
     val _RPAR_ : string Parsec.t
+    val _LSQUARE_ : string Parsec.t
+    val _RSQUARE_ : string Parsec.t
     val _LACC_ : string Parsec.t
     val _RACC_ : string Parsec.t
     val _COLON_ : string Parsec.t

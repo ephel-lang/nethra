@@ -30,7 +30,23 @@ struct
   let localize p = token (locate p <&> fun (a, r) -> Localized (a, r))
 
   let operators =
-    [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-" ]
+    [
+      "->"
+    ; "."
+    ; "("
+    ; ")"
+    ; "["
+    ; "]"
+    ; "{"
+    ; "}"
+    ; ":"
+    ; "*"
+    ; "|"
+    ; "="
+    ; "--"
+    ; "—{"
+    ; "}-"
+    ]
 
   let keywords =
     [
@@ -79,6 +95,8 @@ struct
     let _DOT_ = token (string ".")
     let _LPAR_ = token (string "(")
     let _RPAR_ = token (string ")")
+    let _LSQUARE_ = token (string "[")
+    let _RSQUARE_ = token (string "]")
     let _LACC_ = token (string "{")
     let _RACC_ = token (string "}")
     let _COLON_ = token (string ":")
