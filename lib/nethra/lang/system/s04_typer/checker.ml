@@ -354,9 +354,9 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun tA -> [ proof; hypothesis |- a <= tA ] )
 
   (*
-    Γ ⊢
-    ----------------
-    Γ ⊢
+    Γ ⊢ e_i : T_i
+    -----------------------------------
+    Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
   *)
 
   and check_record _hypothesis term' (_l, _c) =
@@ -365,13 +365,22 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       (fold_opt ~record:return term' <&> fun (_r, _c) -> [ failure None ])
 
   (*
-    Γ ⊢
-    ----------------
-    Γ ⊢
+    Γ ⊢ e : { n_i : T_i }_i
+    -----------------------
+    Γ ⊢ e . n_i : T_i
   *)
 
-  and check_access _hypothesis _term' (_t, _n, _c) =
-    [ failure (Some "Not implemented") ]
+  and check_access hypothesis term' (r, n, _c) =
+    let proof = hypothesis |- r => () in
+    let tR = get_type proof in
+    proof_from_option
+      ~reason:(return "Waiting for a record")
+      ~proofs:[ proof ]
+      ( tR
+      >>= fold_opt ~record:return
+      >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
+      <&> (fun (_, t) -> t)
+      <&> fun tN -> [ proof; hypothesis |- term' =?= tN ] )
 
   (* Additional rules for implicits ... *)
 

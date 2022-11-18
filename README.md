@@ -257,7 +257,15 @@ l ∈ string
 
 #### Record type
 
-TODO
+```
+Γ ⊢ e_i : T_i
+-----------------------------------
+Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
+
+Γ ⊢ e : { n_i : T_i }_i
+-----------------------
+Γ ⊢ e . n_i : T_i
+```
 
 ## Nethra Toy language in action
 

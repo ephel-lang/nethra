@@ -38,6 +38,13 @@ let reduce_case reduce hypothesis (term, left, right, _) =
         ~inr:(fun (term, _) -> return (apply right term))
   >>= reduce hypothesis
 
+let reduce_access reduce hypothesis (term, ident, _) =
+  reduce hypothesis term
+  >>= fold_opt ~record:return
+  >>= (fun (l, _) -> List.find_opt (fun (n, _) -> n = ident) l)
+  <&> (fun (_, t) -> t)
+  >>= reduce hypothesis
+
 let rec reduce_opt hypothesis term =
   fold_right const
     (fold_opt
@@ -46,6 +53,7 @@ let rec reduce_opt hypothesis term =
        ~fst:(reduce_fst reduce_opt hypothesis)
        ~snd:(reduce_snd reduce_opt hypothesis)
        ~case:(reduce_case reduce_opt hypothesis)
+       ~access:(reduce_access reduce_opt hypothesis)
        term )
     term
   |> return

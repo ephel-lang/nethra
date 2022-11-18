@@ -55,7 +55,7 @@ let compile_bool () =
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "bool type" expected (string_of_error result)
+    "dependant type and case" expected (string_of_error result)
 
 let compile_recursive_sum () =
   let result =

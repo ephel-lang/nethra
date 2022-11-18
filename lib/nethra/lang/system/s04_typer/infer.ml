@@ -1,6 +1,7 @@
 module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   include Judgment
   open Stdlib.Fun
+  open Preface.Option.Applicative
   open Preface.Option.Monad
   open Preface.Option.Foldable
   open Nethra_lang_ast.Term.Construct
@@ -326,26 +327,41 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
     *)
 
-  and infer_subst _hypothesis (_lhd, _rhd, _c) =
-    (None, [ failure (Some "Not Yet implemented") ])
+  and infer_subst _hypothesis (_lhd, _rhd, _c) = (None, [ failure None ])
 
   (*
-    Γ ⊢
-    ----------------
-    Γ ⊢
+    Γ ⊢ e_i : T_i
+    -----------------------------------
+    Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
   *)
 
-  and infer_record _hypothesis (_l, _c) =
-    (None, [ failure (Some "Not Yet implemented") ])
+  and infer_record hypothesis (l, c) =
+    let r, p =
+      List.fold_right
+        (fun (n, e) (r, p) ->
+          let proof = hypothesis |- e => () in
+          let t = get_type proof in
+          (return (fun t l -> (n, t) :: l) <*> t <*> r, proof :: p) )
+        l (Some [], [])
+    in
+    ((r <&> fun r -> record ~c r), p)
 
   (*
-    Γ ⊢
-    ----------------
-    Γ ⊢
+    Γ ⊢ e : { n_i : T_i }_i
+    -----------------------
+    Γ ⊢ e . n_i : T_i
   *)
 
-  and infer_access _hypothesis (_t, _n, _c) =
-    (None, [ failure (Some "Not Yet implemented") ])
+  and infer_access hypothesis (r, n, _c) =
+    let proof = hypothesis |- r => () in
+    let tR = get_type proof in
+    proof_from_option
+      ~reason:(return "Waiting for a record")
+      ~proofs:[ proof ]
+      ( tR
+      >>= fold_opt ~record:return
+      >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
+      <&> fun (_, t) -> (Some t, [ proof ]) )
 
   and implicit_parameter hypothesis term =
     proof_from_option
