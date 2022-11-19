@@ -1,16 +1,17 @@
-type t = Location.t * Location.t
+type t = string option * Location.t * Location.t
 
 module Construct = struct
-  let create ~first ~last = (first, last)
+  let create ?(file = None) first last = (file, first, last)
 end
 
 module Access = struct
-  let first = fst
-  let last = snd
+  let file (file, _, _) = file
+  let first (_, first, _) = first
+  let last (_, _, second) = second
 end
 
 module Render = struct
-  let render ppf (first, last) =
+  let render ppf (_, first, last) =
     let open Format in
     let open Location.Render in
     fprintf ppf "from %a to %a" render first render last

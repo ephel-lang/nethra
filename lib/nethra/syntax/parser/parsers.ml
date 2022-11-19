@@ -49,7 +49,7 @@ module Eval (P : Specs.PARSEC) = struct
     let l0 = location s in
     fold
       ~success:(fun (a, b, s) ->
-        success ((a, Region.create ~first:l0 ~last:(location s)), b, s) )
+        success ((a, Region.create l0 (location s)), b, s) )
       ~failure:(fun (m, _, _) -> failure (m, false, s))
       (p s)
 

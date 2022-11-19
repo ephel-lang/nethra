@@ -77,7 +77,7 @@ e ::=
     subs e by e   -- Substitution 
     
     { n : e, ...} -- Record
-    e . e         -- Field access
+    e.e           -- Field access
 ```
 
 ### Typing rules
@@ -282,51 +282,51 @@ binding ::=
 
 ```
 term ::=     
-    "(" id ":" term ")" ("->" | "*") term    
-    "{" id ":" term "}" ("->") term    
-    aterm (("->"|"*"|",") term)?
-```
-
-```
-aterm ::=
-    sterm ("{" term "}" | sterm)* 
-```
-
-```
-sterm ::=
-    "let" id "=" term "in" sterm
-
-    "rec" "(" id ")" "." sterm
- 
-    "(" id ")" "." sterm    
-    "{" id "}" "." sterm
+    term "=" term
+    term "->" term
+    term "*" term
+    term "," term
+    term "|" term
     
-    "type" int?
+    term "{" term "}"
+    term term
     
+    term "@" id
+
+    "(" id ":" term ")" "->" term    
+    "{" id ":" term "}" "->" term    
+    "(" id ":" term ")" "*" term    
+    
+    "let" id "=" term "in" term
+
+    "(" id ")" "." term    
+    "{" id "}" "." term
+    
+    "{" id ":" term (";" id ":" term)*)? "}"
+    
+    "case" term term term
+    "inl" term
+    "inr" term
+    
+    "fst" term
+    "snd" term
+    
+    "rec" "(" id ")" "." term
+    "fold" term
+    "unfold" term
+    
+    "refl"
+    "subst" term "by" term
+
     id
     int 
     char
     string 
-    
-    
-    "case" sterm sterm sterm
-    "inl" sterm
-    "inr" sterm
-    
-    "fst" sterm
-    "snd" sterm
-    
-    "fold" sterm
-    "unfold" sterm
+
+    "type" int?
     
     "(" term ")"
-    
-    "equals" term term
-    "refl"
-    "subst" term "by" term
-    
-    "{|" id ":" sterm (";" id ":" sterm)*)? "|}"
-    sterm "@" id
+        
 ```
 
 ### Some examples

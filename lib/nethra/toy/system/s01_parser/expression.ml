@@ -151,9 +151,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       (fun a (p, i) ->
         Localized
           ( Apply (a, p, i)
-          , Construct.create
-              ~first:(Access.first (region a))
-              ~last:(Access.last (region p)) ) )
+          , Construct.create (Access.first (region a)) (Access.last (region p))
+          ) )
       a params
 
   and term_and_apply_and_disjunction () =

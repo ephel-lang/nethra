@@ -1,10 +1,11 @@
 type t
 
 module Construct : sig
-  val create : first:Location.t -> last:Location.t -> t
+  val create : ?file:string option -> Location.t -> Location.t -> t
 end
 
 module Access : sig
+  val file : t -> string option
   val first : t -> Location.t
   val last : t -> Location.t
 end
