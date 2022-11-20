@@ -561,6 +561,28 @@ val symmetric = {A}.{a}.(eq_a_b).(P).
     Qb
 ```
 
+#### Record type and value
+
+```ocaml
+-----------
+sig int : type
+-----------
+sig point :type
+
+val point =
+    sig struct
+        x : int
+        y : int
+    end
+
+ sig zero : point
+ val zero =
+    val struct
+        x = 0
+        y = 0
+    end
+```
+
 # Why Nethra?
 
 See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.
