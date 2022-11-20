@@ -307,8 +307,8 @@ term ::=
     "(" id ")" "." term    
     "{" id "}" "." term
     
-    "sig" "struct" id ":" sterm (id ":" term)*)? "end"
-    "val" "struct" id "=" sterm (id "=" term)*)? "end"
+    "sig" "struct" (id ":" term)*)? "end"
+    "val" "struct" (id "=" term)*)? "end"
     
     "case" term term term
     "inl" term
