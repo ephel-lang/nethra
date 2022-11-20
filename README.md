@@ -575,8 +575,8 @@ val point =
         y : int
     end
 
- sig zero : point
- val zero =
+sig zero : point
+val zero =
     val struct
         x = 0
         y = 0
