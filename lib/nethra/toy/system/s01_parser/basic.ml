@@ -30,23 +30,7 @@ struct
   let localize p = token (locate p <&> fun (a, r) -> Localized (a, r))
 
   let operators =
-    [
-      "->"
-    ; "."
-    ; "("
-    ; ")"
-    ; "["
-    ; "]"
-    ; "{"
-    ; "}"
-    ; ":"
-    ; "*"
-    ; "|"
-    ; "="
-    ; "--"
-    ; "—{"
-    ; "}-"
-    ]
+    [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-"; "@" ]
 
   let keywords =
     [
@@ -67,6 +51,8 @@ struct
     ; "equals"
     ; "subst"
     ; "by"
+    ; "struct"
+    ; "end"
     ]
 
   let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
@@ -95,8 +81,6 @@ struct
     let _DOT_ = token (string ".")
     let _LPAR_ = token (string "(")
     let _RPAR_ = token (string ")")
-    let _LSQUARE_ = token (string "[")
-    let _RSQUARE_ = token (string "]")
     let _LACC_ = token (string "{")
     let _RACC_ = token (string "}")
     let _COLON_ = token (string ":")
@@ -106,7 +90,7 @@ struct
     let _EQUAL_ = token (string "=")
     let _SIG_ = token (string "sig")
     let _VAL_ = token (string "val")
-    let _TYPE_ = token (string "type")
+    let _TYPE_ = token (string "type") >~> (integer <|> return 0)
     let _CASE_ = token (string "case")
     let _INL_ = token (string "inl")
     let _INR_ = token (string "inr")
@@ -121,5 +105,8 @@ struct
     let _REFL_EQUALS_ = token (string "equals")
     let _SUBST_ = token (string "subst")
     let _BY_ = token (string "by")
+    let _STRUCT_ = token (string "struct")
+    let _END_ = token (string "end")
+    let _ACCESS_ = token (string "@")
   end
 end

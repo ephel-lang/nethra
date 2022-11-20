@@ -11,6 +11,10 @@ type operation =
   | Fold
   | Unfold
 
+type sort =
+  | S_Sig
+  | S_Val
+
 type t =
   | Type of int
   | Var of string
@@ -28,3 +32,5 @@ type t =
   | Equal of (t Localized.t * t Localized.t)
   | Refl
   | Subst of (t Localized.t * t Localized.t)
+  | Record of sort * (string * t Localized.t) list
+(* | Access of t Localized.t * string *)

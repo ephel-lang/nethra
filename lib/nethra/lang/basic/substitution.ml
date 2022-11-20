@@ -76,8 +76,11 @@ let subs_refl c = refl ~c ()
 let subs_subst substitute name value (lhd, rhd, c) =
   subst ~c (substitute name value lhd) (substitute name value rhd)
 
-let subs_record substitute name value (l, c) =
-  record ~c (List.map (fun (n, t) -> (n, substitute name value t)) l)
+let subs_record_sig substitute name value (l, c) =
+  record_sig ~c (List.map (fun (n, t) -> (n, substitute name value t)) l)
+
+let subs_record_val substitute name value (l, c) =
+  record_val ~c (List.map (fun (n, t) -> (n, substitute name value t)) l)
 
 let subs_access substitute name value (t, n, c) =
   access ~c (substitute name value t) n
@@ -104,7 +107,8 @@ let rec substitute name value term =
     ~equals:(subs_equals substitute name value)
     ~refl:subs_refl
     ~subst:(subs_subst substitute name value)
-    ~record:(subs_record substitute name value)
+    ~record_sig:(subs_record_sig substitute name value)
+    ~record_val:(subs_record_val substitute name value)
     ~access:(subs_access substitute name value)
     term
 

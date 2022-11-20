@@ -7,4 +7,5 @@ let () =
       ; T03_product.cases
       ; T04_sum.cases
       ; T05_equal.cases
+      ; T06_record.cases
       ])

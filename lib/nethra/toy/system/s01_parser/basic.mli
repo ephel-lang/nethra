@@ -14,8 +14,6 @@ module Impl
     val _DOT_ : string Parsec.t
     val _LPAR_ : string Parsec.t
     val _RPAR_ : string Parsec.t
-    val _LSQUARE_ : string Parsec.t
-    val _RSQUARE_ : string Parsec.t
     val _LACC_ : string Parsec.t
     val _RACC_ : string Parsec.t
     val _COLON_ : string Parsec.t
@@ -25,7 +23,7 @@ module Impl
     val _EQUAL_ : string Parsec.t
     val _SIG_ : string Parsec.t
     val _VAL_ : string Parsec.t
-    val _TYPE_ : string Parsec.t
+    val _TYPE_ : int Parsec.t
     val _CASE_ : string Parsec.t
     val _INL_ : string Parsec.t
     val _INR_ : string Parsec.t
@@ -40,5 +38,8 @@ module Impl
     val _REFL_EQUALS_ : string Parsec.t
     val _SUBST_ : string Parsec.t
     val _BY_ : string Parsec.t
+    val _STRUCT_ : string Parsec.t
+    val _END_ : string Parsec.t
+    val _ACCESS_ : string Parsec.t
   end
 end

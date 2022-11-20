@@ -83,6 +83,7 @@ let rec free_vars variables term =
     ~equals:(free_vars_equals free_vars variables)
     ~refl:free_vars_refl
     ~subst:(free_vars_subst free_vars variables)
-    ~record:(free_vars_record free_vars variables)
+    ~record_sig:(free_vars_record free_vars variables)
+    ~record_val:(free_vars_record free_vars variables)
     ~access:(free_vars_access free_vars variables)
     term

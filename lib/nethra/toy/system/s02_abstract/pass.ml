@@ -46,6 +46,12 @@ module Impl = struct
     | Refl -> refl ~c:(Some r) ()
     | Subst (t1, t2) ->
       subst ~c:(Some r) (abstract_localized t1) (abstract_localized t2)
+    | Record (S_Sig, l) ->
+      record_sig ~c:(Some r)
+        (List.map (fun (n, t) -> (n, abstract_localized t)) l)
+    | Record (S_Val, l) ->
+      record_val ~c:(Some r)
+        (List.map (fun (n, t) -> (n, abstract_localized t)) l)
 
   and abstract_localized =
     let open Nethra_toy_cst.Localized in

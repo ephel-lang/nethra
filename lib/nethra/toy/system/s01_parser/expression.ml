@@ -13,9 +13,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   open Monad (Parsec)
   open Basic.Impl (Parsec)
 
-  let kind =
-    localize (Reserved._TYPE_ >~> (integer <|> return 0) <&> fun a -> Type a)
-
+  let kind = localize (Reserved._TYPE_ <&> fun a -> Type a)
   let refl = localize (Reserved._REFL_ <&> fun _ -> Refl)
   let var = localize (identifier <&> fun a -> Var a)
   let int = localize (integer <&> fun a -> Literal (Int a))
@@ -111,6 +109,22 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <~> do_lazy sterm
       <&> fun ((t0, t1), t2) -> Case (t0, t1, t2) )
 
+  and sig_record () =
+    localize
+      ( Reserved._SIG_
+      <~> Reserved._STRUCT_
+      >~> opt_rep (identifier <~< Reserved._COLON_ <~> do_lazy sterm)
+      <~< Reserved._END_
+      <&> fun l -> Record (S_Sig, l) )
+
+  and val_record () =
+    localize
+      ( Reserved._VAL_
+      <~> Reserved._STRUCT_
+      >~> opt_rep (identifier <~< Reserved._EQUAL_ <~> do_lazy sterm)
+      <~< Reserved._END_
+      <&> fun l -> Record (S_Val, l) )
+
   and build_in keyword operation () =
     localize (keyword >~> do_lazy sterm <&> fun t -> BuildIn (operation, t))
 
@@ -137,6 +151,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <|> refl
     <|> do_lazy equal
     <|> do_lazy subst
+    <|> do_lazy sig_record
+    <|> do_lazy val_record
 
   and term_and_apply () =
     do_lazy sterm

@@ -330,12 +330,20 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_subst _hypothesis (_lhd, _rhd, _c) = (None, [ failure None ])
 
   (*
-    Γ ⊢ e_i : T_i
+    Γ ⊢ e_i : type_j
     -----------------------------------
-    Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
+    Γ ⊢ { n_i : e_i }_i : type_j
   *)
 
-  and infer_record hypothesis (l, c) =
+  and infer_record_sig _hypothesis (_l, c) = (Some (kind ~c 0), [ (* TODO *) ])
+
+  (*
+    Γ ⊢ e_i : T_i
+    -------------------------------------
+    Γ ⊢ { n_i = e_i }_i : { n_i : T_i }_i
+  *)
+
+  and infer_record_val hypothesis (l, c) =
     let r, p =
       List.fold_right
         (fun (n, e) (r, p) ->
@@ -344,7 +352,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
           (return (fun t l -> (n, t) :: l) <*> t <*> r, proof :: p) )
         l (Some [], [])
     in
-    ((r <&> fun r -> record ~c r), p)
+    ((r <&> fun r -> record_val ~c r), p)
 
   (*
     Γ ⊢ e : { n_i : T_i }_i
@@ -359,7 +367,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       ~reason:(return "Waiting for a record")
       ~proofs:[ proof ]
       ( tR
-      >>= fold_opt ~record:return
+      >>= fold_opt ~record_val:return
       >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
       <&> fun (_, t) -> (Some t, [ proof ]) )
 
@@ -408,7 +416,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ~unfold:(infer_unfold hypothesis) ~hole:(infer_hole hypothesis)
         ~annotation:(infer_annotation hypothesis)
         ~equals:(infer_equals hypothesis) ~refl:(infer_refl hypothesis)
-        ~subst:(infer_subst hypothesis) ~record:(infer_record hypothesis)
+        ~subst:(infer_subst hypothesis)
+        ~record_sig:(infer_record_sig hypothesis)
+        ~record_val:(infer_record_val hypothesis)
         ~access:(infer_access hypothesis) term
     in
     let term' = term' <&> reduce hypothesis in

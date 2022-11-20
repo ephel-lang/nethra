@@ -55,5 +55,7 @@ and render_term ppf = function
   | Refl -> fprintf ppf "refl"
   | Subst (t1, t2) ->
     fprintf ppf "subst %a by %a" render_localized t1 render_localized t2
+  | Record (S_Sig, _) -> fprintf ppf "sig struct ... end"
+  | Record (S_Val, _) -> fprintf ppf "val struct ... end"
 
 and render_localized ppt (Localized (t, _)) = render_term ppt t

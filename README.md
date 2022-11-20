@@ -76,7 +76,8 @@ e ::=
     refl          -- Reflexivity   
     subs e by e   -- Substitution 
     
-    { n : e, ...} -- Record
+    { n : e, ...} -- Record type
+    { n = e, ...} -- Record value
     e.e           -- Field access
 ```
 
@@ -258,9 +259,13 @@ l ∈ string
 #### Record type
 
 ```
+Γ ⊢ e_i : type_i
+----------------------------
+Γ ⊢ { n_i : e_i }_i : type_i
+
 Γ ⊢ e_i : T_i
------------------------------------
-Γ ⊢ { n_i:e_i }_i : { n_i : T_i }_i
+-------------------------------------
+Γ ⊢ { n_i = e_i }_i : { n_i : T_i }_i
 
 Γ ⊢ e : { n_i : T_i }_i
 -----------------------
@@ -302,7 +307,7 @@ term ::=
     "(" id ")" "." term    
     "{" id "}" "." term
     
-    "{" id ":" term (";" id ":" term)*)? "}"
+    "record" id ":" sterm (id ":" term)*)? "end"
     
     "case" term term term
     "inl" term
@@ -325,8 +330,7 @@ term ::=
 
     "type" int?
     
-    "(" term ")"
-        
+    "(" term ")"        
 ```
 
 ### Some examples

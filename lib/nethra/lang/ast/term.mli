@@ -28,7 +28,8 @@ module Construct : sig
   val equals : ?c:'a option -> 'a t -> 'a t -> 'a t
   val subst : ?c:'a option -> 'a t -> 'a t -> 'a t
   val refl : ?c:'a option -> unit -> 'a t
-  val record : ?c:'a option -> (string * 'a t) list -> 'a t
+  val record_sig : ?c:'a option -> (string * 'a t) list -> 'a t
+  val record_val : ?c:'a option -> (string * 'a t) list -> 'a t
   val access : ?c:'a option -> 'a t -> string -> 'a t
 end
 
@@ -58,7 +59,8 @@ module Destruct : sig
     -> equals:('a t * 'a t * 'a option -> 'b)
     -> refl:('a option -> 'b)
     -> subst:('a t * 'a t * 'a option -> 'b)
-    -> record:((string * 'a t) list * 'a option -> 'b)
+    -> record_sig:((string * 'a t) list * 'a option -> 'b)
+    -> record_val:((string * 'a t) list * 'a option -> 'b)
     -> access:('a t * string * 'a option -> 'b)
     -> 'a t
     -> 'b
@@ -88,7 +90,8 @@ module Destruct : sig
     -> ?equals:('a t * 'a t * 'a option -> 'b option)
     -> ?refl:('a option -> 'b option)
     -> ?subst:('a t * 'a t * 'a option -> 'b option)
-    -> ?record:((string * 'a t) list * 'a option -> 'b option)
+    -> ?record_sig:((string * 'a t) list * 'a option -> 'b option)
+    -> ?record_val:((string * 'a t) list * 'a option -> 'b option)
     -> ?access:('a t * string * 'a option -> 'b option)
     -> 'a t
     -> 'b option

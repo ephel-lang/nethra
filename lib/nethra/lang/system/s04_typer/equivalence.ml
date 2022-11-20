@@ -176,7 +176,10 @@ module Impl (Theory : Specs.Theory) = struct
 
   and equivalent_subst _hypothesis _term' (_lhd, _rhd, _c) = [ failure None ]
 
-  and equivalent_record _hypothesis _term' (_l, _c) =
+  and equivalent_record_sig _hypothesis _term' (_l, _c) =
+    [ failure (Some "Not yet implemented") ]
+
+  and equivalent_record_val _hypothesis _term' (_l, _c) =
     [ failure (Some "Not yet implemented") ]
 
   and equivalent_access _hypothesis _term' (_t, _n, _c) = [ failure None ]
@@ -215,7 +218,8 @@ module Impl (Theory : Specs.Theory) = struct
         ~equals:(equivalent_equals hypothesis term')
         ~refl:(equivalent_refl hypothesis term')
         ~subst:(equivalent_subst hypothesis term')
-        ~record:(equivalent_record hypothesis term')
+        ~record_sig:(equivalent_record_sig hypothesis term')
+        ~record_val:(equivalent_record_val hypothesis term')
         ~access:(equivalent_access hypothesis term')
         term
     in

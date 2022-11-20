@@ -70,7 +70,8 @@ let refl ppf _ = fprintf ppf "refl"
 let subst ppf render (lhd, rhd, _) =
   fprintf ppf "subst %a by %a" render lhd render rhd
 
-let record ppf _ (_l, _) = fprintf ppf "{}"
+let record_sig ppf _ (_l, _) = fprintf ppf "{}"
+let record_val ppf _ (_l, _) = fprintf ppf "{}"
 let access ppf render (t, n, _) = fprintf ppf "%a.%s" render t n
 
 let rec render ppf t =
@@ -82,5 +83,6 @@ let rec render ppf t =
     ~inr:(inr ppf render) ~case:(case ppf render) ~mu:(mu ppf render)
     ~fold:(fold ppf render) ~unfold:(unfold ppf render) ~hole:(hole ppf render)
     ~annotation:(annotation ppf render) ~equals:(equals ppf render)
-    ~refl:(refl ppf) ~subst:(subst ppf render) ~record:(record ppf render)
+    ~refl:(refl ppf) ~subst:(subst ppf render)
+    ~record_sig:(record_sig ppf render) ~record_val:(record_val ppf render)
     ~access:(access ppf render) t
