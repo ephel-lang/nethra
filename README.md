@@ -12,7 +12,7 @@ Some References covering dependent types and type checking in general:
 - [The calculus of constructions](https://hal.inria.fr/inria-00076024/document)
 - [A simple type-theoretic language: Mini-TT](https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf)
 - [ΠΣ: Dependent Types without the Sugar](http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf)
-- [Cayenne a language with dependent types](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.47.155&rep=rep1&type=pdf)
+- [Cayenne a language with dependent types](https://dl.acm.org/doi/pdf/10.1145/289423.289451)
 - [Implementing Dependent Types in pi-forall](https://arxiv.org/pdf/2207.02129.pdf)
 - [Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism](https://www.cl.cam.ac.uk/~nk480/bidir.pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
