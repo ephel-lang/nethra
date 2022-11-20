@@ -605,10 +605,8 @@ val zero =
 Object-oriented approach can be "simulated" thanks to structures and recursive type.
 
 ```ocaml
------------
 sig int : type
 sig add : int -> int -> int
------------
 
 sig point : type
 val point =
