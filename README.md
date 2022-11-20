@@ -74,7 +74,7 @@ e ::=
     
     e = e         -- Equality
     refl          -- Reflexivity   
-    subs e by e   -- Substitution 
+    subst e by e   -- Substitution 
     
     { n : e, ...} -- Record type
     { n = e, ...} -- Record value
