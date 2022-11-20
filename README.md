@@ -527,6 +527,28 @@ sig false : bool
 val false = inr False
 ```
 
+#### Dependent type and case
+
+```ocaml
+sig Unit : type
+sig unit : Unit
+
+sig Bool : type
+val Bool = Unit | Unit
+
+sig true  : Bool
+val true  = inl unit
+
+sig false  : Bool
+val false  = inr unit
+
+sig Test : Bool -> type
+val Test = (b).case b (_).Unit (_).Bool
+
+sig test : (b:Bool) -> Test b
+val test = (b).case b (_).unit (_).true
+```
+
 #### Propositional equality
 
 ```ocaml
@@ -564,9 +586,6 @@ val symmetric = {A}.{a}.(eq_a_b).(P).
 #### Record type and value
 
 ```ocaml
------------
-sig int : type
------------
 sig point :type
 
 val point =
