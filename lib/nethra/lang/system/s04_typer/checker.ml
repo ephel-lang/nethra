@@ -361,7 +361,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
 
   and check_record_sig hypothesis term' (l, c) =
     proof_from_option
-      ~reason:(return "Waiting for a record")
+      ~reason:(return "Waiting for type")
       ( fold_opt ~kind:return term'
       <&> fun (level, _c) ->
       List.fold_right
@@ -376,7 +376,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
 
   and check_record_val hypothesis term' (l, _c) =
     proof_from_option
-      ~reason:(return "Waiting for a record")
+      ~reason:(return "Waiting for a record signature")
       ( fold_opt ~record_sig:return term'
       <&> fun (lT, _c) ->
       let proofs =
@@ -404,7 +404,7 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     let proof = hypothesis |- r => () in
     let tR = get_type proof in
     proof_from_option
-      ~reason:(return "Waiting for a record")
+      ~reason:(return "Waiting for a record signature")
       ~proofs:[ proof ]
       ( tR
       >>= fold_opt ~record_sig:return

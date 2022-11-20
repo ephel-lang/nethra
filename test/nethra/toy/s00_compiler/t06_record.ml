@@ -38,21 +38,46 @@ let compile_recursive_record () =
       {toy|
         -----------
         sig int : type
+        sig add : int -> int -> int
         -----------
-        sig point :type
-
-        val point = rec(self:type).
-            sig struct
-                x : (self -> int)
-                y : (self -> int)
+        sig monoid : (type) -> type
+        val monoid =
+            (t).sig struct
+                initial : t
+                combine : (t -> t -> t)
             end
 
-         sig zero : point
-         val zero =
+        sig integer : monoid int
+        val integer =
+            val struct
+                initial = 0
+                combine = add
+            end
+
+        sig point : type
+        val point =
+            rec(self:type).sig struct
+                x  : int
+                y  : int
+                mv : (self -> (int * int) -> self)
+            end
+
+        sig mkPoint : int -> int -> point
+        val mkPoint = (x).(y).
             fold val struct
-                x = (s).0
-                y = (s).0
+                x  = x
+                y  = y
+                mv = (self).(x_and_y).
+                    let nx = combine from integer (fst x_and_y) (x from unfold self) in
+                    let ny = combine from integer (snd x_and_y) (y from unfold self) in
+                    (mkPoint nx ny)
             end
+
+        sig zero : point
+        val zero = mkPoint (initial from integer) (initial from integer)
+
+        sig x : int
+        val x = x from unfold zero
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

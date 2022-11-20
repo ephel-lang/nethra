@@ -57,5 +57,6 @@ and render_term ppf = function
     fprintf ppf "subst %a by %a" render_localized t1 render_localized t2
   | Record (S_Sig, _) -> fprintf ppf "sig struct ... end"
   | Record (S_Val, _) -> fprintf ppf "val struct ... end"
+  | Access (e, id) -> fprintf ppf "%s from %a" id render_localized e
 
 and render_localized ppt (Localized (t, _)) = render_term ppt t

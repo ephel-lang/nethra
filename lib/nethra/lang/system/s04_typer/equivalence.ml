@@ -13,7 +13,8 @@ module Impl (Theory : Specs.Theory) = struct
   open Nethra_lang_basic.Substitution
   open Reduction
 
-  let proof_from_option o = fold_right const o [ failure None ]
+  let proof_from_option ?(proofs = []) ?(reason = None) o =
+    fold_right const o (proofs @ [ failure reason ])
 
   let equivalent_kind _hypothesis term' (level, _) =
     proof_from_option
@@ -176,11 +177,45 @@ module Impl (Theory : Specs.Theory) = struct
 
   and equivalent_subst _hypothesis _term' (_lhd, _rhd, _c) = [ failure None ]
 
-  and equivalent_record_sig _hypothesis _term' (_l, _c) =
-    [ failure (Some "Not yet implemented") ]
+  and equivalent_record_sig hypothesis term' (l, _c) =
+    proof_from_option
+      ~reason:(return "Waiting for a record signature")
+      ( fold_opt ~record_sig:return term'
+      <&> fun (l', _c) ->
+      let proofs =
+        if List.length l = List.length l'
+        then []
+        else [ failure (Some "Record should have the same size") ]
+      in
+      List.fold_right
+        (fun (n, e) p ->
+          proof_from_option
+            ~reason:(Some (n ^ " not found"))
+            ~proofs:p
+            ( List.find_opt (fun (n', _) -> n' = n) l'
+            <&> (fun (_, t) -> t)
+            <&> fun t -> (hypothesis |- e =?= t) :: p ) )
+        l proofs )
 
-  and equivalent_record_val _hypothesis _term' (_l, _c) =
-    [ failure (Some "Not yet implemented") ]
+  and equivalent_record_val hypothesis term' (l, _c) =
+    proof_from_option
+      ~reason:(return "Waiting for a record value")
+      ( fold_opt ~record_val:return term'
+      <&> fun (l', _c) ->
+      let proofs =
+        if List.length l = List.length l'
+        then []
+        else [ failure (Some "Record should have the same size") ]
+      in
+      List.fold_right
+        (fun (n, e) p ->
+          proof_from_option
+            ~reason:(Some (n ^ " not found"))
+            ~proofs:p
+            ( List.find_opt (fun (n', _) -> n' = n) l'
+            <&> (fun (_, t) -> t)
+            <&> fun t -> (hypothesis |- e =?= t) :: p ) )
+        l proofs )
 
   and equivalent_access _hypothesis _term' (_t, _n, _c) = [ failure None ]
 

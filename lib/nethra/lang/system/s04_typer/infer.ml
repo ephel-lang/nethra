@@ -364,10 +364,10 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     let proof = hypothesis |- r => () in
     let tR = get_type proof in
     proof_from_option
-      ~reason:(return "Waiting for a record")
+      ~reason:(return "Waiting for a record signature")
       ~proofs:[ proof ]
       ( tR
-      >>= fold_opt ~record_val:return
+      >>= fold_opt ~record_sig:return
       >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
       <&> fun (_, t) -> (Some t, [ proof ]) )
 

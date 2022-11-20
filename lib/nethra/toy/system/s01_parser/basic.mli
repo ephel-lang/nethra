@@ -23,7 +23,7 @@ module Impl
     val _EQUAL_ : string Parsec.t
     val _SIG_ : string Parsec.t
     val _VAL_ : string Parsec.t
-    val _TYPE_ : int Parsec.t
+    val _TYPE_ : string Parsec.t
     val _CASE_ : string Parsec.t
     val _INL_ : string Parsec.t
     val _INR_ : string Parsec.t
@@ -40,6 +40,6 @@ module Impl
     val _BY_ : string Parsec.t
     val _STRUCT_ : string Parsec.t
     val _END_ : string Parsec.t
-    val _ACCESS_ : string Parsec.t
+    val _FROM_ : string Parsec.t
   end
 end

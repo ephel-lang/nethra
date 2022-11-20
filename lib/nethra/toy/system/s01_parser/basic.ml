@@ -53,6 +53,7 @@ struct
     ; "by"
     ; "struct"
     ; "end"
+    ; "from"
     ]
 
   let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
@@ -90,7 +91,7 @@ struct
     let _EQUAL_ = token (string "=")
     let _SIG_ = token (string "sig")
     let _VAL_ = token (string "val")
-    let _TYPE_ = token (string "type") >~> (integer <|> return 0)
+    let _TYPE_ = token (string "type")
     let _CASE_ = token (string "case")
     let _INL_ = token (string "inl")
     let _INR_ = token (string "inr")
@@ -107,6 +108,6 @@ struct
     let _BY_ = token (string "by")
     let _STRUCT_ = token (string "struct")
     let _END_ = token (string "end")
-    let _ACCESS_ = token (string "@")
+    let _FROM_ = token (string "from")
   end
 end

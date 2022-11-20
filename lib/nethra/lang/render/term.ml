@@ -72,7 +72,7 @@ let subst ppf render (lhd, rhd, _) =
 
 let record_sig ppf _ (_l, _) = fprintf ppf "{}"
 let record_val ppf _ (_l, _) = fprintf ppf "{}"
-let access ppf render (t, n, _) = fprintf ppf "%a.%s" render t n
+let access ppf render (t, n, _) = fprintf ppf "(%a).%s" render t n
 
 let rec render ppf t =
   Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)

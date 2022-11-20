@@ -602,6 +602,40 @@ val zero =
     end
 ```
 
+Object-oriented approach can be "simulated" thanks to structures and recursive type.
+
+```ocaml
+-----------
+sig int : type
+sig add : int -> int -> int
+-----------
+
+sig point : type
+val point =
+    rec(self:type).sig struct
+        x  : int
+        y  : int
+        mv : (self -> (int * int) -> self)
+    end
+
+sig mkPoint : int -> int -> point
+val mkPoint = (x).(y).
+    fold val struct
+        x  = x
+        y  = y
+        mv = (self).(x_and_y).
+            let nx = add (fst x_and_y) (x from unfold self) in
+            let ny = add (snd x_and_y) (y from unfold self) in
+            (mkPoint nx ny)
+    end
+
+sig zero : point
+val zero = mkPoint 0 0
+
+sig x : int
+val x = x from unfold zero
+```
+
 # Why Nethra?
 
 See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.

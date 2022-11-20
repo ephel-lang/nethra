@@ -13,7 +13,9 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   open Monad (Parsec)
   open Basic.Impl (Parsec)
 
-  let kind = localize (Reserved._TYPE_ <&> fun a -> Type a)
+  let kind =
+    localize (Reserved._TYPE_ >~> (integer <|> return 0) <&> fun a -> Type a)
+
   let refl = localize (Reserved._REFL_ <&> fun _ -> Refl)
   let var = localize (identifier <&> fun a -> Var a)
   let int = localize (integer <&> fun a -> Literal (Int a))
@@ -117,6 +119,13 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <~< Reserved._END_
       <&> fun l -> Record (S_Sig, l) )
 
+  and access_record () =
+    localize
+      ( identifier
+      <~< Reserved._FROM_
+      <~> do_lazy sterm
+      <&> fun (id, e) -> Access (e, id) )
+
   and val_record () =
     localize
       ( Reserved._VAL_
@@ -137,7 +146,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     <|> do_lazy (build_in Reserved._UNFOLD_ Unfold)
 
   and sterm () =
-    kind
+    do_lazy access_record
+    <|> kind
     <|> var
     <|> int
     <|> string
@@ -177,7 +187,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <~> opt (Reserved._DISJUNCTION_ >~> do_lazy aterm)
       <&> function Localized (a, _), None -> a | a, Some b -> Sum (a, b) )
 
-  and term_and_apply_and_disjunction_and_pair () =
+  and aterm () =
     localize
       ( do_lazy term_and_apply_and_disjunction
       <~> opt
@@ -189,8 +199,6 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       | Localized (a, _), None -> a
       | a, Some (`Pair, b) -> Pair (a, b)
       | a, Some (`Product, b) -> Sigma ("_", a, b) )
-
-  and aterm () = do_lazy term_and_apply_and_disjunction_and_pair
 
   and arrow_or_term () =
     localize
