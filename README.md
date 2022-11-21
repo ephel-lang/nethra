@@ -282,45 +282,42 @@ s0 ::=
 
 binding ::= 
     "sig" ID ":" term
-    "def" ID "=" term 
+    "def" ID (":" term)? "=" term 
 ```
 
 ```
 term ::=     
-    term "=" term
-    term "->" term
-    term "*" term
-    term "," term
-    term "|" term
-    
-    term "{" term "}"
-    term term
-    
-    term "@" id
-
+    "let" id "=" term "in" term
+   
     "(" id ":" term ")" "->" term    
     "{" id ":" term "}" "->" term    
+    term "->" term
+    term term
+    term "{" term "}"
+
     "(" id ":" term ")" "*" term    
-    
-    "let" id "=" term "in" term
+    term "*" term
+    term "," term
+    "fst" term
+    "snd" term
 
     "(" id ")" "." term    
     "{" id "}" "." term
     
-    "sig" "struct" (id ":" term)*)? "end"
-    "val" "struct" (id "=" term)*)? "end"
+    "sig" "struct" (id ":" term)* "end"
+    "val" "struct" (id "=" term)* "end"
+    id "from" term
     
+    term "|" term
     "case" term term term
     "inl" term
     "inr" term
     
-    "fst" term
-    "snd" term
-    
-    "rec" "(" id ")" "." term
+    "rec" "(" id ":" term ")" "." term
     "fold" term
     "unfold" term
     
+    "equals" term term
     "refl"
     "subst" term "by" term
 
@@ -339,23 +336,23 @@ term ::=
 #### HKT
 
 ```ocaml
-sig combine : {x:type} -> X -> X -> X
-    
-sig add : int -> int -> int
-
-sig combineInt : combine {int}   
-val combineInt = add
-```
-
-#### Function producing HKT
-
-```ocaml
 sig combine : (x:type) -> type
 val combine = (X).(X -> X -> X)
     
 sig add : int -> int -> int
 
 sig combineInt : combine int   
+val combineInt = add
+```
+
+Or with possibly implicit parameter ...
+
+```ocaml
+sig combine : {x:type} -> X -> X -> X
+    
+sig add : int -> int -> int
+
+sig combineInt : combine {int}   
 val combineInt = add
 ```
 
@@ -377,7 +374,7 @@ sig m1 : ic (inl 1)
 val m1 = 'c'
 ```
 
-An advanced usage can be proposed thanks to dependent types
+An advanced usage can be proposed thanks to dependent types and `case` construction.
 
 ```ocaml
 sig Unit : type
@@ -398,6 +395,10 @@ val Test = (b).case b (_).Unit (_).Bool
 sig test : (b:Bool) -> Test b
 val test = (b).case b (_).unit (_).true
 ```
+
+In this example the result of test depends on the parametric boolean. 
+The if the boolean is `true` the type is `unit` and if it's `false`
+the type `Bool`.
 
 #### Dependent pair
 
@@ -503,50 +504,6 @@ val cons = (head).(tail).(fold (inr (head,tail)))
 
 sig isEmpty : {X:type} -> list X -> bool
 val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
-```
-
-#### Encoding sum types
-
-Thanks to `Pi` constructor we are able to encode `data` definition.
-
-```ocaml
-sig Atom  : (a:string) -> type
-sig data  : {A:type} -> (_:A) -> type
-val data  = {A}.(_).A
-
-sig True  : Atom "True"
-sig False : Atom "False"
-
-sig bool : type
-val bool = data True | data False
-
-sig true : bool
-val true = inl True
-
-sig false : bool
-val false = inr False
-```
-
-#### Dependent type and case
-
-```ocaml
-sig Unit : type
-sig unit : Unit
-
-sig Bool : type
-val Bool = Unit | Unit
-
-sig true  : Bool
-val true  = inl unit
-
-sig false  : Bool
-val false  = inr unit
-
-sig Test : Bool -> type
-val Test = (b).case b (_).Unit (_).Bool
-
-sig test : (b:Bool) -> Test b
-val test = (b).case b (_).unit (_).true
 ```
 
 #### Propositional equality

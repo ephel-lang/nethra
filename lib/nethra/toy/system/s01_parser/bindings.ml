@@ -22,9 +22,10 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   let definition =
     Reserved._VAL_
     >~> identifier
+    <~> opt (Reserved._COLON_ >~> term)
     <~< Reserved._EQUAL_
     <~> term
-    <&> fun (i, t) -> Definition (i, t)
+    <&> fun ((i, t), e) -> Definition (i, t, e)
 
   let binding = signature <|> definition
   let bindings = skip >~> opt_rep binding <~< eos

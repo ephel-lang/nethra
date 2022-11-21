@@ -71,8 +71,7 @@ let compile_recursive_record () =
         sig add : int -> int -> int
         -----------
 
-        sig point : type
-        val point =
+        val point : type =
             let t = int in
                 rec(self:type).sig struct
                     x  : t
@@ -80,8 +79,7 @@ let compile_recursive_record () =
                     mv : (self -> (t * t) -> self)
                 end
 
-        sig Point : int -> int -> point
-        val Point = (x).(y).
+        val Point : int -> int -> point = (x).(y).
             fold val struct
                 x  = x
                 y  = y
@@ -91,11 +89,9 @@ let compile_recursive_record () =
                     (Point nx ny)
             end
 
-        sig zero : point
-        val zero = Point 0 0
+        val zero : point = Point 0 0
 
-        sig x : int
-        val x = x from unfold zero
+        val x : int = x from unfold zero
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

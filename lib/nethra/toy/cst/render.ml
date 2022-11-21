@@ -13,7 +13,9 @@ let render_operation ppf = function
 
 let rec render_binding ppf = function
   | Signature (n, l) -> fprintf ppf "sig %s : %a" n render_localized l
-  | Definition (n, l) -> fprintf ppf "val %s = %a" n render_localized l
+  | Definition (n, None, l) -> fprintf ppf "val %s = %a" n render_localized l
+  | Definition (n, Some t, l) ->
+    fprintf ppf "val %s : %a = %a" n render_localized t render_localized l
 
 and render_term ppf = function
   | Type i -> fprintf ppf "type%d" i

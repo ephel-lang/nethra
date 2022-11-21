@@ -64,9 +64,15 @@ module Impl = struct
     function
     | [] -> hypothesis
     | Signature (n, t) :: bindings ->
-      abstract (add_signature hypothesis (n, abstract_localized t)) bindings
-    | Definition (n, t) :: bindings ->
-      abstract (add_definition hypothesis (n, abstract_localized t)) bindings
+      let hypothesis = add_signature hypothesis (n, abstract_localized t) in
+      abstract hypothesis bindings
+    | Definition (n, None, e) :: bindings ->
+      let hypothesis = add_definition hypothesis (n, abstract_localized e) in
+      abstract hypothesis bindings
+    | Definition (n, Some t, e) :: bindings ->
+      let hypothesis = add_signature hypothesis (n, abstract_localized t) in
+      let hypothesis = add_definition hypothesis (n, abstract_localized e) in
+      abstract hypothesis bindings
 
   let run l =
     let open Nethra_lang_ast.Hypothesis.Construct in
