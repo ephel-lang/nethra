@@ -70,8 +70,16 @@ let refl ppf _ = fprintf ppf "refl"
 let subst ppf render (lhd, rhd, _) =
   fprintf ppf "subst %a by %a" render lhd render rhd
 
-let record_sig ppf _ (_l, _) = fprintf ppf "{}"
-let record_val ppf _ (_l, _) = fprintf ppf "{}"
+let record_sig ppf render (l, _) =
+  let () = fprintf ppf "{ " in
+  let () = List.iter (fun (n, e) -> fprintf ppf "%s:(%a) " n render e) l in
+  fprintf ppf "}"
+
+let record_val ppf render (l, _) =
+  let () = fprintf ppf "{ " in
+  let () = List.iter (fun (n, e) -> fprintf ppf "%s=(%a) " n render e) l in
+  fprintf ppf "}"
+
 let access ppf render (t, n, _) = fprintf ppf "(%a).%s" render t n
 
 let rec render ppf t =

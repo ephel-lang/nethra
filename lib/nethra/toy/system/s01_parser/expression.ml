@@ -168,7 +168,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     do_lazy sterm
     <~> opt_rep
           ( Reserved._LACC_
-          >~> do_lazy sterm
+          >~> do_lazy term
           <~< Reserved._RACC_
           <&> (fun a -> (a, true))
           <|> (do_lazy sterm <&> fun a -> (a, false)) )

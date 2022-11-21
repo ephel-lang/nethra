@@ -98,6 +98,49 @@ let compile_recursive_record () =
   Alcotest.(check (result bool string))
     "Recursive record" expected (string_of_error result)
 
+let compile_monad_record () =
+  let result =
+    Pass.run
+      {toy|
+        ------------
+        sig Unit : type
+        sig unit : Unit
+        ------------
+
+        sig Monad : ((type) -> type) -> type
+        val Monad =
+            (M).sig struct
+                map   : ({A:type} -> {B:type} -> (A -> B) -> M A -> M B)
+                apply : ({A:type} -> {B:type} -> M (A -> B) -> M A -> M B)
+                join  : ({A:type} -> M (M A) -> M A)
+                bind  : ({A:type} -> {B:type} -> (A -> M B) -> M A -> M B)
+            end
+
+        ------------
+        val Option : (type) -> type = (A).(A | Unit)
+
+        sig some : {A:type} -> A -> Option A
+        val some = (a).inl a
+
+        sig none : {A:type} -> Option A
+        val none = inr unit
+
+        sig EitherOption : Monad Option
+        val EitherOption =
+            rec(S:Monad Option).val struct
+                map   = {_}.{B}.(f).(ma).(case ma (a).(some (f a)) (_).(none {B}))
+                apply = {_}.{B}.(mf).(ma).(case mf (f).(map from S f ma) (_).(none {B}))
+                join  = {A}.(ma).(case ma (a).a (_).(none {A}))
+                bind  = (f).(ma).(join from S (map from S f ma))
+            end
+
+        val r : Option Unit = map from EitherOption (_).unit (some 1)
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "Monad record" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Record Compiler"
@@ -105,4 +148,5 @@ let cases =
       test_case "Basic Record" `Quick compile_basic_record
     ; test_case "Parametric Record" `Quick compile_parametric_record
     ; test_case "Recursive Record" `Quick compile_recursive_record
+    ; test_case "Monad Record" `Quick compile_monad_record
     ] )

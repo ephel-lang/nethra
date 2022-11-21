@@ -46,10 +46,10 @@ let compile_bool () =
         val false  = inr unit
 
         sig Test : Bool -> type
-        val Test = (b).case b (_).Unit (_).Bool
+        val Test = (a).case a (_).Unit (_).Bool
 
         sig test : (b:Bool) -> Test b
-        val test = (b).case b (_).unit (_).true
+        val test = (c).case c (_).unit (_).true
         ------------
       |toy}
     <&> fun (_, l) -> check l

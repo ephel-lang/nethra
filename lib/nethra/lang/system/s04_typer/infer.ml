@@ -245,13 +245,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     ----------------
     Γ ⊢ μ(x:T).A : T
   *)
-  and infer_mu hypothesis (name, kind, body, c) =
-    let var, hypothesis = fresh_variable hypothesis name in
-    let hypothesis = add_signature hypothesis (name, hole ~c var) in
-    let proof = hypothesis |- body => () in
-    let term = get_type proof in
-    proof_from_option ~proofs:[ proof ]
-      (term <&> fun term -> (return term, [ hypothesis |- kind =?= term ]))
+  and infer_mu hypothesis (name, kind, body, _c) =
+    let hypothesis = add_signature hypothesis (name, kind) in
+    (Some kind, [ hypothesis |- body <= kind ])
 
   (*
     Γ ⊢ A : N[x=μ(x:T).N]

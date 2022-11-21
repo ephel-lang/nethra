@@ -40,11 +40,14 @@ let failure prefix ppf reason =
     (match reason with Some s -> "❌  (" ^ s ^ ")" | _ -> "❌")
 
 let rec render hypothesis_render render_term prefix ppf p =
-  Nethra_lang_ast.Proof.Destruct.fold
-    ~check:(check render hypothesis_render render_term prefix ppf)
-    ~infer:(infer render hypothesis_render render_term prefix ppf)
-    ~equivalent:(equivalent render hypothesis_render render_term prefix ppf)
-    ~failure:(failure prefix ppf) p
+  if not (Nethra_lang_ast.Proof.is_success p)
+  then
+    Nethra_lang_ast.Proof.Destruct.fold
+      ~check:(check render hypothesis_render render_term prefix ppf)
+      ~infer:(infer render hypothesis_render render_term prefix ppf)
+      ~equivalent:(equivalent render hypothesis_render render_term prefix ppf)
+      ~failure:(failure prefix ppf) p
+  else ()
 
 let render ?(term_render = Term.render) ppf p =
   render Hypothesis.render term_render "" ppf p
