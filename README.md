@@ -2,7 +2,8 @@
 
 Nethra is an experiment based on well know theories and constructions like:
 - dependent function type,
-- dependent record (subsume sigma type),
+- sigma type
+- dependent record (can subsume sigma type),
 - recursive type,
 - sum type
 - core lambda calculus
@@ -589,6 +590,35 @@ val zero = mkPoint 0 0
 
 sig x : int
 val x = x from unfold zero
+```
+
+#### Dependant record
+
+```ocaml
+sig Monad : ((type) -> type) -> type
+val Monad =
+    (M).sig struct
+        sig map   : {A B:type} -> (A -> B) -> M A -> M B
+        sig apply : {A B:type} -> M (A -> B) -> M A -> M B
+        sig join  : {A:type} -> M (M A) -> M A
+        sig bind  : {A B:type} -> (A -> M B) -> M A -> M B
+    end
+
+------------
+
+val Option : (type) -> type = (A).(A | Unit)
+val some : {A:type} -> A -> Option A = (a).inl a
+val none : {A:type} -> Option A = inr unit
+
+val EitherOption : Monad Option =
+    val struct
+        val map   = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
+        val apply = {_ B}.(mf ma).(case mf (f).(map f ma) (_).(none {B}))
+        val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
+        val bind  = (f ma).(join (map f ma))
+    end
+
+val r : Option Unit = #map EitherOption (_).unit (some 1)
 ```
 
 # Why Nethra?
