@@ -30,7 +30,7 @@ struct
   let localize p = token (locate p <&> fun (a, r) -> Localized (a, r))
 
   let operators =
-    [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-"; "@" ]
+    [ "->"; "."; "("; ")"; "{"; "}"; ":"; "*"; "|"; "="; "--"; "—{"; "}-"; "#" ]
 
   let keywords =
     [
@@ -108,6 +108,6 @@ struct
     let _BY_ = token (string "by")
     let _STRUCT_ = token (string "struct")
     let _END_ = token (string "end")
-    let _FROM_ = token (string "from")
+    let _FROM_ = token (string "#")
   end
 end

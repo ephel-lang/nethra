@@ -57,7 +57,10 @@ let free_vars_subst free_vars variables (lhd, rhd, _c) =
   free_vars variables lhd @ free_vars variables rhd
 
 let free_vars_record free_vars variables (l, _c) =
-  List.concat_map (fun (_n, t) -> free_vars variables t) l
+  snd
+    (List.fold_left
+       (fun (variables, l) (n, t) -> (n :: variables, l @ free_vars variables t))
+       (variables, []) l )
 
 let free_vars_access free_vars variables (t, _n, _c) = free_vars variables t
 

@@ -14,7 +14,7 @@ let id ppf (value, initial, _) =
 
 let pi ppf render (n, bound, body, implicit, _) =
   if n = "_"
-  then fprintf ppf "%a -> %a" render bound render body
+  then fprintf ppf "(%a) -> %a" render bound render body
   else
     fprintf ppf
       (if implicit then "{%s:%a} -> %a" else "(%s:%a) -> %a")
@@ -30,7 +30,7 @@ let apply ppf render (abstraction, argument, implicit, _) =
 
 let sigma ppf render (n, bound, body, _) =
   if n = "_"
-  then fprintf ppf "%a * %a" render bound render body
+  then fprintf ppf "(%a) * %a" render bound render body
   else fprintf ppf "(%s:%a) * %a" n render bound render body
 
 let pair ppf render (left, right, _) =

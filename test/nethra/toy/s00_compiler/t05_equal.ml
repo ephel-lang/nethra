@@ -16,11 +16,11 @@ let compile_propositional_equal () =
       sig reflexive : {A:type} -> {a:A} -> equals a a
       val reflexive = refl
 
-      sig symmetric : {A:type} -> {a:A} -> {b:A} -> equals a b -> equals b a
+      sig symmetric : {A:type} -> {a b:A} -> equals a b -> equals b a
       val symmetric = (a_eq_b).subst refl by a_eq_b
 
-      sig transitivity : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equals a b -> equals b c -> equals a c
-      val transitivity = (a_eq_b).(b_eq_c).subst (subst refl by a_eq_b) by b_eq_c
+      sig transitivity : {A:type} -> {a b c :A} -> equals a b -> equals b c -> equals a c
+      val transitivity = (a_eq_b b_eq_c).subst (subst refl by a_eq_b) by b_eq_c
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -35,19 +35,19 @@ let compile_leibniz_equal () =
         Leibniz equality
       }-
 
-      sig equal : {A:type} -> (a:A) -> (b:A) -> type
-      val equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+      sig equal : {A:type} -> (a b:A) -> type
+      val equal = {A}.(a b).((P : A -> type) -> P a -> P b)
 
       sig reflexive : {A:type} -> {a:A} -> equal a a
-      val reflexive = (P).(Pa).Pa
+      val reflexive = (P Pa).Pa
 
-      sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -> equal a c
-      val transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
+      sig transitive : {A:type} -> {a b c:A} -> equal a b -> equal b c -> equal a c
+      val transitive = (a_eq_b b_eq_c).(P Pa).(b_eq_c P (a_eq_b P Pa))
 
-      sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-      val symmetric = {A}.{a}.(eq_a_b).(P).
+      sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
+      val symmetric = {A a}.(a_eq_b).(P).
             let Qa = reflexive P in
-            let Qb = eq_a_b (c).(P c -> P a) Qa in
+            let Qb = a_eq_b (c).(P c -> P a) Qa in
             Qb
       |toy}
     <&> fun (_, l) -> check l

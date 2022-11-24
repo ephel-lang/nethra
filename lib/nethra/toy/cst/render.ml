@@ -35,8 +35,11 @@ and render_term ppf = function
     fprintf ppf "(%s:%a) * %a" id render_localized t1 render_localized t2
   | Lambda (id, t, true) -> fprintf ppf "{%s}.(%a)" id render_localized t
   | Lambda (id, t, false) -> fprintf ppf "(%s).(%a)" id render_localized t
-  | Let (id, t1, t2) ->
-    fprintf ppf "let %s = %a in (%a)" id render_localized t1 render_localized t2
+  | Let (id, None, v, f) ->
+    fprintf ppf "let %s = %a in (%a)" id render_localized v render_localized f
+  | Let (id, Some t, v, f) ->
+    fprintf ppf "let %s : %a = %a in (%a)" id render_localized t
+      render_localized v render_localized f
   | Rec (id, k, t) ->
     fprintf ppf "rec(%s:%a).(%a)" id render_localized k render_localized t
   | Case (t0, t1, t2) ->

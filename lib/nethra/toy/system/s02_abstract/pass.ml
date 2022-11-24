@@ -22,10 +22,14 @@ module Impl = struct
     | Apply (t1, t2, b) ->
       apply ~c:(Some r) ~implicit:b (abstract_localized t1)
         (abstract_localized t2)
-    | Let (n, t1, t2) ->
+    | Let (n, None, v, f) ->
       apply ~c:(Some r) ~implicit:false
-        (abstract_localized (Localized (Lambda (n, t2, false), r)))
-        (abstract_localized t1)
+        (abstract_localized (Localized (Lambda (n, f, false), r)))
+        (abstract_localized v)
+    | Let (n, Some t, v, f) ->
+      apply ~c:(Some r) ~implicit:false
+        (abstract_localized (Localized (Lambda (n, f, false), r)))
+        (annotation ~c:(Some r) (abstract_localized v) (abstract_localized t))
     | Rec (n, k, t) ->
       mu ~c:(Some r) n (abstract_localized k) (abstract_localized t)
     | Sum (t1, t2) ->

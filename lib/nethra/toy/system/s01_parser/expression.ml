@@ -25,25 +25,34 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   let rec pi_implicit () =
     localize
       ( Reserved._LACC_
-      >~> identifier
+      >~> rep identifier
       <~< Reserved._COLON_
       <~> do_lazy term
       <~< Reserved._RACC_
       <~< Reserved._ARROW_
-      <~> do_lazy term
-      <&> fun ((id, t1), t2) -> Pi (id, t1, t2, true) )
+      <~> do_lazy term )
+    <&> function
+    | Localized (((idl, t1), t2), r) ->
+      List.fold_right (fun id t2 -> Localized (Pi (id, t1, t2, true), r)) idl t2
 
   and sigma_or_pi_explicit () =
     localize
-      ( do_try (Reserved._LPAR_ >~> identifier <~< Reserved._COLON_)
+      ( do_try (Reserved._LPAR_ >~> rep identifier <~< Reserved._COLON_)
       <~> do_lazy term
       <~< Reserved._RPAR_
       <~> ( Reserved._ARROW_
           <&> Stdlib.Fun.const true
           <|> (Reserved._PRODUCT_ <&> Stdlib.Fun.const false) )
-      <~> do_lazy term
-      <&> fun (((id, t1), a), t2) ->
-      if a then Pi (id, t1, t2, false) else Sigma (id, t1, t2) )
+      <~> do_lazy term )
+    <&> function
+    | Localized ((((idl, t1), a), t2), r) ->
+      if a
+      then
+        List.fold_right
+          (fun id t2 -> Localized (Pi (id, t1, t2, false), r))
+          idl t2
+      else
+        List.fold_right (fun id t2 -> Localized (Sigma (id, t1, t2), r)) idl t2
 
   and sigma_or_pi () = do_lazy sigma_or_pi_explicit <|> do_lazy pi_implicit
   and block () = Reserved._LPAR_ >~> do_lazy term <~< Reserved._RPAR_
@@ -51,18 +60,25 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   and lambda_explicit () =
     localize
       ( do_try
-          (Reserved._LPAR_ >~> identifier <~< Reserved._RPAR_ <~< Reserved._DOT_)
-      <~> do_lazy sterm
-      <&> fun (id, b) -> Lambda (id, b, false) )
+          ( Reserved._LPAR_
+          >~> rep identifier
+          <~< Reserved._RPAR_
+          <~< Reserved._DOT_ )
+      <~> do_lazy sterm )
+    <&> function
+    | Localized ((idl, b), r) ->
+      List.fold_right (fun id b -> Localized (Lambda (id, b, false), r)) idl b
 
   and lambda_implicit () =
     localize
       ( Reserved._LACC_
-      >~> identifier
+      >~> rep identifier
       <~< Reserved._RACC_
       <~< Reserved._DOT_
-      <~> do_lazy sterm
-      <&> fun (id, b) -> Lambda (id, b, true) )
+      <~> do_lazy sterm )
+    <&> function
+    | Localized ((idl, b), r) ->
+      List.fold_right (fun id b -> Localized (Lambda (id, b, true), r)) idl b
 
   and lambda () = do_lazy lambda_explicit <|> do_lazy lambda_implicit
 
@@ -85,11 +101,12 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     localize
       ( Reserved._LET_
       >~> identifier
+      <~> opt (Reserved._COLON_ >~> do_lazy term)
       <~< Reserved._EQUAL_
       <~> do_lazy term
       <~< Reserved._IN_
       <~> do_lazy sterm
-      <&> fun ((id, t1), t2) -> Let (id, t1, t2) )
+      <&> fun (((id, t), v), f) -> Let (id, t, v, f) )
 
   and recursive () =
     localize
@@ -113,16 +130,15 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
 
   and sig_record () =
     localize
-      ( Reserved._SIG_
-      <~> Reserved._STRUCT_
-      >~> opt_rep (identifier <~< Reserved._COLON_ <~> do_lazy sterm)
+      ( do_try (Reserved._SIG_ <~> Reserved._STRUCT_)
+      >~> opt_rep
+            (Reserved._SIG_ >~> identifier <~< Reserved._COLON_ <~> do_lazy term)
       <~< Reserved._END_
       <&> fun l -> Record (S_Sig, l) )
 
   and access_record () =
     localize
-      ( identifier
-      <~< Reserved._FROM_
+      ( do_try (Reserved._FROM_ >~> identifier)
       <~> do_lazy sterm
       <&> fun (id, e) -> Access (e, id) )
 
@@ -130,7 +146,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
     localize
       ( Reserved._VAL_
       <~> Reserved._STRUCT_
-      >~> opt_rep (identifier <~< Reserved._EQUAL_ <~> do_lazy sterm)
+      >~> opt_rep
+            (Reserved._VAL_ >~> identifier <~< Reserved._EQUAL_ <~> do_lazy term)
       <~< Reserved._END_
       <&> fun l -> Record (S_Val, l) )
 

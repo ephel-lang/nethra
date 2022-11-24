@@ -90,7 +90,9 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     let hypothesis = add_signature hypothesis (name, bound') in
     let proof = hypothesis |- body => () in
     let body' = get_type proof in
-    proof_from_option ~reason:(return "infer_lambda") ~proofs:[ proof ]
+    proof_from_option
+      ~reason:(return "Cannot infer lambda")
+      ~proofs:[ proof ]
       ( body'
       <&> fun body' ->
       fold_right const

@@ -2,7 +2,7 @@
 
 Nethra is an experiment based on well know theories and constructions like:
 - dependent function type,
-- dependent pair type,
+- dependent record (subsume sigma type),
 - recursive type,
 - sum type
 - core lambda calculus
@@ -289,20 +289,20 @@ binding ::=
 term ::=     
     "let" id "=" term "in" term
    
-    "(" id ":" term ")" "->" term    
-    "{" id ":" term "}" "->" term    
+    "(" id+ ":" term ")" "->" term    
+    "{" id+ ":" term "}" "->" term    
     term "->" term
     term term
     term "{" term "}"
 
-    "(" id ":" term ")" "*" term    
+    "(" id+ ":" term ")" "*" term    
     term "*" term
     term "," term
     "fst" term
     "snd" term
 
-    "(" id ")" "." term    
-    "{" id "}" "." term
+    "(" id+ ")" "." term    
+    "{" id+ "}" "." term
     
     "sig" "struct" (id ":" term)* "end"
     "val" "struct" (id "=" term)* "end"
@@ -500,7 +500,7 @@ sig nil  : {X:type} -> list X
 val nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
-val cons = (head).(tail).(fold (inr (head,tail)))
+val cons = (head tail).(fold (inr (head,tail)))
 
 sig isEmpty : {X:type} -> list X -> bool
 val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
@@ -512,10 +512,10 @@ val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 sig reflexive : {A:type} -> {a:A} -> equals a a
 val reflexive = refl
 
-sig symmetric : {A:type} -> {a:A} -> {b:A} -> equals a b -> equals b a
+sig symmetric : {A:type} -> {a b:A} -> equals a b -> equals b a
 val symmetric = (a_eq_b).subst refl by a_eq_b
 
-sig transitivity : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equals a b -> equals b c -> equals a c
+sig transitivity : {A:type} -> {a b c:A} -> equals a b -> equals b c -> equals a c
 val transitivity = (a_eq_b).(b_eq_c).subst (subst refl by a_eq_b) by b_eq_c
 ```
 
@@ -525,16 +525,16 @@ This implementation reproduces the Agda version proposed [here](https://homepage
 
 ```ocaml
 sig equal : {A:type} -> (a:A) -> (b:A) -> type
-val equal = {A}.(a).(b).((P : A -> type) -> P a -> P b)
+val equal = {A}.(a b).((P : A -> type) -> P a -> P b)
 
 sig reflexive : {A:type} -> {a:A} -> equal a a
-val reflexive = (P).(Pa).Pa
+val reflexive = (P Pa).Pa
 
 sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -> equal a c
-val transitive = (eq_a_b).(eq_b_c).(P).(Pa).(eq_b_c P (eq_a_b P Pa))
+val transitive = (eq_a_b eq_b_c).(P Pa).(eq_b_c P (eq_a_b P Pa))
 
-sig symmetric : {A:type} -> {a:A} -> {b:A} -> equal a b -> equal b a
-val symmetric = {A}.{a}.(eq_a_b).(P).
+sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
+val symmetric = {A a}.(eq_a_b).(P).
     let Qa = reflexive P in
     let Qb = eq_a_b (c).(P c -> P a) Qa in
     Qb
