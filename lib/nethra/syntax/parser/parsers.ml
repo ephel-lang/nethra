@@ -111,13 +111,18 @@ module Operator (P : Specs.PARSEC) = struct
   let ( <~< ) p1 p2 = Functor.(p1 <~> p2 <&> fst)
   let ( >~> ) p1 p2 = Functor.(p1 <~> p2 <&> snd)
 
-  let ( <|> ) p1 p2 s =
+  let ( <~|~> ) p1 p2 s =
     let open Response.Destruct in
     let open Response.Construct in
+    let open Functor in
     fold
       ~success:(fun (a, b, s) -> success (a, b, s))
-      ~failure:(fun (m, b, s) -> if b then failure (m, b, s) else p2 s)
-      (p1 s)
+      ~failure:(fun (m, b, s) ->
+        if b then failure (m, b, s) else (p2 <&> fun e -> Either.Right e) s )
+      ((p1 <&> fun e -> Either.Left e) s)
+
+  let ( <|> ) p1 p2 =
+    Functor.(p1 <~|~> p2 <&> function Either.Left a | Either.Right a -> a)
 
   let ( <?> ) p f =
     let open Eval in
