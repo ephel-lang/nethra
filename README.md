@@ -697,8 +697,8 @@ val mkPoint = (x).(y).
         x  = x
         y  = y
         mv = (self).(x_and_y).
-            let nx = add (fst x_and_y) (x from unfold self) in
-            let ny = add (snd x_and_y) (y from unfold self) in
+            let nx = add (fst x_and_y) (#x unfold self) in
+            let ny = add (snd x_and_y) (#y unfold self) in
             (mkPoint nx ny)
     end
 
@@ -706,7 +706,7 @@ sig zero : point
 val zero = mkPoint 0 0
 
 sig x : int
-val x = x from unfold zero
+val x = #x unfold zero
 ```
 
 #### Dependant record
@@ -989,7 +989,7 @@ term ::=
     
     "sig" "struct" (id ":" term)* "end"
     "val" "struct" (id "=" term)* "end"
-    id "from" term
+    "#" id term
     
     term "|" term
     "case" term term term
@@ -1262,8 +1262,8 @@ val mkPoint = (x).(y).
         x  = x
         y  = y
         mv = (self).(x_and_y).
-            let nx = add (fst x_and_y) (x from unfold self) in
-            let ny = add (snd x_and_y) (y from unfold self) in
+            let nx = add (fst x_and_y) (#x unfold self) in
+            let ny = add (snd x_and_y) (#y unfold self) in
             (mkPoint nx ny)
     end
 
@@ -1271,7 +1271,7 @@ sig zero : point
 val zero = mkPoint 0 0
 
 sig x : int
-val x = x from unfold zero
+val x = #x unfold zero
 ```
 
 #### Dependant record
