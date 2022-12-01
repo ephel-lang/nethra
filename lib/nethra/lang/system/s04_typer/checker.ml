@@ -354,19 +354,25 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun tA -> [ proof; hypothesis |- a <= tA ] )
 
   (*
-    Γ ⊢ e_i : type_j
-    -------------------------------------
-    Γ ⊢ { n_i = e_i }_i : type_j
+    Γ ⊢
+    ----------------
+    Γ ⊢ < > : type_i
+
+    Γ ⊢ T : type_i    Γ, n : T ⊢ r : type_i
+    ----------------------------------------
+    Γ ⊢ < n : T, r > : type_i
   *)
 
   and check_record_sig hypothesis term' (l, c) =
     proof_from_option
       ~reason:(return "Waiting for type")
       ( fold_opt ~kind:return term'
-      <&> fun (level, _c) ->
-      List.fold_right
-        (fun (_, e) p -> (hypothesis |- e <= kind ~c level) :: p)
-        l [] )
+      <&> (fun (level, _c) ->
+            List.fold_left
+              (fun (h, p) (n, e) ->
+                (add_signature h (n, e), (h |- e <= kind ~c level) :: p) )
+              (hypothesis, []) l )
+      <&> fun (_, p) -> p )
 
   (*
     Γ ⊢ e_i : T_i

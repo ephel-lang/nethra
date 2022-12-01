@@ -32,6 +32,23 @@ let compile_basic_record () =
   Alcotest.(check (result bool string))
     "Basic record" expected (string_of_error result)
 
+let compile_basic_dependant_record () =
+  let result =
+    Pass.run
+      {toy|
+        sig Monoid : type
+        val Monoid =
+            sig struct
+                sig self    : type
+                sig initial : self
+                sig combine : self -> self -> self
+            end
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "Basic dependant record" expected (string_of_error result)
+
 let compile_parametric_record () =
   let result =
     Pass.run
@@ -198,7 +215,7 @@ let cases =
   ( "Record Compiler"
   , [
       test_case "Basic Record" `Quick compile_basic_record
-    ; test_case "Parametric Record" `Quick compile_parametric_record
+    ; test_case "Basic Dependant Record" `Quick compile_basic_dependant_record
     ; test_case "Recursive Record" `Quick compile_recursive_record
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record
     ; test_case "Monad Recursive Record" `Quick compile_monad_recursive_record

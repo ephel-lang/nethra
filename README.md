@@ -264,7 +264,7 @@ l ∈ string
 ----------------
 Γ ⊢ < > : type_i
 
-Γ ⊢ e : type_i    Γ, n : T ⊢ r : type_i
+Γ ⊢ T : type_i    Γ, n : T ⊢ r : type_i
 ----------------------------------------
 Γ ⊢ < n : T, r > : type_i
 
