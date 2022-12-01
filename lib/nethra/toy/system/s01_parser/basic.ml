@@ -53,7 +53,6 @@ struct
     ; "by"
     ; "struct"
     ; "end"
-    ; "from"
     ]
 
   let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
