@@ -33,7 +33,7 @@ let parser_fail_consumed () =
 
 let parser_do_lazy () =
   let open Parsers.Eval (Parsec) in
-  let result = response @@ do_lazy (fun () -> return 'a') @@ Parsec.source []
+  let result = response @@ do_lazy (lazy (return 'a')) @@ Parsec.source []
   and expected = (Some 'a', false) in
   Alcotest.(check (pair (option char) bool)) "do_lazy" expected result
 
