@@ -97,10 +97,8 @@ let compile_basic_dependant_record_type_and_instance () =
                 -- val law2    = refl
             end
 
-        -{
         sig test : nat
         val test = #neutral MonoidNat
-        }-
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

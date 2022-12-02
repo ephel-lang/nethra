@@ -50,7 +50,7 @@ let reduce_case reduce hypothesis (term, left, right, _) =
 
 let reduce_access reduce hypothesis (term, ident, _) =
   reduce hypothesis term
-  >>= fold_opt ~record_sig:return
+  >>= fold_opt ~record_val:return
   >>= (fun (l, _) -> List.find_opt (fun (n, _) -> n = ident) l)
   <&> (fun (_, t) -> t)
   >>= reduce hypothesis
