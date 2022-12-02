@@ -7,12 +7,15 @@ end
 module Access = struct
   let file (file, _, _) = file
   let first (_, first, _) = first
-  let last (_, _, second) = second
+  let last (_, _, last) = last
 end
 
 module Render = struct
-  let render ppf (_, first, last) =
+  let render ppf (file, first, last) =
     let open Format in
     let open Location.Render in
-    fprintf ppf "from %a to %a" render first render last
+    match file with
+    | Some file ->
+      fprintf ppf "in %s from %a to %a" file render first render last
+    | None -> fprintf ppf "from %a to %a" render first render last
 end
