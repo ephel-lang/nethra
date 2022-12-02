@@ -170,8 +170,13 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
          >~> opt_rep
                ( Reserved._VAL_
                >~> identifier
+               <~> opt (Reserved._COLON_ >~> do_lazy term)
                <~< Reserved._EQUAL_
-               <~> do_lazy term )
+               <~> do_lazy term
+               <&> function
+               | (n, None), e -> (n, e)
+               | (n, Some t), Localized (e, r) ->
+                 (n, Localized (Annotation (Localized (e, r), t), r)) )
          <~< Reserved._END_
          <&> fun l -> Record (S_Val, l) ) )
 

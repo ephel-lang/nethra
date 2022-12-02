@@ -57,6 +57,8 @@ module Impl = struct
       record_val ~c:(Some r)
         (List.map (fun (n, t) -> (n, abstract_localized t)) l)
     | Access (e, n) -> access ~c:(Some r) (abstract_localized e) n
+    | Annotation (e, t) ->
+      annotation ~c:(Some r) (abstract_localized e) (abstract_localized t)
 
   and abstract_localized =
     let open Nethra_toy_cst.Localized in

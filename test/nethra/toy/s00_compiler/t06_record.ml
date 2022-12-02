@@ -49,13 +49,25 @@ let compile_basic_dependant_record_type () =
   Alcotest.(check (result bool string))
     "Basic dependant record type" expected (string_of_error result)
 
-let compile_basic_dependant_record () =
+let compile_basic_dependant_record_type_and_instance () =
   let result =
     Pass.run
       {toy|
         -----------
-        sig int : type
-        sig add : int -> int -> int
+        sig Unit : type
+        sig unit : Unit
+
+        -----------
+
+        sig nat : type
+        val nat = rec(X:type).(Unit | X)
+
+        val zero : nat = fold inl unit
+        val succ : nat -> nat = (n).fold inr n
+
+        sig add : nat -> nat -> nat
+        val add = (n1 n2).case (unfold n1) (_).n2 (n1).(add n1 n2)
+
         -----------
 
         sig Monoid : type
@@ -64,30 +76,36 @@ let compile_basic_dependant_record () =
                 sig self    : type
                 sig neutral : self
                 sig combine : self -> self -> self
-                -- sig law1 : self -> self
+                -- Monoid Laws
+                sig law1    : {a:self} -> equals a (combine neutral a)
+                -- sig law2    : {a:self} -> equals a (combine a neutral)
             end
 
         -----------
 
-        sig MonoidInt : Monoid
-        val MonoidInt =
+        sig MonoidNat : Monoid
+        val MonoidNat =
             val struct
-                val self    = int
-                val neutral = 0
+                val self    = nat
+                val neutral = zero
                 val combine = add
-                -- val law1 = combine neutral
+                -- Monoid Laws
+                val law1    = refl
+                -- Additionals
+                val plus_one : nat -> nat = (e).(succ e)
+                val one : nat = plus_one (succ neutral)
+                -- val law2    = refl
             end
+
         -{
-        sig test : int
-        val test =
-            let n = #neutral MonoidInt in
-            (#combine MonoidInt 1 n)
+        sig test : nat
+        val test = #neutral MonoidNat
         }-
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "Basic dependant record" expected (string_of_error result)
+    "Basic dependant record and instance" expected (string_of_error result)
 
 let compile_parametric_record () =
   let result =
@@ -191,7 +209,7 @@ let compile_monad_dependant_record () =
         val none = inr unit
 
         sig EitherOption : Monad Option
-        -{
+
         val EitherOption =
             val struct
                 val map   = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
@@ -199,7 +217,7 @@ let compile_monad_dependant_record () =
                 val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
                 val bind  = (f ma).(join (map f ma))
             end
-
+        -{
         val r : Option Unit = #map EitherOption (_).unit (some 1)
         }-
       |toy}
@@ -257,7 +275,8 @@ let cases =
       test_case "Basic Record" `Quick compile_basic_record
     ; test_case "Basic Dependant Record type" `Quick
         compile_basic_dependant_record_type
-    ; test_case "Basic Dependant Record" `Quick compile_basic_dependant_record
+    ; test_case "Basic Dependant Record and instance" `Quick
+        compile_basic_dependant_record_type_and_instance
     ; test_case "Recursive Record" `Quick compile_recursive_record
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record
     ; test_case "Monad Recursive Record" `Quick compile_monad_recursive_record

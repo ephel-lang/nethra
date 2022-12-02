@@ -340,9 +340,13 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_record_sig _hypothesis (_l, c) = (Some (kind ~c 0), [ (* TODO *) ])
 
   (*
-    Γ ⊢ e_i : T_i
-    -------------------------------------
-    Γ ⊢ { n_i = e_i }_i : { n_i : T_i }_i
+    Γ ⊢
+    -------------
+    Γ ⊢ { } : < >
+
+    Γ ⊢ e : T    Γ, n : T ⊢ r : R[n:=e]
+    -----------------------------------
+    Γ ⊢ { n = e, r } : < n : T, R >
   *)
 
   and infer_record_val hypothesis (l, c) =
@@ -357,21 +361,34 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     ((r <&> fun r -> record_val ~c r), p)
 
   (*
-    Γ ⊢ e : { n_i : T_i }_i
-    -----------------------
-    Γ ⊢ e . n_i : T_i
+    Γ ⊢ e : < n : T, R >
+    --------------------
+    Γ ⊢ e.n : T
+
+    Γ ⊢ e : < m : T, R >    Γ, m : T ⊢ e.n : R    m ≠ n
+    ---------------------------------------------------
+    Γ ⊢ e.n : T[m:=e.m]
   *)
 
-  and infer_access hypothesis (r, n, _c) =
-    let proof = hypothesis |- r => () in
+  and infer_access hypothesis (e, n, c) =
+    let rec infer hypothesis l =
+      match l with
+      | [] -> (None, [ failure (Some ("no definition for " ^ n)) ])
+      | (n', t') :: _ when n = n' -> (Some t', [])
+      | (n', t') :: l ->
+        let t, ps = infer (add_signature hypothesis (n', t')) l in
+        (t <&> substitute n' (access ~c e n'), ps)
+    in
+    let proof = hypothesis |- e => () in
     let tR = get_type proof in
     proof_from_option
       ~reason:(return "Waiting for a record signature")
       ~proofs:[ proof ]
       ( tR
       >>= fold_opt ~record_sig:return
-      >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
-      <&> fun (_, t) -> (Some t, [ proof ]) )
+      <&> fun (l, _) ->
+      let t, ps = infer hypothesis l in
+      (t, proof :: ps) )
 
   (*
     Additional inference rule dedicated to implicit parameters

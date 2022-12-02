@@ -34,3 +34,4 @@ type t =
   | Subst of (t Localized.t * t Localized.t)
   | Record of sort * (string * t Localized.t) list
   | Access of t Localized.t * string
+  | Annotation of t Localized.t * t Localized.t

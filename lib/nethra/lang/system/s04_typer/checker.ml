@@ -385,24 +385,31 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
     Γ ⊢ e : T    Γ, n : T ⊢ r : R[n:=e]
     -----------------------------------
     Γ ⊢ { n = e, r } : < n : T, R >
+
+    Γ ⊢ e : T'    Γ, n : T' ⊢ r : < m : T, R >    m ≠ n
+    ---------------------------------------------------
+    Γ ⊢ { n = e, r } : < m : T, R >
   *)
 
   and check_record_val hypothesis term' (l, _c) =
     let rec check hypothesis l lt =
       match (l, lt) with
       | [], [] -> []
+      | [], (n', _) :: _ -> [ failure (Some ("waiting for " ^ n')) ]
       | (n, e) :: l, (n', t) :: lt when n = n' ->
         let p = hypothesis |- e <= t in
         let lt = List.map (fun (m, t) -> (m, substitute n e t)) lt in
         let ps = check (add_signature hypothesis (n, t)) l lt in
         p :: ps
-      | (n, _) :: l, (n', _) :: lt ->
-        let p = failure (Some ("found " ^ n ^ " but waiting for " ^ n')) in
-        let ps = check hypothesis l lt in
+      | (n, e) :: l, lt ->
+        let p = hypothesis |- e => () in
+        let ps =
+          fold_right const
+            ( get_type p
+            <&> fun t -> check (add_signature hypothesis (n, t)) l lt )
+            []
+        in
         p :: ps
-      | [], (n', _) :: _ -> [ failure (Some ("waiting for " ^ n')) ]
-      | (n, _) :: _, [] ->
-        [ failure (Some ("found " ^ n ^ " but waiting for nothing")) ]
     in
     proof_from_option
       ~reason:(return "Waiting for record signature")
@@ -410,22 +417,19 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (lt, _c) -> check hypothesis l lt )
 
   (*
-    Γ ⊢ e : { n_i : T_i }_i
-    -----------------------
-    Γ ⊢ e . n_i : T_i
+    Γ ⊢ e : < n : T, R >
+    --------------------
+    Γ ⊢ e.n : T
+
+    Γ ⊢ e : < m : T, R >    Γ, m : T ⊢ e.n : R    m ≠ n
+    ---------------------------------------------------
+    Γ ⊢ e.n : T[m:=e.m]
   *)
 
-  and check_access hypothesis term' (r, n, _c) =
-    let proof = hypothesis |- r => () in
-    let tR = get_type proof in
-    proof_from_option
-      ~reason:(return "Waiting for a record signature")
-      ~proofs:[ proof ]
-      ( tR
-      >>= fold_opt ~record_sig:return
-      >>= (fun (l, _) -> List.find_opt (fun (n', _) -> n' = n) l)
-      <&> (fun (_, t) -> t)
-      <&> fun tN -> [ proof; hypothesis |- term' =?= tN ] )
+  and check_access hypothesis t' (r, n, c) =
+    let proof = hypothesis |- access ~c r n => () in
+    proof_from_option ~proofs:[ proof ]
+      (get_type proof <&> fun t -> [ proof; hypothesis |- t' =?= t ])
 
   (* Additional rules for implicits ... *)
 
