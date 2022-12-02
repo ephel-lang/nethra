@@ -24,8 +24,6 @@ Some References covering dependent types and type checking in general:
 
 - [Extensional Equality in Intensional Type Theory](http://www.cs.nott.ac.uk/~psztxa/publ/lics99.pdf)
 
-### Module / Trait transformation
-
 ### Pattern matching compilation
 
 ### Linearity / Affine type
