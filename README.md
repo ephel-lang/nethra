@@ -1202,6 +1202,30 @@ val EitherOption : Monad Option =
 val r : Option Unit = #map EitherOption (_).unit (some 1)
 ```
 
+### First Basic formal proof
+
+```ocaml
+sig Monoid : type
+val Monoid =
+    sig struct
+        sig self : type
+        sig neutral : self
+        sig combine : self -> self -> self
+        -- Monoid Laws
+        sig law1 : {a:self} -> equals a (combine neutral a)
+    end
+
+sig MonoidNat : Monoid
+val MonoidNat =
+    val struct
+        val self = nat
+        val neutral = zero
+        val combine = add
+        -- Monoid Laws
+        val law1 = refl
+    end
+```
+
 # Why Nethra?
 
 See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.
