@@ -1205,6 +1205,18 @@ val r : Option Unit = #map EitherOption (_).unit (some 1)
 ### First Basic formal proof
 
 ```ocaml
+sig Unit : type
+sig unit : Unit
+
+sig nat : type
+val nat = rec(X:type).(Unit | X)
+
+val zero : nat = fold inl unit
+val succ : nat -> nat = (n).fold inr n
+
+sig add : nat -> nat -> nat
+val add = (n1 n2).case (unfold n1) (_).n2 (n1).(add n1 n2)
+
 sig Monoid : type
 val Monoid =
     sig struct
