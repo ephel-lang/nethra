@@ -328,9 +328,13 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_subst _hypothesis (_lhd, _rhd, _c) = (None, [ failure None ])
 
   (*
-    Γ ⊢ e_i : type_j
-    -----------------------------------
-    Γ ⊢ { n_i : e_i }_i : type_j
+    Γ ⊢
+    ----------------
+    Γ ⊢ < > : type_i
+
+    Γ ⊢ T : type_i    Γ, n : T ⊢ r : type_i
+    ----------------------------------------
+    Γ ⊢ < n : T, r > : type_i
   *)
 
   and infer_record_sig _hypothesis (_l, c) = (Some (kind ~c 0), [ (* TODO *) ])

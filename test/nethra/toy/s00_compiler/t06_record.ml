@@ -32,7 +32,7 @@ let compile_basic_record () =
   Alcotest.(check (result bool string))
     "Basic record" expected (string_of_error result)
 
-let compile_basic_dependant_record () =
+let compile_basic_dependant_record_type () =
   let result =
     Pass.run
       {toy|
@@ -40,9 +40,49 @@ let compile_basic_dependant_record () =
         val Monoid =
             sig struct
                 sig self    : type
-                sig initial : self
+                sig neutral : self
                 sig combine : self -> self -> self
             end
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "Basic dependant record type" expected (string_of_error result)
+
+let compile_basic_dependant_record () =
+  let result =
+    Pass.run
+      {toy|
+        -----------
+        sig int : type
+        sig add : int -> int -> int
+        -----------
+
+        sig Monoid : type
+        val Monoid =
+            sig struct
+                sig self    : type
+                sig neutral : self
+                sig combine : self -> self -> self
+                -- sig law1 : self -> self
+            end
+
+        -----------
+
+        sig MonoidInt : Monoid
+        val MonoidInt =
+            val struct
+                val self    = int
+                val neutral = 0
+                val combine = add
+                -- val law1 = combine neutral
+            end
+        -{
+        sig test : int
+        val test =
+            let n = #neutral MonoidInt in
+            (#combine MonoidInt 1 n)
+        }-
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -215,6 +255,8 @@ let cases =
   ( "Record Compiler"
   , [
       test_case "Basic Record" `Quick compile_basic_record
+    ; test_case "Basic Dependant Record type" `Quick
+        compile_basic_dependant_record_type
     ; test_case "Basic Dependant Record" `Quick compile_basic_dependant_record
     ; test_case "Recursive Record" `Quick compile_recursive_record
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record

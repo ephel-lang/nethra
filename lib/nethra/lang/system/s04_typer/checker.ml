@@ -364,41 +364,50 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
   *)
 
   and check_record_sig hypothesis term' (l, c) =
+    let rec check hypothesis l t =
+      match l with
+      | [] -> []
+      | (n, e) :: l ->
+        let p = hypothesis |- e <= t in
+        let ps = check (add_signature hypothesis (n, e)) l t in
+        p :: ps
+    in
     proof_from_option
       ~reason:(return "Waiting for type")
       ( fold_opt ~kind:return term'
-      <&> (fun (level, _c) ->
-            List.fold_left
-              (fun (h, p) (n, e) ->
-                (add_signature h (n, e), (h |- e <= kind ~c level) :: p) )
-              (hypothesis, []) l )
-      <&> fun (_, p) -> p )
+      <&> fun (level, _c) -> check hypothesis l (kind ~c level) )
 
   (*
-    Γ ⊢ e_i : T_i
-    -------------------------------------
-    Γ ⊢ { n_i = e_i }_i : { n_i : T_i }_i
+    Γ ⊢
+    -------------
+    Γ ⊢ { } : < >
+
+    Γ ⊢ e : T    Γ, n : T ⊢ r : R[n:=e]
+    -----------------------------------
+    Γ ⊢ { n = e, r } : < n : T, R >
   *)
 
   and check_record_val hypothesis term' (l, _c) =
+    let rec check hypothesis l lt =
+      match (l, lt) with
+      | [], [] -> []
+      | (n, e) :: l, (n', t) :: lt when n = n' ->
+        let p = hypothesis |- e <= t in
+        let lt = List.map (fun (m, t) -> (m, substitute n e t)) lt in
+        let ps = check (add_signature hypothesis (n, t)) l lt in
+        p :: ps
+      | (n, _) :: l, (n', _) :: lt ->
+        let p = failure (Some ("found " ^ n ^ " but waiting for " ^ n')) in
+        let ps = check hypothesis l lt in
+        p :: ps
+      | [], (n', _) :: _ -> [ failure (Some ("waiting for " ^ n')) ]
+      | (n, _) :: _, [] ->
+        [ failure (Some ("found " ^ n ^ " but waiting for nothing")) ]
+    in
     proof_from_option
-      ~reason:(return "Waiting for a record signature")
+      ~reason:(return "Waiting for record signature")
       ( fold_opt ~record_sig:return term'
-      <&> fun (lT, _c) ->
-      let proofs =
-        if List.length l = List.length lT
-        then []
-        else [ failure (Some "Record should have the same size") ]
-      in
-      List.fold_right
-        (fun (n, e) p ->
-          proof_from_option
-            ~reason:(Some (n ^ " type not found"))
-            ~proofs:p
-            ( List.find_opt (fun (n', _) -> n' = n) lT
-            <&> (fun (_, t) -> t)
-            <&> fun t -> (hypothesis |- e <= t) :: p ) )
-        l proofs )
+      <&> fun (lt, _c) -> check hypothesis l lt )
 
   (*
     Γ ⊢ e : { n_i : T_i }_i
