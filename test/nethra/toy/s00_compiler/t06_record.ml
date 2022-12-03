@@ -157,16 +157,16 @@ let compile_recursive_record () =
             rec(self:type).sig struct
                 sig x  : int
                 sig y  : int
-                sig mv : (self -> (int * int) -> self)
+                sig mv : self -> int -> int -> self
             end
 
         val Point : int -> int -> point =
             (x).(y).fold val struct
                 val x  = x
                 val y  = y
-                val mv = (self).(x_and_y).
-                    let nx = add (fst x_and_y) (#x unfold self) in
-                    let ny = add (snd x_and_y) (#y unfold self) in
+                val mv = (self x y).
+                    let nx = add x (#x unfold self) in
+                    let ny = add y (#y unfold self) in
                     (Point nx ny)
             end
 

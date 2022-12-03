@@ -852,7 +852,9 @@ l ∈ string
 Γ ⊢ e.n : T[m:=e.m]
 ```
 
-## Nethra Toy language in action
+## Toy language in action
+
+This language is based on Nethra.
 
 ### Grammar
 
@@ -1148,19 +1150,19 @@ sig add : int -> int -> int
 sig point : type
 val point =
     rec(self:type).sig struct
-        x  : int
-        y  : int
-        mv : (self -> (int * int) -> self)
+        sig x  : int
+        sig y  : int
+        sig mv : self -> int -> int -> self
     end
 
 sig mkPoint : int -> int -> point
 val mkPoint = (x).(y).
     fold val struct
-        x  = x
-        y  = y
-        mv = (self).(x_and_y).
-            let nx = add (fst x_and_y) (#x unfold self) in
-            let ny = add (snd x_and_y) (#y unfold self) in
+        val x  = x
+        val y  = y
+        val mv = (self x y).
+            let nx = add x (#x unfold self) in
+            let ny = add y (#y unfold self) in
             (mkPoint nx ny)
     end
 
