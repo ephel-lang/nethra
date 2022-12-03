@@ -32,18 +32,26 @@ module Access = struct
 
   let signatures (_, gamma, _) = Bindings.Access.bindings gamma
   let get_signature (_, gamma, _) n = Bindings.Access.get_binding gamma n
+  let ( @: ) r n = get_signature r n
 
-  let add_signature (reference, gamma, delta) binding =
-    (reference, Bindings.Access.add_binding gamma binding, delta)
+  let add_signature (reference, gamma, delta) signature =
+    (reference, Bindings.Access.add_binding gamma signature, delta)
+
+  let ( +: ) r b = add_signature r b
 
   let add_signatures (reference, gamma, delta) signatures =
     (reference, Bindings.Access.add_bindings gamma signatures, delta)
+
+  let ( +:+ ) r b = add_signatures r b
 
   (** Definitions *)
 
   let definitions (_, _, delta) = Bindings.Access.bindings delta
   let get_definition (_, _, delta) n = Bindings.Access.get_binding delta n
+  let ( @= ) r n = get_definition r n
 
   let add_definition (reference, gamma, delta) binding =
     (reference, gamma, Bindings.Access.add_binding delta binding)
+
+  let ( += ) r b = add_definition r b
 end

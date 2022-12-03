@@ -75,7 +75,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   let rec infer_pi hypothesis (name, bound, body, _implicit, _c) =
     let proof = hypothesis |- bound => () in
     let bound' = get_type proof in
-    let proof' = add_signature hypothesis (name, bound) |- body => () in
+    let proof' = hypothesis +: (name, bound) |- body => () in
     let body' = get_type proof' in
     (bound' >>= const body', [ proof; proof' ])
 
@@ -87,7 +87,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_lambda hypothesis (name, body, implicit, c) =
     let reference = ref None in
     let bound' = hole ~r:reference name in
-    let hypothesis = add_signature hypothesis (name, bound') in
+    let hypothesis = hypothesis +: (name, bound') in
     let proof = hypothesis |- body => () in
     let body' = get_type proof in
     proof_from_option
@@ -99,7 +99,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ( !reference
         <&> fun value -> (Some (pi ~implicit ~c name value body'), [ proof ]) )
         ( Some
-            (* Unbound means Generalisable *)
+            (* Unbound means Generalisable? *)
             (pi ~implicit:true name (kind 0)
                (pi ~implicit ~c name bound' body') )
         , [ proof ] ) )
@@ -107,7 +107,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   (*
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M      Γ ⊢ f : Π{x:M}.N   Γ ⊢ e : M
     ----------------------------      ----------------------------
-    Γ ⊢ f e : N[x=e]                  Γ ⊢ f {e} : N[x=e]
+    Γ ⊢ f e : N[x:=e]                 Γ ⊢ f {e} : N[x:=e]
   *)
   and infer_apply hypothesis (abstraction, argument, implicit, _c) =
     let proof = hypothesis |- abstraction => () in
@@ -132,14 +132,14 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   and infer_sigma hypothesis (name, bound, body, _c) =
     let proof = hypothesis |- bound => () in
     let bound' = get_type proof in
-    let proof' = add_signature hypothesis (name, bound) |- body => () in
+    let proof' = hypothesis +: (name, bound) |- body => () in
     let body' = get_type proof' in
     (bound' >>= const body', [ proof; proof' ])
 
   (*
-    Γ ⊢ A : M   Γ ⊢ B : N[x=A]
-    --------------------------
-    Γ ⊢ A,B : Σ(x:M).N
+    Γ ⊢ A : M   Γ ⊢ B : N
+    ---------------------
+    Γ ⊢ A,B : Σ(_:M).N
   *)
   and infer_pair hypothesis (lhd, rhd, _c) =
     let proof = hypothesis |- lhd => () in
@@ -166,8 +166,8 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
 
   (*
     Γ ⊢ p : Σ(x:M).N
-    ----------------------
-    Γ ⊢ snd p : N[x=fst p]
+    -----------------------
+    Γ ⊢ snd p : N[x:=fst p]
   *)
   and infer_snd hypothesis (term, _c) =
     let proof = hypothesis |- term => () in
@@ -248,12 +248,12 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     Γ ⊢ μ(x:T).A : T
   *)
   and infer_mu hypothesis (name, kind, body, _c) =
-    let hypothesis = add_signature hypothesis (name, kind) in
+    let hypothesis = hypothesis +: (name, kind) in
     (Some kind, [ hypothesis |- body <= kind ])
 
   (*
-    Γ ⊢ A : N[x=μ(x:T).N]
-    ---------------------
+    Γ ⊢ A : N[x:=μ(x:T).N]
+    ----------------------
     Γ ⊢ fold A : μ(x:T).N
   *)
   and infer_fold _hypothesis (_term, _c) =
@@ -320,10 +320,10 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     (Some (equals term term), [])
 
   (*
-      Γ ⊢ b : x = B    Γ ⊢ a : A[B/x]    Γ ⊢ b : B = x    Γ ⊢ a : A[B/x]
-      -------------------------------    -------------------------------
-      Γ ⊢ subst a by b : A               Γ ⊢ subst a by b : A
-    *)
+      Γ ⊢ b : x = B    Γ ⊢ a : A[x:=B]    Γ ⊢ b : B = x    Γ ⊢ a : A[x:=B]
+      --------------------------------    --------------------------------
+      Γ ⊢ subst a by b : A                Γ ⊢ subst a by b : A
+  *)
 
   and infer_subst _hypothesis (_lhd, _rhd, _c) = (None, [ failure None ])
 
@@ -350,13 +350,14 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
   *)
 
   and infer_record_val hypothesis (l, c) =
-    let r, p =
-      List.fold_right
-        (fun (n, e) (r, p) ->
-          let proof = hypothesis |- e => () in
+    let r, p, _ =
+      List.fold_left
+        (fun (r, p, h) (n, e) ->
+          let proof = h |- e => () in
           let t = get_type proof in
-          (return (fun t l -> (n, t) :: l) <*> t <*> r, proof :: p) )
-        l (Some [], [])
+          (return (fun t l -> (n, t) :: l) <*> t <*> r, proof :: p, h += (n, e))
+          )
+        (Some [], [], hypothesis) l
     in
     ((r <&> fun r -> record_val ~c r), p)
 
@@ -376,7 +377,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       | [] -> (None, [ failure (Some ("no definition for " ^ n)) ])
       | (n', t') :: _ when n = n' -> (Some t', [])
       | (n', t') :: l ->
-        let t, ps = infer (add_signature hypothesis (n', t')) l in
+        let t, ps = infer (hypothesis +: (n', t')) l in
         (t <&> substitute n' (access ~c e n'), ps)
     in
     let proof = hypothesis |- e => () in
@@ -416,7 +417,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
             let term =
               apply (apply ~implicit:true abstraction (hole var)) argument
             in
-            let proof' = add_signature hypothesis (var, bound) |- term => () in
+            let proof' = hypothesis +: (var, bound) |- term => () in
             let term' = get_type proof' in
             (term', [ proof; proof' ])
           else (None, [ proof; failure None ]) ) )

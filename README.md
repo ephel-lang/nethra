@@ -80,6 +80,7 @@ e ::=
     < n : e, ...> -- Dependant record type
     { n = e, ...} -- Record
     e.n           -- Field access
+    open e        -- Open a record
 ```
 
 ### Typing rules
