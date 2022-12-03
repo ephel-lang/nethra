@@ -215,9 +215,8 @@ let compile_monad_dependant_record () =
                 val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
                 val bind  = (f ma).(join (map f ma))
             end
-        -{
+
         val r : Option Unit = #map EitherOption (_).unit (some 1)
-        }-
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -266,6 +265,33 @@ let compile_monad_recursive_record () =
   Alcotest.(check (result bool string))
     "Monad recursive record" expected (string_of_error result)
 
+let compile_record_of_record () =
+  let result =
+    Pass.run
+      {toy|
+        sig int : type
+
+        val m1 :
+            sig struct
+               sig m2 :
+                  sig struct
+                     sig m3 : int
+               end
+            end =
+            val struct
+               val m2 =
+                  val struct
+                     val m3 = 1
+                  end
+            end
+
+        val m3 : int = #m3 #m2 m1
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "record of record" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Record Compiler"
@@ -278,4 +304,5 @@ let cases =
     ; test_case "Recursive Record" `Quick compile_recursive_record
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record
     ; test_case "Monad Recursive Record" `Quick compile_monad_recursive_record
+    ; test_case "Record of Record" `Quick compile_record_of_record
     ] )
