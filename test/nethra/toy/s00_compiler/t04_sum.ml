@@ -164,7 +164,7 @@ let compile_either () =
         --- Preamble
         sig string : type
         sig Atom   : string -> type
-        sig data   : {A:type} -> (_:A) -> type
+        sig data   : {A:type} -> A -> type
         val data   = {A}.(_).A
         ------------
         sig Right : Atom "Right"
@@ -206,7 +206,7 @@ let compile_freer () =
             --- Preamble
             sig string : type
             sig Atom   : string -> type
-            sig data   : {A:type} -> (_:A) -> type
+            sig data   : {A:type} -> A -> type
             val data   = {A}.(_).A
             ------------
             sig Return : Atom "Return"

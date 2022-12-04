@@ -118,7 +118,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
          <~< Reserved._EQUAL_
          <~> do_lazy term
          <~< Reserved._IN_
-         <~> do_lazy sterm
+         <~> do_lazy term
          <&> fun (((id, t), v), f) -> Let (id, t, v, f) ) )
 
   and recursive =

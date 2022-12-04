@@ -191,10 +191,11 @@ let compile_monad_dependant_record () =
         sig Monad : ((type) -> type) -> type
         val Monad =
             (M).sig struct
-                sig map   : {A B:type} -> (A -> B) -> M A -> M B
-                sig apply : {A B:type} -> M (A -> B) -> M A -> M B
-                sig join  : {A:type} -> M (M A) -> M A
-                sig bind  : {A B:type} -> (A -> M B) -> M A -> M B
+                sig return : {A:type} -> A -> M A
+                sig map    : {A B:type} -> (A -> B) -> M A -> M B
+                sig apply  : {A B:type} -> M (A -> B) -> M A -> M B
+                sig join   : {A:type} -> M (M A) -> M A
+                sig bind   : {A B:type} -> (A -> M B) -> M A -> M B
             end
 
         ------------
@@ -210,13 +211,15 @@ let compile_monad_dependant_record () =
 
         val EitherOption =
             val struct
-                val map   = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
-                val apply = {_ B}.(mf ma).(case mf (f).(map f ma) (_).(none {B}))
-                val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
-                val bind  = (f ma).(join (map f ma))
+                val return = some
+                val map    = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
+                val apply  = {_ B}.(mf ma).(case mf (f).(map f ma) (_).(none {B}))
+                val join   = {A}.(ma).(case ma (a).a (_).(none {A}))
+                val bind   = (f ma).(join (map f ma))
             end
 
-        val r : Option Unit = #map EitherOption (_).unit (some 1)
+        val r : Option Unit =
+            let m = EitherOption in #map m (_).unit (#return m 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
