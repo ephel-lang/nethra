@@ -195,8 +195,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
 
   and sterm =
     lazy
-      ( do_lazy access_record
-      <|> kind
+      ( kind
       <|> var
       <|> int
       <|> string
@@ -211,7 +210,8 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
       <|> do_lazy equal
       <|> do_lazy subst
       <|> do_lazy sig_record
-      <|> do_lazy val_record )
+      <|> do_lazy val_record
+      <|> do_lazy access_record )
 
   and term_and_apply =
     lazy

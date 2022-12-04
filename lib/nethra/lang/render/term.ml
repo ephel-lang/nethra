@@ -28,6 +28,9 @@ let apply ppf render (abstraction, argument, implicit, _) =
     (if implicit then "%a {%a}" else "%a (%a)")
     render abstraction render argument
 
+let let_binding ppf render (name, arg, body, _) =
+  fprintf ppf "let %s = %a in %a" name render arg render body
+
 let sigma ppf render (n, bound, body, _) =
   if n = "_"
   then fprintf ppf "(%a) * %a" render bound render body
@@ -86,10 +89,11 @@ let rec render ppf t =
   Nethra_lang_ast.Term.Destruct.fold ~kind:(kind ppf) ~int:(int ppf)
     ~char:(char ppf) ~string:(string ppf) ~id:(id ppf) ~pi:(pi ppf render)
     ~lambda:(lambda ppf render) ~apply:(apply ppf render)
-    ~sigma:(sigma ppf render) ~pair:(pair ppf render) ~fst:(fst ppf render)
-    ~snd:(snd ppf render) ~sum:(sum ppf render) ~inl:(inl ppf render)
-    ~inr:(inr ppf render) ~case:(case ppf render) ~mu:(mu ppf render)
-    ~fold:(fold ppf render) ~unfold:(unfold ppf render) ~hole:(hole ppf render)
+    ~let_binding:(let_binding ppf render) ~sigma:(sigma ppf render)
+    ~pair:(pair ppf render) ~fst:(fst ppf render) ~snd:(snd ppf render)
+    ~sum:(sum ppf render) ~inl:(inl ppf render) ~inr:(inr ppf render)
+    ~case:(case ppf render) ~mu:(mu ppf render) ~fold:(fold ppf render)
+    ~unfold:(unfold ppf render) ~hole:(hole ppf render)
     ~annotation:(annotation ppf render) ~equals:(equals ppf render)
     ~refl:(refl ppf) ~subst:(subst ppf render)
     ~record_sig:(record_sig ppf render) ~record_val:(record_val ppf render)

@@ -21,6 +21,11 @@ let reduce_apply reduce hypothesis (abstraction, argument, implicit, c) =
           else None )
   >>= reduce hypothesis
 
+let reduce_let_binding reduce hypothesis (name, arg, body, _c) =
+  reduce hypothesis arg
+  <&> (fun arg -> substitute name arg body)
+  >>= reduce hypothesis
+
 let reduce_fold reduce hypothesis (term, _c) =
   reduce hypothesis term
   >>= fold_opt ~unfold:(fun (t, _) -> return t)
@@ -60,6 +65,7 @@ let rec reduce_opt hypothesis term =
     (fold_opt
        ~id:(reduce_id reduce_opt hypothesis)
        ~apply:(reduce_apply reduce_opt hypothesis)
+       ~let_binding:(reduce_let_binding reduce_opt hypothesis)
        ~fold:(reduce_fold reduce_opt hypothesis)
        ~unfold:(reduce_unfold reduce_opt hypothesis)
        ~fst:(reduce_fst reduce_opt hypothesis)

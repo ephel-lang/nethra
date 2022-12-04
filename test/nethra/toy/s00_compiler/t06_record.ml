@@ -285,12 +285,39 @@ let compile_record_of_record () =
                   end
             end
 
-        val m3 : int = #m3 #m2 m1
+        val m3 : int =
+            let m = m1 in #m3 #m2 m
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
     "record of record" expected (string_of_error result)
+
+let compile_category () =
+  let result =
+    Pass.run
+      {toy|
+        sig Functor : (M:(type) -> type) ->
+            sig struct
+                sig map : {a b:type} -> (a -> b) -> M a -> M b
+            end
+
+        sig Applicative : (M:(type) -> type) ->
+            sig struct
+                sig pure  : {a:type} -> a -> M a
+                sig apply : {a b:type} -> M (a -> b) -> M a -> M b
+            end
+
+        sig Monad : (M:(type) -> type) ->
+            sig struct
+                sig return : {a:type} -> a -> M a
+                sig bind   : {a b:type} -> M a -> (a -> M b) -> M b
+            end
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "functor, applicative ..." expected (string_of_error result)
 
 let cases =
   let open Alcotest in
@@ -305,4 +332,5 @@ let cases =
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record
     ; test_case "Monad Recursive Record" `Quick compile_monad_recursive_record
     ; test_case "Record of Record" `Quick compile_record_of_record
+    ; test_case "functor, applicative ..." `Quick compile_category
     ] )

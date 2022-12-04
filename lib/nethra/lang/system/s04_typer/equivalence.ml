@@ -84,6 +84,14 @@ module Impl (Theory : Specs.Theory) = struct
           ]
       else None )
 
+  and equivalent_let_binding hypothesis term' (name, arg, body, _c) =
+    proof_from_option
+      ( fold_opt ~let_binding:return term'
+      <&> fun (name', arg', body', _c') ->
+      let body = substitute name arg body
+      and body' = substitute name' arg' body' in
+      [ hypothesis |- body =?= body' ] )
+
   and equivalent_sigma hypothesis term' (name, bound, body, c) =
     proof_from_option
       ( fold_opt ~sigma:return term'
@@ -225,6 +233,7 @@ module Impl (Theory : Specs.Theory) = struct
         ~pi:(equivalent_pi hypothesis term')
         ~lambda:(equivalent_lambda hypothesis term')
         ~apply:(equivalent_apply hypothesis term')
+        ~let_binding:(equivalent_let_binding hypothesis term')
         ~sigma:(equivalent_sigma hypothesis term')
         ~pair:(equivalent_pair hypothesis term')
         ~fst:(equivalent_fst hypothesis term')

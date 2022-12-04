@@ -125,6 +125,21 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       else (None, [ proof; failure None ]) )
 
   (*
+    Γ ⊢ e:M   Γ, x:M, x=e ⊢ f : N
+    -----------------------------
+    Γ ⊢ let x = e in f : N[x:=e]
+  *)
+  and infer_let_binding hypothesis (name, arg, body, _c) =
+    let proof = hypothesis |- arg => () in
+    let targ = get_type proof in
+    proof_from_option ~proofs:[ proof ]
+      ( targ
+      <&> fun targ ->
+      let proof' = hypothesis +: (name, targ) += (name, arg) |- body => () in
+      let tbody = get_type proof' in
+      ((tbody <&> fun tbody -> substitute name arg tbody), [ proof; proof' ]) )
+
+  (*
     Γ ⊢ M : S   Γ, x : M ⊢ N : T
     ----------------------------
     Γ ⊢ Σ(x:M).N : T
@@ -428,6 +443,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
         ~char:(infer_char hypothesis) ~string:(infer_string hypothesis)
         ~id:(infer_id hypothesis) ~pi:(infer_pi hypothesis)
         ~lambda:(infer_lambda hypothesis) ~apply:(infer_apply hypothesis)
+        ~let_binding:(infer_let_binding hypothesis)
         ~sigma:(infer_sigma hypothesis) ~pair:(infer_pair hypothesis)
         ~fst:(infer_fst hypothesis) ~snd:(infer_snd hypothesis)
         ~sum:(infer_sum hypothesis) ~inl:(infer_inl hypothesis)

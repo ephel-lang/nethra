@@ -1,0 +1,22 @@
+sig Functor : (M:type -> type) ->
+    sig struct
+        sig map : {a b:type} -> (a -> b) -> M a -> M b
+    end
+
+sig Applicative : (M:type -> type) ->
+    sig struct
+        sig pure  : {a:type} -> a -> M a
+        sig apply : {a b:type} -> M (a -> b) -> M a -> M b
+    end
+
+sig Monad : (M:type -> type) ->
+    sig struct
+        sig return : {a:type} -> a -> M a
+        sig bind   : {a b:type} -> M a -> (a -> M b) -> M b
+    end
+
+sig Category : (M:type -> type) ->
+    sig struct
+        sig identity : {a:type} -> a -> a
+        sig compose  : {a b c:type} -> (a -> b) -> (b -> c) -> a -> c
+    end

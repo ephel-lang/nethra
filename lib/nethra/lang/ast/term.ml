@@ -24,6 +24,7 @@ type 'a t =
   | Pi of string * 'a t * 'a t * implicit * 'a option
   | Lambda of string * 'a t * implicit * 'a option
   | Apply of 'a t * 'a t * implicit * 'a option
+  | Let of string * 'a t * 'a t * 'a option
   (* Pair type and data *)
   | Sigma of string * 'a t * 'a t * 'a option
   | Pair of 'a t * 'a t * 'a option
@@ -65,6 +66,7 @@ module Construct = struct
   let apply ?(c = None) ?(implicit = false) abs arg =
     Apply (abs, arg, implicit, c)
 
+  let let_binding ?(c = None) id arg body = Let (id, arg, body, c)
   let sigma ?(c = None) n bound body = Sigma (n, bound, body, c)
   let pair ?(c = None) left right = Pair (left, right, c)
   let fst ?(c = None) term = BuiltIn (Fst, term, c)
@@ -87,9 +89,9 @@ module Construct = struct
 end
 
 module Destruct = struct
-  let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair ~fst
-      ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation ~equals
-      ~refl ~subst ~record_sig ~record_val ~access = function
+  let fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~let_binding ~sigma
+      ~pair ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation
+      ~equals ~refl ~subst ~record_sig ~record_val ~access = function
     | Type (i, c) -> kind (i, c)
     | Literal (Int i, c) -> int (i, c)
     | Literal (Char i, c) -> char (i, c)
@@ -98,6 +100,7 @@ module Destruct = struct
     | Pi (n, bound, body, implicit, c) -> pi (n, bound, body, implicit, c)
     | Lambda (n, body, implicit, c) -> lambda (n, body, implicit, c)
     | Apply (abs, arg, implicit, c) -> apply (abs, arg, implicit, c)
+    | Let (n, arg, body, c) -> let_binding (n, arg, body, c)
     | Sigma (n, bound, body, c) -> sigma (n, bound, body, c)
     | Pair (first, second, c) -> pair (first, second, c)
     | BuiltIn (Fst, term, c) -> fst (term, c)
@@ -123,12 +126,12 @@ module Destruct = struct
     let none _ = None in
     fun ?(kind = none) ?(int = none) ?(char = none) ?(string = none)
         ?(id = none) ?(pi = none) ?(lambda = none) ?(apply = none)
-        ?(sigma = none) ?(pair = none) ?(fst = none) ?(snd = none) ?(sum = none)
-        ?(inl = none) ?(inr = none) ?(case = none) ?(mu = none) ?(fold = none)
-        ?(unfold = none) ?(hole = none) ?(annotation = none) ?(equals = none)
-        ?(refl = none) ?(subst = none) ?(record_sig = none) ?(record_val = none)
-        ?(access = none) term ->
-      internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~sigma ~pair
-        ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole ~annotation
-        ~equals ~refl ~subst ~record_sig ~record_val ~access term
+        ?(let_binding = none) ?(sigma = none) ?(pair = none) ?(fst = none)
+        ?(snd = none) ?(sum = none) ?(inl = none) ?(inr = none) ?(case = none)
+        ?(mu = none) ?(fold = none) ?(unfold = none) ?(hole = none)
+        ?(annotation = none) ?(equals = none) ?(refl = none) ?(subst = none)
+        ?(record_sig = none) ?(record_val = none) ?(access = none) term ->
+      internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~let_binding
+        ~sigma ~pair ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole
+        ~annotation ~equals ~refl ~subst ~record_sig ~record_val ~access term
 end

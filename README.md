@@ -41,43 +41,44 @@ c ∈ Char
 s ∈ String
 
 e ::=
-    Type_i        -- Type at level i
-    n             -- Variable
+    Type_i          -- Type at level i
+    n               -- Variable
         
-    i             -- Integer literal
-    c             -- Character literal
-    s             -- String literal
+    i               -- Integer literal
+    c               -- Character literal
+    s               -- String literal
     
-    Π(n:e).e      -- Dependant function type
-    λ(n).e        -- Function
-    e e           -- Application
-    Π{n:e}.e      -- Dependant function type possibly implicit
-    λ{n}.e        -- Function possibly implicit
-    e {e}         -- Application possibly implicit
+    Π(n:e).e        -- Dependant function type
+    λ(n).e          -- Function
+    e e             -- Application
+    Π{n:e}.e        -- Dependant function type possibly implicit
+    λ{n}.e          -- Function possibly implicit
+    e {e}           -- Application possibly implicit
+    let n = e in e  -- Let binding 
     
-    Σ(n:e).e      -- Dependant pair type
-    e , e         -- Pair
-    fst e         -- Left projection
-    snd e         -- Right Projection
+    Σ(n:e).e        -- Dependant pair type
+    e , e           -- Pair
+    fst e           -- Left projection
+    snd e           -- Right Projection
     
-    e + e         -- Disjunction
-    inl e         -- Left injection
-    inr e         -- Right injection
-    case n e e    -- Catamorphism
+    e + e           -- Disjunction
+    inl e           -- Left injection
+    inr e           -- Right injection
+    case n e e      -- Catamorphism
     
-    μ(n:e).e      -- Recursion
-    fold e        -- Fold recursive type
-    unfold e      -- Unfold recursive type
+    μ(n:e).e        -- Recursion
+    fold e          -- Fold recursive type
+    unfold e        -- Unfold recursive type
     
-    (e:e)         -- Type ascription
+    (e:e)           -- Type ascription
     
-    e = e         -- Equality
-    refl          -- Reflexivity   
-    subst e by e   -- Substitution 
+    e = e           -- Equality
+    refl            -- Reflexivity   
+    subst e by e    -- Substitution 
     
-    < n : e, ...> -- Dependant record type
-    { n = e, ...} -- Record
-    e.n           -- Field access
+    < n : e, ...>   -- Dependant record type
+    { n = e, ...}   -- Record
+    e.n             -- Field access
 ```
 
 ### Typing rules
@@ -153,6 +154,9 @@ l ∈ string
 ----------------------------
 Γ ⊢ f {e} : N[x:=e]            
 
+Γ ⊢ e:M   Γ, x:M, x=e ⊢ f : N 
+-----------------------------
+Γ ⊢ let x = e in f : N[x:=e]            
 ```
 
 #### Implicit type in Dependant function type and application
@@ -304,7 +308,7 @@ binding ::=
 
 ```
 term ::=     
-    "let" id "=" term "in" term
+    "let" id (":" term)? =" term "in" term
    
     "(" id+ ":" term ")" "->" term    
     "{" id+ ":" term "}" "->" term    

@@ -25,6 +25,11 @@ let subs_apply substitute name value (abstraction, parameter, implicit, c) =
     (substitute name value abstraction)
     (substitute name value parameter)
 
+let subs_let_binding substitute name value (n, arg, body, c) =
+  let_binding ~c n
+    (substitute name value arg)
+    (if n = name then body else substitute name value body)
+
 let subs_sigma substitute name value (n, bound, body, c) =
   sigma ~c n
     (substitute name value bound)
@@ -91,6 +96,7 @@ let rec substitute name value term =
     ~pi:(subs_pi substitute name value)
     ~lambda:(subs_lambda substitute name value)
     ~apply:(subs_apply substitute name value)
+    ~let_binding:(subs_let_binding substitute name value)
     ~sigma:(subs_sigma substitute name value)
     ~pair:(subs_pair substitute name value)
     ~fst:(subs_fst substitute name value)

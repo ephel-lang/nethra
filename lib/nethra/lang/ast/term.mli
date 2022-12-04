@@ -12,6 +12,7 @@ module Construct : sig
   val arrow : ?c:'a option -> 'a t -> 'a t -> 'a t
   val lambda : ?c:'a option -> ?implicit:bool -> string -> 'a t -> 'a t
   val apply : ?c:'a option -> ?implicit:bool -> 'a t -> 'a t -> 'a t
+  val let_binding : ?c:'a option -> string -> 'a t -> 'a t -> 'a t
   val sigma : ?c:'a option -> string -> 'a t -> 'a t -> 'a t
   val pair : ?c:'a option -> 'a t -> 'a t -> 'a t
   val fst : ?c:'a option -> 'a t -> 'a t
@@ -43,6 +44,7 @@ module Destruct : sig
     -> pi:(string * 'a t * 'a t * bool * 'a option -> 'b)
     -> lambda:(string * 'a t * bool * 'a option -> 'b)
     -> apply:('a t * 'a t * bool * 'a option -> 'b)
+    -> let_binding:(string * 'a t * 'a t * 'a option -> 'b)
     -> sigma:(string * 'a t * 'a t * 'a option -> 'b)
     -> pair:('a t * 'a t * 'a option -> 'b)
     -> fst:('a t * 'a option -> 'b)
@@ -74,6 +76,7 @@ module Destruct : sig
     -> ?pi:(string * 'a t * 'a t * bool * 'a option -> 'b option)
     -> ?lambda:(string * 'a t * bool * 'a option -> 'b option)
     -> ?apply:('a t * 'a t * bool * 'a option -> 'b option)
+    -> ?let_binding:(string * 'a t * 'a t * 'a option -> 'b option)
     -> ?sigma:(string * 'a t * 'a t * 'a option -> 'b option)
     -> ?pair:('a t * 'a t * 'a option -> 'b option)
     -> ?fst:('a t * 'a option -> 'b option)

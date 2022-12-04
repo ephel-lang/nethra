@@ -18,6 +18,9 @@ let free_vars_apply free_vars variables (abstraction, parameter, _implicit, _c)
     =
   free_vars variables abstraction @ free_vars variables parameter
 
+let free_vars_let_binding free_vars variables (n, arg, body, _c) =
+  free_vars variables arg @ free_vars (n :: variables) body
+
 let free_vars_sigma free_vars variables (n, bound, body, _c) =
   free_vars variables bound @ free_vars (n :: variables) body
 
@@ -70,6 +73,7 @@ let rec free_vars variables term =
     ~pi:(free_vars_pi free_vars variables)
     ~lambda:(free_vars_lambda free_vars variables)
     ~apply:(free_vars_apply free_vars variables)
+    ~let_binding:(free_vars_let_binding free_vars variables)
     ~sigma:(free_vars_sigma free_vars variables)
     ~pair:(free_vars_pair free_vars variables)
     ~fst:(free_vars_fst free_vars variables)
