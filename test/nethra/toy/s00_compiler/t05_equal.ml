@@ -45,9 +45,11 @@ let compile_leibniz_equal () =
       val transitive = (a_eq_b b_eq_c).(P Pa).(b_eq_c P (a_eq_b P Pa))
 
       sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
-      val symmetric = {A a}.(a_eq_b).(P).
-            let Qa = reflexive P in
-            let Qb = a_eq_b (c).(P c -> P a) Qa in
+      val symmetric = {A a b}.(a_eq_b).(P).
+            let Q = A -> type in
+            let Q = (c).(P c -> P a) in
+            let Qa : Q a = reflexive P in
+            let Qb : Q b = a_eq_b Q Qa in
             Qb
       |toy}
     <&> fun (_, l) -> check l

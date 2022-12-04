@@ -555,9 +555,11 @@ sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -
 val transitive = (eq_a_b eq_b_c).(P Pa).(eq_b_c P (eq_a_b P Pa))
 
 sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
-val symmetric = {A a}.(eq_a_b).(P).
-    let Qa = reflexive P in
-    let Qb = eq_a_b (c).(P c -> P a) Qa in
+val symmetric = {A a b}.(a_eq_b).(P).
+    let Q = A -> type in
+    let Q = (c).(P c -> P a) in
+    let Qa : Q a = reflexive P in
+    let Qb : Q b = a_eq_b Q Qa in
     Qb
 ```
 
