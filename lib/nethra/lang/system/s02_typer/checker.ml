@@ -393,7 +393,8 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       ~reason:(return "Waiting for type")
       ( fold_opt ~kind:return term'
       <&> (fun (level, _c) -> check hypothesis l (kind ~c level))
-      <&> Stdlib.fst )
+      <&> Stdlib.fst
+      <&> List.rev )
 
   (*
     Γ ⊢

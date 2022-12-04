@@ -352,7 +352,17 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
     Γ ⊢ < n : T, r > : type_i
   *)
 
-  and infer_record_sig _hypothesis (_l, c) = (Some (kind ~c 0), [ (* TODO *) ])
+  and infer_record_sig hypothesis (l, c) =
+    let t = kind ~c 0 in
+    let r, p, _ =
+      List.fold_left
+        (fun (r, p, h) (n, e) ->
+          let proof = h |- e <= t in
+          let t' = get_type proof in
+          (return (fun _ r -> r) <*> t' <*> r, proof :: p, h += (n, e)) )
+        (Some t, [], hypothesis) l
+    in
+    (r, List.rev p)
 
   (*
     Γ ⊢
