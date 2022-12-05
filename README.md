@@ -529,15 +529,78 @@ val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
 
 #### Propositional equality
 
+##### Equality
+
 ```ocaml
-sig reflexive : {A:type} -> {a:A} -> equals a a
-val reflexive = refl
+-{
+Propositional equality
+}-
 
-sig symmetric : {A:type} -> {a b:A} -> equals a b -> equals b a
-val symmetric = (a_eq_b).subst refl by a_eq_b
+sig reflexive :
+    {A:type} -> {a:A}
+    -------------
+    -> equals a a
 
-sig transitivity : {A:type} -> {a b c:A} -> equals a b -> equals b c -> equals a c
-val transitivity = (a_eq_b).(b_eq_c).subst (subst refl by a_eq_b) by b_eq_c
+val reflexive =
+    refl
+
+sig symmetric :
+    {A:type} -> {a b:A}
+    -> equals a b
+    -------------
+    -> equals b a
+
+val symmetric = (a_eq_b).
+    subst refl by a_eq_b
+
+sig transitivity :
+    {A:type} -> {a b c :A}
+    -> equals a b
+    -> equals b c
+    -------------
+    -> equals a c
+
+val transitivity = (a_eq_b b_eq_c).
+    subst (subst refl by a_eq_b) by b_eq_c
+```
+
+##### Congruence and substitution
+
+```ocaml
+sig congruent :
+    {A B:type} -> (f:A -> B) -> {a b:A}
+    -> equals a b
+    ---------------------
+    -> equals (f a) (f b)
+
+val congruent = (f a_eq_b).
+    subst refl by (a_eq_b)
+
+sig congruent_2 :
+    {A B C:type} -> (f:A -> B -> C) -> {a b:A} -> {c d:B}
+    -> equals a b
+    -> equals c d
+    -------------------------
+    -> equals (f a c) (f b d)
+
+val congruent_2 = (f a_eq_b c_eq_d).
+    subst (subst refl by a_eq_b) by c_eq_d
+
+sig congruent_app : {A B:type} -> (f g:A -> B)
+    -> equals f g
+    ------------------------------
+    -> {a:A} -> equals (f a) (g a)
+
+val congruent_app = (f g f_eq_g).
+    subst refl by (f_eq_g)
+
+sig substitution : {A:type} -> {x y:A} -> (P:A -> type)
+    -> equals x y
+    ---------------------
+    -> equals (P x) (P y)
+
+val substitution = (P x_eq_y).
+    subst refl by x_eq_y
 ```
 
 #### Leibniz equality
