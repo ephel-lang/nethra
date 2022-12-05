@@ -69,11 +69,11 @@ let compile_propositional_equal () =
 
       sig substitution : {A:type} -> {x y:A} -> (P:A -> type)
             -> equals x y
-            ---------------------
-            -> equals (P x) (P y)
+            -------------
+            -> P x -> P y
 
-      val substitution = (P x_eq_y).
-            subst refl by x_eq_y
+      val substitution = (P x_eq_y px).
+            subst px by x_eq_y
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
