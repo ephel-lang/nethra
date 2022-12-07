@@ -110,10 +110,39 @@ let compile_leibniz_equal () =
   Alcotest.(check (result bool string))
     "Leibniz equality" expected (string_of_error result)
 
+let compile_gadt () =
+  let result =
+    Pass.run
+      {toy|
+      -- In progress
+
+      sig Unit : type
+      sig unit : Unit
+
+      sig Bool : type
+      val Bool = Unit | Unit
+      val true  : Bool = inl unit
+      val false : Bool = inr unit
+
+      sig int : type
+
+      sig Expr : (type) -> type
+      val Expr = (A).((equals A Bool * Bool) | (equals A int * int))
+
+      sig eval : {A:type} -> Expr A -> A
+      val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
+
+      -- val ABool : {A:type} -> (equals A Bool) -> Bool -> Expr Bool = (e b).(e,b)
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string)) "GADT" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Equal Compiler"
   , [
       test_case "Propositional equality" `Quick compile_propositional_equal
     ; test_case "Leibniz equality" `Quick compile_leibniz_equal
+    ; test_case "GADT" `Quick compile_gadt
     ] )

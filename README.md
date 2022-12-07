@@ -24,8 +24,6 @@ Some References covering dependent types and type checking in general:
 
 - [Extensional Equality in Intensional Type Theory](http://www.cs.nott.ac.uk/~psztxa/publ/lics99.pdf)
 
-### Pattern matching compilation
-
 ### Linearity / Affine type
 
 - [Integrating Dependent and Linear Types](https://www.cl.cam.ac.uk/~nk480/dlnl-paper.pdf)
@@ -538,7 +536,7 @@ Propositional equality
 
 sig reflexive :
     {A:type} -> {a:A}
-    -------------
+       ----------
     -> equals a a
 
 val reflexive =
@@ -547,7 +545,7 @@ val reflexive =
 sig symmetric :
     {A:type} -> {a b:A}
     -> equals a b
-    -------------
+       ----------
     -> equals b a
 
 val symmetric = (a_eq_b).
@@ -557,7 +555,7 @@ sig transitivity :
     {A:type} -> {a b c :A}
     -> equals a b
     -> equals b c
-    -------------
+       ----------
     -> equals a c
 
 val transitivity = (a_eq_b b_eq_c).
@@ -570,7 +568,7 @@ val transitivity = (a_eq_b b_eq_c).
 sig congruent :
     {A B:type} -> (f:A -> B) -> {a b:A}
     -> equals a b
-    ---------------------
+       ------------------
     -> equals (f a) (f b)
 
 val congruent = (f a_eq_b).
@@ -580,7 +578,7 @@ sig congruent_2 :
     {A B C:type} -> (f:A -> B -> C) -> {a b:A} -> {c d:B}
     -> equals a b
     -> equals c d
-    -------------------------
+       ----------------------
     -> equals (f a c) (f b d)
 
 val congruent_2 = (f a_eq_b c_eq_d).
@@ -588,7 +586,7 @@ val congruent_2 = (f a_eq_b c_eq_d).
 
 sig congruent_app : {A B:type} -> (f g:A -> B)
     -> equals f g
-    ------------------------------
+       ---------------------------
     -> {a:A} -> equals (f a) (g a)
 
 val congruent_app = (f g f_eq_g).
@@ -596,7 +594,7 @@ val congruent_app = (f g f_eq_g).
 
 sig substitution : {A:type} -> {x y:A} -> (P:A -> type)
     -> equals x y
-    -------------
+       ----------
     -> P x -> P y
 
 val substitution = (P x_eq_y px).

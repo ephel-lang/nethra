@@ -78,7 +78,12 @@ let compile_basic_dependant_record_type_and_instance () =
                 sig combine : self -> self -> self
                 -- Monoid Laws
                 sig law1    : {a:self} -> equals a (combine neutral a)
-                -- sig law2    : {a:self} -> equals a (combine a neutral)
+                -{
+                sig law2    : {a:self} -> equals a (combine a neutral)
+                sig law3    : {a b c:self} ->
+                    let comb = combine in
+                    equals (c (comb a b) c) (comb a (comb b c))
+                }-
             end
 
         -----------

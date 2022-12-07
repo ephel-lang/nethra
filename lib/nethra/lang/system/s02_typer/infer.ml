@@ -340,7 +340,27 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       Γ ⊢ subst a by b : A                Γ ⊢ subst a by b : A
   *)
 
-  and infer_subst _hypothesis (_lhd, _rhd, _c) = (None, [ failure None ])
+  and infer_subst hypothesis (a, b, _c) =
+    let proof = hypothesis |- b => () in
+    let tB = get_type proof in
+    proof_from_option
+      ~reason:(return "Waiting for an equality")
+      ~proofs:[ proof ]
+      ( tB
+      >>= fold_opt ~equals:return
+      <&> fun (eql, eqr, _c) ->
+      let proof' = hypothesis |- a => () in
+      let tA = get_type proof' in
+      proof_from_option ~proofs:[ proof; proof' ]
+        ( tA
+        <&> (fun tA ->
+              let tA' = try_substitute eql eqr tA in
+              if tA = tA'
+              then
+                let tA' = try_substitute eqr eql tA in
+                if tA = tA' then tA else tA'
+              else tA' )
+        <&> fun tA -> (Some tA, [ proof; proof' ]) ) )
 
   (*
     Γ ⊢
@@ -411,7 +431,7 @@ module Impl (Theory : Specs.Theory) (Checker : Specs.Checker) = struct
       ~reason:(return "Waiting for a record signature")
       ~proofs:[ proof ]
       ( tR
-      >>= fold_opt ~record_sig:return
+      >>= fold_opt ~record_sig:return ~record_val:return
       <&> fun (l, _) ->
       let t, ps = infer hypothesis l in
       (t, proof :: ps) )
