@@ -121,5 +121,5 @@ let rec substitute name value term =
 let try_substitute id value term =
   fold_right const
     ( Destruct.fold_opt ~id:return id
-    <&> fun (n, _, _) -> substitute n value term )
+    >>= fun (n, v, _) -> v <&> fun _ -> substitute n value term )
     term
