@@ -126,13 +126,21 @@ let compile_gadt () =
 
       sig int : type
 
+     -{
+         data Expr A =
+         | ABool of Bool with A = Bool
+         | AnInt of int  with A = int
+     }-
+
       sig Expr : (type) -> type
       val Expr = (A).((equals A Bool * Bool) | (equals A int * int))
 
+      -- val ABool : {A:type} -> {_:equals A Bool} -> A -> Expr A = {A p}.(b).inl (p,subst b by p)
+      val AnInt : {A:type} -> {_:equals A int} -> A -> Expr A = {A p}.(b).inr (p,subst b by p)
+
       sig eval : {A:type} -> Expr A -> A
       val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
-
-      -- val ABool : {A:type} -> (equals A Bool) -> Bool -> Expr Bool = (e b).(e,b)
+      val one : Expr int = AnInt 1
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

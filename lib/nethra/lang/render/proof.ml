@@ -28,7 +28,7 @@ let infer render hypothesis_render render_term prefix ppf
 let equivalent render hypothesis_render render_term prefix ppf
     (hypothesis, term, kind, proofs) =
   let () =
-    fprintf ppf "%s%a ⊢ %a = %a\n" prefix hypothesis_render hypothesis
+    fprintf ppf "%s%a ⊢ %a =?= %a\n" prefix hypothesis_render hypothesis
       render_term term render_term kind
   in
   List.iter

@@ -20,10 +20,6 @@ Some References covering dependent types and type checking in general:
 
 ## Works in progress
 
-### Extensional equality 
-
-- [Extensional Equality in Intensional Type Theory](http://www.cs.nott.ac.uk/~psztxa/publ/lics99.pdf)
-
 ### Linearity / Affine type
 
 - [Integrating Dependent and Linear Types](https://www.cl.cam.ac.uk/~nk480/dlnl-paper.pdf)

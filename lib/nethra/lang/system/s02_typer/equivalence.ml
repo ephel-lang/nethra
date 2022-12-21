@@ -178,7 +178,11 @@ module Impl (Theory : Specs.Theory) = struct
       <&> fun (term', kind', _) ->
       [ hypothesis |- term =?= term'; hypothesis |- kind =?= kind' ] )
 
-  and equivalent_equals _hypothesis _term' (_lhd, _rhd, _c) = [ failure None ]
+  and equivalent_equals hypothesis term' (lhd, rhd, _c) =
+    proof_from_option
+      ( fold_opt ~equals:return term'
+      <&> fun (lhd', rhd', _) ->
+      [ hypothesis |- lhd =?= lhd'; hypothesis |- rhd =?= rhd' ] )
 
   and equivalent_refl _hypothesis term' _c =
     proof_from_option (fold_opt ~refl:return term' <&> fun _ -> [])
@@ -223,42 +227,39 @@ module Impl (Theory : Specs.Theory) = struct
         (fold_opt ~hole:return term' <&> fun _ -> (term', term))
         (term, term')
     in
-    if term = term'
-    then equivalent hypothesis term term' []
-    else
-      let proofs =
-        fold
-          ~kind:(equivalent_kind hypothesis term')
-          ~int:(equivalent_int hypothesis term')
-          ~char:(equivalent_char hypothesis term')
-          ~string:(equivalent_string hypothesis term')
-          ~id:(equivalent_id hypothesis term')
-          ~pi:(equivalent_pi hypothesis term')
-          ~lambda:(equivalent_lambda hypothesis term')
-          ~apply:(equivalent_apply hypothesis term')
-          ~let_binding:(equivalent_let_binding hypothesis term')
-          ~sigma:(equivalent_sigma hypothesis term')
-          ~pair:(equivalent_pair hypothesis term')
-          ~fst:(equivalent_fst hypothesis term')
-          ~snd:(equivalent_snd hypothesis term')
-          ~sum:(equivalent_sum hypothesis term')
-          ~inl:(equivalent_inl hypothesis term')
-          ~inr:(equivalent_inr hypothesis term')
-          ~case:(equivalent_case hypothesis term')
-          ~mu:(equivalent_mu hypothesis term')
-          ~fold:(equivalent_fold hypothesis term')
-          ~unfold:(equivalent_unfold hypothesis term')
-          ~hole:(equivalent_hole hypothesis term')
-          ~annotation:(equivalent_annotation hypothesis term')
-          ~equals:(equivalent_equals hypothesis term')
-          ~refl:(equivalent_refl hypothesis term')
-          ~subst:(equivalent_subst hypothesis term')
-          ~record_sig:(equivalent_record_sig hypothesis term')
-          ~record_val:(equivalent_record_val hypothesis term')
-          ~access:(equivalent_access hypothesis term')
-          term
-      in
-      equivalent hypothesis term term' proofs
+    let proofs =
+      fold
+        ~kind:(equivalent_kind hypothesis term')
+        ~int:(equivalent_int hypothesis term')
+        ~char:(equivalent_char hypothesis term')
+        ~string:(equivalent_string hypothesis term')
+        ~id:(equivalent_id hypothesis term')
+        ~pi:(equivalent_pi hypothesis term')
+        ~lambda:(equivalent_lambda hypothesis term')
+        ~apply:(equivalent_apply hypothesis term')
+        ~let_binding:(equivalent_let_binding hypothesis term')
+        ~sigma:(equivalent_sigma hypothesis term')
+        ~pair:(equivalent_pair hypothesis term')
+        ~fst:(equivalent_fst hypothesis term')
+        ~snd:(equivalent_snd hypothesis term')
+        ~sum:(equivalent_sum hypothesis term')
+        ~inl:(equivalent_inl hypothesis term')
+        ~inr:(equivalent_inr hypothesis term')
+        ~case:(equivalent_case hypothesis term')
+        ~mu:(equivalent_mu hypothesis term')
+        ~fold:(equivalent_fold hypothesis term')
+        ~unfold:(equivalent_unfold hypothesis term')
+        ~hole:(equivalent_hole hypothesis term')
+        ~annotation:(equivalent_annotation hypothesis term')
+        ~equals:(equivalent_equals hypothesis term')
+        ~refl:(equivalent_refl hypothesis term')
+        ~subst:(equivalent_subst hypothesis term')
+        ~record_sig:(equivalent_record_sig hypothesis term')
+        ~record_val:(equivalent_record_val hypothesis term')
+        ~access:(equivalent_access hypothesis term')
+        term
+    in
+    equivalent hypothesis term term' proofs
 
   and ( =?= ) (hypothesis, term) term' = equivalent_terms hypothesis term term'
 end
