@@ -142,8 +142,7 @@ let compile_gadt () =
       sig eval : {A:type} -> Expr A -> A
       val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
 
-      val one : Expr int = number 1
-      val res : int = eval one
+      val res : int = eval (number 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
