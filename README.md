@@ -736,6 +736,33 @@ val MonoidNat =
     end
 ```
 
+### Encoding GADT
+
+```ocaml
+-{
+ data Expr A =
+ | Boolean of Bool with A = Bool
+ | Integer of int  with A = int
+}-
+
+sig Expr : (type) -> type
+val Expr = (A).((equals A Bool * Bool) | (equals A int * int))
+
+sig boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A
+val boolean = {_ p}.(b).inl (p,b)
+
+sig number  : {A:type} -> {_:equals A int}  -> int  -> Expr A
+val number  = {_ p}.(b).inr (p,b)
+
+sig eval : {A:type} -> Expr A -> A
+val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
+
+-- Usage
+
+val one : Expr int = number 1
+val res : int = eval one
+```
+
 # Why Nethra?
 
 See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.
