@@ -759,8 +759,7 @@ val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
 
 -- Usage
 
-val one : Expr int = number 1
-val res : int = eval one
+val res : int = eval (number 1)
 ```
 
 # Why Nethra?
