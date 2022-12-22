@@ -40,6 +40,8 @@ let compile_propositional_equal () =
       val transitivity = (a_eq_b b_eq_c).
             subst (subst refl by a_eq_b) by b_eq_c
 
+      -----------------------------------------------------------
+
       sig congruent :
             {A B:type} -> (f:A -> B) -> {a b:A}
             -> equals a b
@@ -91,13 +93,28 @@ let compile_leibniz_equal () =
       sig equal : {A:type} -> (a b:A) -> type
       val equal = {A}.(a b).((P : A -> type) -> P a -> P b)
 
-      sig reflexive : {A:type} -> {a:A} -> equal a a
+      sig reflexive :
+                {A:type} -> {a:A}
+                ------------
+                -> equal a a
+
       val reflexive = (P Pa).Pa
 
-      sig transitive : {A:type} -> {a b c:A} -> equal a b -> equal b c -> equal a c
+      sig transitive :
+                {A:type} -> {a b c:A}
+                -> equal a b
+                -> equal b c
+                ------------
+                -> equal a c
+
       val transitive = (a_eq_b b_eq_c).(P Pa).(b_eq_c P (a_eq_b P Pa))
 
-      sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
+      sig symmetric :
+                {A:type} -> {a b:A}
+                -> equal a b
+                ------------
+                -> equal b a
+
       val symmetric = {A a b}.(a_eq_b).(P).
             let Q = A -> type in
             let Q = (c).(P c -> P a) in

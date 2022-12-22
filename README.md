@@ -739,6 +739,9 @@ val MonoidNat =
 ### Encoding GADT
 
 ```ocaml
+sig Bool : type
+sig int  : type
+
 -{
  data Expr A =
  | Boolean of Bool with A = Bool

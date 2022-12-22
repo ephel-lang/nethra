@@ -232,12 +232,12 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (_, rhd, _) -> [ hypothesis |- term <= rhd ] )
 
   (*
-    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a:=inl l]   Γ ⊢ r : Π(_:B).T[a:=inr r]   a is id
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a:=inl l]   Γ ⊢ r : Π(_:B).T[a:=inr r]   a in Id
     ---------------------------------------------------------------------------------
     Γ ⊢ case a l r : C
 
-    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T    a is not a id
-    --------------------------------------------------------------------
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T    a not in Id
+    ------------------------------------------------------------------
     Γ ⊢ case a l r : C
   *)
   and check_case hypothesis term' (term, left, right, _c) =
