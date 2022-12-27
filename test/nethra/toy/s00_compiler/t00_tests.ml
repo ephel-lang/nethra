@@ -8,4 +8,5 @@ let () =
       ; T04_sum.cases
       ; T05_equal.cases
       ; T06_record.cases
+      ; T07_gadt.cases
       ])
