@@ -7,4 +7,4 @@ let () =
       ; T03_pair.cases
       ; T04_sum.cases
       ; T05_mu.cases
-      ])
+      ] )

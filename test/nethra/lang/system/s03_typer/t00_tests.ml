@@ -14,4 +14,4 @@ let () =
       ; T11_infer_pair.cases
       ; T12_infer_sum.cases
       ; T13_infer_mu.cases
-      ])
+      ] )

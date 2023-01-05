@@ -9,4 +9,4 @@ let () =
       ; T05_equal.cases
       ; T06_record.cases
       ; T07_gadt.cases
-      ])
+      ] )

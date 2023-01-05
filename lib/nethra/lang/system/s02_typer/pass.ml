@@ -25,6 +25,7 @@ module Impl = struct
     let open Nethra_lang_ast.Term.Construct in
     let open Nethra_lang_ast.Proof.Construct in
     let open Nethra_lang_ast.Proof.Destruct in
+    let open TypeChecker in
     let proof = TypeInfer.(h |- exp => ()) in
     let term = get_type proof in
     ( ident
@@ -33,16 +34,15 @@ module Impl = struct
            [
              proof
            ; fold_right const
-               (term <&> fun term -> TypeChecker.(h |- term <= kind 1))
+               (term <&> fun term -> h |- term <= kind 1)
                (failure None)
            ] ) )
 
   let type_check h (ident, exp) =
     let open Preface.Option.Functor in
-    let open Nethra_lang_ast.Hypothesis in
-    ( ident
-    , Access.get_signature h ident
-      <&> fun spec -> TypeChecker.(h |- exp <= spec) )
+    let open Nethra_lang_ast.Hypothesis.Access in
+    let open TypeChecker in
+    (ident, h @: ident <&> fun spec -> h |- exp <= spec)
 
   let run h =
     let open Nethra_lang_ast.Hypothesis in

@@ -25,7 +25,7 @@ let render_apply_implicit () =
   let repr =
     render
     @@ Construct.(
-         apply ~implicit:true (lambda ~implicit:true "x" (id "x")) (id "x"))
+         apply ~implicit:true (lambda ~implicit:true "x" (id "x")) (id "x") )
   in
   Alcotest.(check string) "lambda" "{x}.(x) {x}" repr
 
