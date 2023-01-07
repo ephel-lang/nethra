@@ -1,6 +1,6 @@
-open Poc.Expr
-open Poc.VM
-open Poc
+open Compiler.Expr
+open Compiler.VM
+open Compiler
 
 let compile_01 () =
   let result = compile (Abs ("x", Var "x"))
