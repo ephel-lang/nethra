@@ -19,7 +19,7 @@ module VM = struct
   type order =
     | PUSH of value
     | EXEC
-    | SEQ of order list
+    | LAMBDA of order list
     | DIG of int
     | DUP of int
     | DROP of int
@@ -40,7 +40,7 @@ module VM = struct
     function
     | PUSH v -> fprintf ppf "PUSH(%a)" render_value v
     | EXEC -> fprintf ppf "EXEC"
-    | SEQ l -> fprintf ppf "{ %a }" render_list l
+    | LAMBDA l -> fprintf ppf "{ %a }" render_list l
     | DIG i -> fprintf ppf "DIG(%d)" i
     | DUP i -> fprintf ppf "DUG(%d)" i
     | DROP i -> fprintf ppf "DROP(%d)" i
@@ -94,7 +94,7 @@ let rec compile e s =
     let c = occurs n e in
     let o, s = compile e (VAR (c, n) :: s) in
     let o = if c = 0 then DROP 1 :: o else o in
-    ([ SEQ o ], s)
+    ([ LAMBDA o ], s)
 
 (* Optimisation layer *)
 
@@ -102,11 +102,11 @@ let rec try_optimise =
   let open VM in
   function
   | DIG 0 :: l -> l
-  | SEQ [] :: a :: EXEC :: l -> a :: l
-  | SEQ [ DROP 1; s ] :: _ :: EXEC :: l -> s :: l
-  | SEQ s :: l ->
+  | LAMBDA [] :: a :: EXEC :: l -> a :: l
+  | LAMBDA [ DROP 1; s ] :: _ :: EXEC :: l -> s :: l
+  | LAMBDA s :: l ->
     let s' = try_optimise s in
-    if s' = s then SEQ s :: try_optimise l else SEQ s' :: l
+    if s' = s then LAMBDA s :: try_optimise l else LAMBDA s' :: l
   | a :: l -> a :: try_optimise l
   | [] -> []
 

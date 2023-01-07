@@ -4,12 +4,12 @@ open Poc
 
 let compile_01 () =
   let result = compile (Abs ("x", Var "x"))
-  and expected = [ SEQ [] ] in
+  and expected = [ LAMBDA [] ] in
   Alcotest.(check string) "compile fun x -> x" (render expected) (render result)
 
 let compile_02 () =
   let result = compile (Abs ("x", Unit))
-  and expected = [ SEQ [ DROP 1; PUSH UNIT ] ] in
+  and expected = [ LAMBDA [ DROP 1; PUSH UNIT ] ] in
   Alcotest.(check string)
     "compile fun x -> unit" (render expected) (render result)
 
