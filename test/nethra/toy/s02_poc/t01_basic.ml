@@ -21,7 +21,7 @@ let compile_03 () =
 
 let compile_04 () =
   let result = compile (App (Abs ("x", Unit), Int 1))
-  and expected = [ SEQ [ DROP 1; PUSH UNIT ]; PUSH (INT 1); EXEC ] in
+  and expected = [ PUSH UNIT ] in
   Alcotest.(check string)
     "compile (fun x -> unit) 1" (render expected) (render result)
 
