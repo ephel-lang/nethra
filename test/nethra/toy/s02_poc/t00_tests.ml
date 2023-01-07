@@ -1,0 +1,1 @@
+let () = Alcotest.(run "Compilation Test" [ T01_basic.cases ])
