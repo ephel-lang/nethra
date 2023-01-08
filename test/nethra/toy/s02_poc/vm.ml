@@ -9,6 +9,8 @@ type order =
   | DIG of int
   | DUP of int
   | DROP of int
+  | LEFT
+  | RIGHT
 
 let render_value ppf =
   let open Format in
@@ -28,8 +30,10 @@ and render ppf =
   | EXEC -> fprintf ppf "EXEC"
   | LAMBDA l -> fprintf ppf "LAMBDA(%a)" render_list l
   | DIG i -> fprintf ppf "DIG(%d)" i
-  | DUP i -> fprintf ppf "DUG(%d)" i
+  | DUP i -> fprintf ppf "DUP(%d)" i
   | DROP i -> fprintf ppf "DROP(%d)" i
+  | LEFT -> fprintf ppf "LEFT"
+  | RIGHT -> fprintf ppf "RIGHT"
 
 let to_string o =
   let buffer = Buffer.create 16 in

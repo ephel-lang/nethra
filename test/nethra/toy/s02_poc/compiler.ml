@@ -5,6 +5,7 @@ let rec occurs n e =
   | App (a, e) -> occurs n e + occurs n a
   | Var m -> if n = m then 1 else 0
   | Unit | Int _ -> 0
+  | Inl e | Inr e -> occurs n e
 
 type vstack =
   | VAL
@@ -13,7 +14,7 @@ type vstack =
 let rec consume i n s =
   let open Vm in
   match s with
-  | [] -> failwith "Compilation Error"
+  | [] -> failwith ("Compilation Error: " ^ n ^ " not found!")
   | VAR (c, m) :: s' when n = m ->
     if c = 1 then ([ DIG i ], s) else ([ DUP i ], VAR (c - 1, m) :: s')
   | v :: s ->
@@ -31,15 +32,14 @@ let rec compile e s =
   | Unit -> ([ PUSH UNIT ], VAL :: s)
   | Int i -> ([ PUSH (INT i) ], VAL :: s)
   | App (l, r) ->
+    let o_l, s = compile l s in
     let o_r, s = compile r s in
-    let o_l, s' = compile l [ List.hd s ] in
-    (o_l @ o_r @ [ EXEC ], List.hd s' :: List.tl s)
+    (o_l @ o_r @ [ EXEC ], List.tl s)
   | Var n ->
     let o, s = consume 0 n s in
     (o, VAL :: s)
   | Abs (n, e) ->
     let c = occurs n e in
-    let _ = print_string (n ^ (" occurs " ^ string_of_int c) ^ "\n") in
     let o, s =
       match c with
       | 0 ->
@@ -48,6 +48,12 @@ let rec compile e s =
       | _ -> compile e (VAR (c, n) :: s)
     in
     ([ LAMBDA o ], s)
+  | Inl e ->
+    let o, s = compile e s in
+    (o @ [ LEFT ], List.tl s)
+  | Inr e ->
+    let o, s = compile e s in
+    (o @ [ RIGHT ], List.tl s)
 
 (* ------------------------------------------------------------ *)
 (* Optimisation layer                                           *)

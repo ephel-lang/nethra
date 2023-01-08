@@ -38,6 +38,13 @@ let compile_06 () =
   Alcotest.(check string)
     "compile (fun x y -> x) 1 2" (to_string expected) (to_string result)
 
+let compile_07 () =
+  let result =
+    compile (Abs ("f", Abs ("x", App (App (Var "f", Var "x"), Var "x"))))
+  and expected = [ LAMBDA [ LAMBDA [ DIG 1; DUP 1; EXEC; DIG 1; EXEC ] ] ] in
+  Alcotest.(check string)
+    "compile (fun f x -> f x x)" (to_string expected) (to_string result)
+
 let cases =
   let open Alcotest in
   ( "Basic Compilation"
@@ -48,4 +55,5 @@ let cases =
     ; test_case "compile O4" `Quick compile_04
     ; test_case "compile O5" `Quick compile_05
     ; test_case "compile O6" `Quick compile_06
+    ; test_case "compile O7" `Quick compile_07
     ] )

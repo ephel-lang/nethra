@@ -8,3 +8,5 @@ type exp =
   | Abs of string * exp
   | App of exp * exp
   | Var of string
+  | Inl of exp
+  | Inr of exp
