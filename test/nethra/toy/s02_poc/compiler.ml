@@ -57,6 +57,7 @@ let rec try_optimise =
   let open Vm in
   function
   | DIG 0 :: l -> l
+  | LAMBDA [ DROP 1; s ] :: a :: EXEC :: l when is_pure a -> s :: l
   | LAMBDA l1 :: a :: EXEC :: l2 -> a :: (l1 @ l2)
   | PUSH _ :: DROP 1 :: l -> l
   | LAMBDA s :: l ->
