@@ -10,14 +10,6 @@ type order =
   | DUP of int
   | DROP of int
 
-let rec is_pure = function
-  | PUSH _ -> true
-  | EXEC -> true
-  | LAMBDA l -> List.for_all is_pure l
-  | DIG _ -> true
-  | DUP _ -> true
-  | DROP _ -> true
-
 let render_value ppf =
   let open Format in
   function INT i -> fprintf ppf "INT(%d)" i | UNIT -> fprintf ppf "UNIT"
