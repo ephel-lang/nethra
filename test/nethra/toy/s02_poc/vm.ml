@@ -11,6 +11,7 @@ type order =
   | DROP of int
   | LEFT
   | RIGHT
+  | IF_LEFT of order list * order list
 
 let render_value ppf =
   let open Format in
@@ -26,14 +27,16 @@ let rec render_list ppf =
 and render ppf =
   let open Format in
   function
-  | PUSH v -> fprintf ppf "PUSH(%a)" render_value v
+  | PUSH v -> fprintf ppf "PUSH %a" render_value v
   | EXEC -> fprintf ppf "EXEC"
-  | LAMBDA l -> fprintf ppf "LAMBDA(%a)" render_list l
-  | DIG i -> fprintf ppf "DIG(%d)" i
-  | DUP i -> fprintf ppf "DUP(%d)" i
-  | DROP i -> fprintf ppf "DROP(%d)" i
+  | LAMBDA l -> fprintf ppf "LAMBDA { %a }" render_list l
+  | DIG i -> fprintf ppf "DIG %d" i
+  | DUP i -> fprintf ppf "DUP %d" i
+  | DROP i -> fprintf ppf "DROP %d" i
   | LEFT -> fprintf ppf "LEFT"
   | RIGHT -> fprintf ppf "RIGHT"
+  | IF_LEFT (l, r) ->
+    fprintf ppf "IF_LEFT { %a } { %a }" render_list l render_list r
 
 let to_string o =
   let buffer = Buffer.create 16 in

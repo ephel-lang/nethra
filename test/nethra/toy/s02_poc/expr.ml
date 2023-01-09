@@ -10,3 +10,4 @@ type exp =
   | Var of string
   | Inl of exp
   | Inr of exp
+  | Case of exp * string * exp * string * exp
