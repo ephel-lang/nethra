@@ -3,15 +3,17 @@ type value =
   | UNIT
 
 type order =
+  | SEQ of order list
   | PUSH of value
   | EXEC
-  | LAMBDA of order list
-  | DIG of int
-  | DUP of int
-  | DROP of int
+  | LAMBDA of order
+  | DIG of int * string
+  | DUP of int * string
+  | DROP of int * string
+  | SWAP
   | LEFT
   | RIGHT
-  | IF_LEFT of order list * order list
+  | IF_LEFT of order * order
 
 let render_value ppf =
   let open Format in
@@ -27,20 +29,21 @@ let rec render_list ppf =
 and render ppf =
   let open Format in
   function
+  | SEQ l -> fprintf ppf "{ %a }" render_list l
   | PUSH v -> fprintf ppf "PUSH %a" render_value v
   | EXEC -> fprintf ppf "EXEC"
-  | LAMBDA l -> fprintf ppf "LAMBDA { %a }" render_list l
-  | DIG i -> fprintf ppf "DIG %d" i
-  | DUP i -> fprintf ppf "DUP %d" i
-  | DROP i -> fprintf ppf "DROP %d" i
+  | LAMBDA l -> fprintf ppf "LAMBDA %a" render l
+  | DIG (i, n) -> fprintf ppf "DIG %d/%s" i n
+  | DUP (i, n) -> fprintf ppf "DUP %d/%s" i n
+  | DROP (i, n) -> fprintf ppf "DROP %d/%s" i n
+  | SWAP -> fprintf ppf "SWAP"
   | LEFT -> fprintf ppf "LEFT"
   | RIGHT -> fprintf ppf "RIGHT"
-  | IF_LEFT (l, r) ->
-    fprintf ppf "IF_LEFT { %a } { %a }" render_list l render_list r
+  | IF_LEFT (l, r) -> fprintf ppf "IF_LEFT %a %a" render l render r
 
 let to_string o =
   let buffer = Buffer.create 16 in
   let formatter = Format.formatter_of_buffer buffer in
-  let () = render_list formatter o in
+  let () = render formatter o in
   let () = Format.pp_print_flush formatter () in
   Buffer.contents buffer

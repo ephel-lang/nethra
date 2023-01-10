@@ -1,6 +1,7 @@
 open Expr
 open Vm
 open Compiler
+open Optimizer
 
 let compile_01 () =
   let result =

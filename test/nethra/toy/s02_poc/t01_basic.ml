@@ -1,47 +1,48 @@
 open Expr
 open Vm
 open Compiler
+open Optimizer
 
 let compile_01 () =
   let result = optimise @@ compile (Int 1)
-  and expected = [ PUSH (INT 1) ] in
+  and expected = PUSH (INT 1) in
   Alcotest.(check string) "compile 1" (to_string expected) (to_string result)
 
 let compile_02 () =
   let result = optimise @@ compile (Abs ("x", Var "x"))
-  and expected = [ LAMBDA [] ] in
+  and expected = LAMBDA (SEQ []) in
   Alcotest.(check string)
     "compile fun x -> x" (to_string expected) (to_string result)
 
 let compile_03 () =
   let result = optimise @@ compile (Abs ("x", Unit))
-  and expected = [ LAMBDA [ DROP 1; PUSH UNIT ] ] in
+  and expected = LAMBDA (SEQ [ DROP (1, "x"); PUSH UNIT ]) in
   Alcotest.(check string)
     "compile fun x -> unit" (to_string expected) (to_string result)
 
 let compile_04 () =
   let result = optimise @@ compile (App (Abs ("x", Var "x"), Int 1))
-  and expected = [ PUSH (INT 1) ] in
+  and expected = PUSH (INT 1) in
   Alcotest.(check string)
     "compile (fun x -> x) 1" (to_string expected) (to_string result)
 
 let compile_05 () =
   let result = optimise @@ compile (App (Abs ("x", Unit), Int 1))
-  and expected = [ PUSH UNIT ] in
+  and expected = PUSH UNIT in
   Alcotest.(check string)
     "compile (fun x -> unit) 1" (to_string expected) (to_string result)
 
 let compile_06 () =
   let result =
     optimise @@ compile (App (App (Abs ("x", Abs ("y", Var "y")), Int 1), Int 2))
-  and expected = [ PUSH (INT 2) ] in
+  and expected = PUSH (INT 2) in
   Alcotest.(check string)
     "compile (fun x y -> y) 1 2" (to_string expected) (to_string result)
 
 let compile_07 () =
   let result =
     optimise @@ compile (App (App (Abs ("x", Abs ("y", Var "x")), Int 1), Int 2))
-  and expected = [ PUSH (INT 1) ] in
+  and expected = PUSH (INT 1) in
   Alcotest.(check string)
     "compile (fun x y -> x) 1 2" (to_string expected) (to_string result)
 
