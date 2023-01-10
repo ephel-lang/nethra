@@ -1,15 +1,13 @@
 let rec optimise_sequence =
   let open Vm in
   function
-  | SEQ [] :: l -> l
+  | SEQ l1 :: l2 -> l1 @ l2
   | DIG (0, _) :: l -> l
-  | LAMBDA (SEQ []) :: SWAP :: EXEC :: l2 -> l2
   | PUSH v :: LAMBDA l1 :: SWAP :: l2 -> LAMBDA l1 :: PUSH v :: l2
   | LAMBDA l1 :: PUSH v :: EXEC :: l2 -> PUSH v :: l1 :: l2
   | PUSH _ :: DROP (1, _) :: l -> l
   | RIGHT :: IF_LEFT (_, r) :: l' -> r :: l'
   | LEFT :: IF_LEFT (l, _) :: l' -> l :: l'
-  | SEQ l1 :: l2 -> l1 @ l2
   | a :: l -> optimise_instruction a :: optimise_sequence l
   | [] -> []
 
