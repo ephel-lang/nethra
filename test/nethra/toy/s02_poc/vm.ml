@@ -41,9 +41,4 @@ and render ppf =
   | RIGHT -> fprintf ppf "RIGHT"
   | IF_LEFT (l, r) -> fprintf ppf "IF_LEFT %a %a" render l render r
 
-let to_string o =
-  let buffer = Buffer.create 16 in
-  let formatter = Format.formatter_of_buffer buffer in
-  let () = render formatter o in
-  let () = Format.pp_print_flush formatter () in
-  Buffer.contents buffer
+let to_string o = Render.to_string render o

@@ -16,7 +16,7 @@ let compile_02 () =
 
 let compile_03 () =
   let result = optimise @@ compile (Abs ("x", Unit))
-  and expected = LAMBDA (SEQ [ DROP (1, "x"); PUSH UNIT ]) in
+  and expected = LAMBDA (SEQ [ DROP (0, "x"); PUSH UNIT ]) in
   Alcotest.(check string)
     "compile fun x -> unit" (to_string expected) (to_string result)
 
