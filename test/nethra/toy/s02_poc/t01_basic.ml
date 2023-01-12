@@ -53,15 +53,15 @@ let compile_08 () =
     "compile let x = 1 in x" (to_string expected) (to_string result)
 
 let compile_09 () =
-  let result = compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
-  and expected = PUSH (INT 1) in
+  let result = optimise @@ compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
+  and expected = LAMBDA (LAMBDA (SEQ [ DIG (1, "f"); EXEC ])) in (* DIG 1 -> Not supported *)
   Alcotest.(check string)
     "compile (fun f x -> f x)" (to_string expected) (to_string result)
 
 let compile_10 () =
   let result =
     optimise @@ compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
-  and expected = LAMBDA (SEQ [ PUSH (INT 1); DIG (1, "f"); EXEC ]) in
+  and expected = LAMBDA (SEQ [ PUSH (INT 1); DIG (1, "f"); EXEC ]) in (* DIG 1 -> supported *)
   Alcotest.(check string)
     "compile (fun f -> let x = 1 in f x)" (to_string expected)
     (to_string result)
@@ -78,6 +78,6 @@ let cases =
     ; test_case "compile O6" `Quick compile_06
     ; test_case "compile O7" `Quick compile_07
     ; test_case "compile O8" `Quick compile_08
-      (*; test_case "compile O9" `Quick compile_09 *)
+    ; test_case "compile O9" `Quick compile_09
     ; test_case "compile 10" `Quick compile_10
     ] )
