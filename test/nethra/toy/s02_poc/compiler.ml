@@ -18,6 +18,9 @@ let rec occurrences n e =
   | Unit | Int _ -> 0
   | Inl e | Inr e -> occurrences n e
   | Case (e, l, r) -> occurrences n e + max (occurrences n l) (occurrences n r)
+  | Pair (l, r) -> occurrences n l + occurrences n r
+  | Fst e | Snd e -> occurrences n e
+  | Let (m, e, f) -> if m = n then 0 else occurrences n e + occurrences n f
 
 let check_occurrences e s =
   let open Vm in
@@ -37,7 +40,7 @@ let check_occurrences e s =
   let o, s = check_occurrences 0 e s in
   (SEQ o, s)
 
-let consume n s =
+let get_value n s =
   let rec consume i s =
     let open Vm in
     match s with
@@ -63,7 +66,12 @@ let rec compile_abstraction n e s =
 
 and compile e s =
   let _ =
-    print_string ("Compile " ^ Expr.to_string e ^ " | " ^ Render.to_string render_stack s ^ "\n")
+    print_string
+      ( "Compile "
+      ^ Expr.to_string e
+      ^ " | "
+      ^ Render.to_string render_stack s
+      ^ "\n" )
   in
   let open Expr in
   let open Vm in
@@ -72,11 +80,11 @@ and compile e s =
   | Int i -> (PUSH (INT i), VAL :: s)
   | App (l, r) ->
     let o_r, s = compile r s in
-    let o_l, s' = compile l [ List.hd s ] in
+    let o_l, s' = compile l s in
     (SEQ [ o_l; o_r; EXEC ], List.hd s' :: List.tl s)
   | Var n ->
-    let o, s = consume n s in
-    (SEQ o, VAL :: s)
+    let o, s = get_value n s in
+    (SEQ o, s)
   | Abs (n, e) ->
     let o, s = compile_abstraction n e s in
     (LAMBDA o, VAL :: s)
@@ -88,11 +96,25 @@ and compile e s =
     (SEQ [ o; RIGHT ], VAL :: s)
   | Case (e, Abs (n, l), Abs (m, r)) ->
     let e_o, s = compile e s in
-    let l_o, s' = compile_abstraction n l (List.tl s) in
+    let l_o, s' = compile_abstraction n l s in
     let l_d, _ = check_occurrences l s' in
-    let r_o, s' = compile_abstraction m r (List.tl s) in
+    let r_o, s' = compile_abstraction m r s in
     let r_d, _ = check_occurrences r s' in
     (SEQ [ e_o; IF_LEFT (SEQ [ l_o; l_d ], SEQ [ r_o; r_d ]) ], VAL :: s)
+  | Pair (l, r) ->
+    let l_o, s = compile l s in
+    let r_o, s = compile r s in
+    (SEQ [ l_o; r_o; PAIR ], List.tl (List.tl s))
+  | Fst o ->
+    let l_o, s = compile o s in
+    (SEQ [ l_o; CAR ], VAL :: List.tl s)
+  | Snd o ->
+    let l_o, s = compile o s in
+    (SEQ [ l_o; CDR ], VAL :: List.tl s)
+  | Let (n, e, f) ->
+    let e_o, s = compile e s in
+    let l_o, s' = compile_abstraction n f (List.tl s) in
+    (SEQ [ e_o; l_o ], s')
   | _ -> failwith ("Cannot compile expression: " ^ Expr.to_string e)
 
 let compile e = fst (compile e [])

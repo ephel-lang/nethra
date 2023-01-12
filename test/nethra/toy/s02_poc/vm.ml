@@ -14,6 +14,9 @@ type order =
   | LEFT
   | RIGHT
   | IF_LEFT of order * order
+  | PAIR
+  | CAR
+  | CDR
 
 let render_value ppf =
   let open Format in
@@ -40,5 +43,8 @@ and render ppf =
   | LEFT -> fprintf ppf "LEFT"
   | RIGHT -> fprintf ppf "RIGHT"
   | IF_LEFT (l, r) -> fprintf ppf "IF_LEFT %a %a" render l render r
+  | PAIR -> fprintf ppf "PAIR"
+  | CAR -> fprintf ppf "CAR"
+  | CDR -> fprintf ppf "CDR"
 
 let to_string o = Render.to_string render o

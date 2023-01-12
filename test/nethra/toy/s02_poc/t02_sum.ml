@@ -85,7 +85,7 @@ let compile_09 () =
 
 let cases =
   let open Alcotest in
-  ( "Pair Compilation"
+  ( "Sum Compilation"
   , [
       test_case "compile O1" `Quick compile_01
     ; test_case "compile O2" `Quick compile_02
