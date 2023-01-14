@@ -69,19 +69,16 @@ and compile e s =
   let open Vm in
   let o, s' =
     match e with
-    | Unit -> (* OK *) (PUSH UNIT, VAL "unit" :: s)
-    | Int i -> (* OK *) (PUSH (INT i), VAL "int" :: s)
+    | Unit -> (PUSH UNIT, VAL "unit" :: s)
+    | Int i -> (PUSH (INT i), VAL "int" :: s)
     | Var n ->
-      (* OK *)
       let o, s = consume n s in
       (SEQ o, VAL n :: s)
     (* Sum *)
     | Inl e ->
-      (* OK *)
       let o, s = compile e s in
       (SEQ [ o; LEFT ], VAL "left" :: s)
     | Inr e ->
-      (* OK *)
       let o, s = compile e s in
       (SEQ [ o; RIGHT ], VAL "right" :: s)
     | Case (e, Abs (n, l), Abs (m, r)) ->
@@ -98,25 +95,20 @@ and compile e s =
       let r_o, s = compile r (List.tl s) in
       (SEQ [ l_o; r_o; PAIR ], VAL "pair" :: List.tl s)
     | Fst o ->
-      (* OK *)
       let l_o, s = compile o s in
       (SEQ [ l_o; CAR ], VAL "fst" :: List.tl s)
     | Snd o ->
-      (* OK *)
       let l_o, s = compile o s in
       (SEQ [ l_o; CDR ], VAL "snd" :: List.tl s)
     (* abstraction and application *)
     | App (l, r) ->
-      (* OK *)
       let o_l, s' = compile l s in
       let o_r, s = compile r (List.tl s') in
       (SEQ [ o_l; o_r; EXEC ], List.hd s' :: List.tl s)
     | Abs (n, e) ->
-      (* OK *)
       let o, s = compile_abstraction n e [] in
       (LAMBDA o, VAL "lambda" :: List.tl s)
     | Let (n, e, f) ->
-      (* OK *)
       let e_o, s = compile e s in
       let l_o, s' = compile_abstraction n f (List.tl s) in
       (SEQ [ e_o; l_o ], s')
