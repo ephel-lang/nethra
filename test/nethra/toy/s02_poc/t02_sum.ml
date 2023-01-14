@@ -60,7 +60,6 @@ let compile_07 () =
             , Abs ("x", Case (Var "x", Abs ("y", Var "y"), Abs ("y", Int 2)))
             , Abs ("x", Int 3) ) )
   and expected = PUSH (INT 2) in
-  (* ERROR *)
   Alcotest.(check string)
     "compile case (inl inr 1) (fun x -> case x (fun y -> y) (fun y -> 2)) (fun \
      x -> 3)"

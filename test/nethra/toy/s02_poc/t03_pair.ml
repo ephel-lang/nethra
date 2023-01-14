@@ -4,18 +4,35 @@ open Compiler
 open Optimizer
 
 let compile_01 () =
-  let result =
-    compile (Abs ("f", Abs ("x", App (App (Var "f", Var "x"), Var "x"))))
-  and expected = [ LAMBDA [ LAMBDA [ DIG 1; DUP 1; EXEC; DIG 1; EXEC ] ] ] in
+  let result = optimise @@ compile (Pair (Int 1, Int 2))
+  and expected = SEQ [ PUSH (INT 1); PUSH (INT 2); PAIR ] in
   Alcotest.(check string)
-    "compile (fun f x -> f x x)" (to_string expected) (to_string result)
+    "compile (1,2)" (to_string expected) (to_string result)
 
 let compile_02 () =
-  let result =
-    compile (Abs ("f", Abs ("x", App (App (Var "x", Var "f"), Var "x"))))
-  and expected = [ LAMBDA [ LAMBDA [ DUP 0; DIG 2; EXEC; DIG 1; EXEC ] ] ] in
+  let result = optimise @@ compile (Fst (Pair (Int 1, Int 2)))
+  and expected = PUSH (INT 1) in
   Alcotest.(check string)
-    "compile (fun f x -> x f x)" (to_string expected) (to_string result)
+    "compile fst (1,2)" (to_string expected) (to_string result)
+
+let compile_03 () =
+  let result = optimise @@ compile (Snd (Pair (Int 1, Int 2)))
+  and expected = PUSH (INT 2) in
+  Alcotest.(check string)
+    "compile snd (1,2)" (to_string expected) (to_string result)
+
+let compile_04 () =
+  let result = optimise @@ compile (Abs ("p", Fst (Var "p")))
+  and expected = LAMBDA CAR in
+  Alcotest.(check string)
+    "compile (fun p -> fst p)" (to_string expected) (to_string result)
+
+let compile_05 () =
+  let result =
+    optimise @@ compile (Abs ("p", App (Fst (Var "p"), Snd (Var "p"))))
+  and expected = LAMBDA (SEQ [ DUP (0, "p"); CAR; CDR; EXEC ]) in
+  Alcotest.(check string)
+    "compile (fun p -> (fst p) (snd p))" (to_string expected) (to_string result)
 
 let cases =
   let open Alcotest in
@@ -23,4 +40,7 @@ let cases =
   , [
       test_case "compile O1" `Quick compile_01
     ; test_case "compile 02" `Quick compile_02
+    ; test_case "compile 03" `Quick compile_03
+    ; test_case "compile 04" `Quick compile_04
+    ; test_case "compile 05" `Quick compile_05
     ] )

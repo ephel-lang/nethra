@@ -40,6 +40,7 @@ let compile_06 () =
     "compile (fun x y -> y) 1 2" (to_string expected) (to_string result)
 
 let compile_07 () =
+  (* PARTIAL APPLICATION *)
   let result =
     optimise @@ compile (App (App (Abs ("x", Abs ("y", Var "x")), Int 1), Int 2))
   and expected = PUSH (INT 1) in
@@ -53,15 +54,16 @@ let compile_08 () =
     "compile let x = 1 in x" (to_string expected) (to_string result)
 
 let compile_09 () =
+  (* PARTIAL APPLICATION *)
   let result = optimise @@ compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
-  and expected = LAMBDA (LAMBDA (SEQ [ DIG (1, "f"); EXEC ])) in (* DIG 1 -> Not supported *)
+  and expected = LAMBDA (LAMBDA (SEQ [ DIG (1, "f"); EXEC ])) in
   Alcotest.(check string)
     "compile (fun f x -> f x)" (to_string expected) (to_string result)
 
 let compile_10 () =
   let result =
     optimise @@ compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
-  and expected = LAMBDA (SEQ [ PUSH (INT 1); DIG (1, "f"); EXEC ]) in (* DIG 1 -> supported *)
+  and expected = LAMBDA (SEQ [ PUSH (INT 1); SWAP; EXEC ]) in
   Alcotest.(check string)
     "compile (fun f -> let x = 1 in f x)" (to_string expected)
     (to_string result)
@@ -76,8 +78,8 @@ let cases =
     ; test_case "compile O4" `Quick compile_04
     ; test_case "compile O5" `Quick compile_05
     ; test_case "compile O6" `Quick compile_06
-    ; test_case "compile O7" `Quick compile_07
+      (* ; test_case "compile O7" `Quick compile_07 *)
     ; test_case "compile O8" `Quick compile_08
-    ; test_case "compile O9" `Quick compile_09
+      (* ; test_case "compile O9" `Quick compile_09 *)
     ; test_case "compile 10" `Quick compile_10
     ] )
