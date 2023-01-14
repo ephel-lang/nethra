@@ -1,25 +1,25 @@
 open Expr
 open Vm
 open Compiler
-open Optimiser
 open Simplifier
+open Optimiser
 
 let compile_01 () =
-  let result = simplify @@ compile (Inl (Int 1))
+  let result = optimise @@ compile (Inl (Int 1))
   and expected = SEQ [ PUSH (INT 1); LEFT ] in
   Alcotest.(check string)
     "compile Inl 1" (to_string expected) (to_string result)
 
 let compile_02 () =
-  let result = simplify @@ optimise @@ compile (Inr (Int 1))
+  let result = optimise @@ simplify @@ compile (Inr (Int 1))
   and expected = SEQ [ PUSH (INT 1); RIGHT ] in
   Alcotest.(check string)
     "compile Inr 1" (to_string expected) (to_string result)
 
 let compile_03 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Case (Inl (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
   and expected = PUSH (INT 1) in
   Alcotest.(check string)
@@ -28,8 +28,8 @@ let compile_03 () =
 
 let compile_04 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
   and expected = PUSH (INT 1) in
   Alcotest.(check string)
@@ -38,8 +38,8 @@ let compile_04 () =
 
 let compile_05 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Case (Inl (Int 1), Abs ("x", Int 2), Abs ("x", Var "x")))
   and expected = PUSH (INT 2) in
   Alcotest.(check string)
@@ -48,8 +48,8 @@ let compile_05 () =
 
 let compile_06 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Int 2)))
   and expected = PUSH (INT 2) in
   Alcotest.(check string)
@@ -58,8 +58,8 @@ let compile_06 () =
 
 let compile_07 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile
          (Case
             ( Inl (Inr (Int 1))
@@ -73,8 +73,8 @@ let compile_07 () =
 
 let compile_08 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Case (Inl (Int 1), Abs ("x", Unit), Abs ("x", Var "x")))
   and expected = PUSH UNIT in
   Alcotest.(check string)
@@ -83,8 +83,8 @@ let compile_08 () =
 
 let compile_09 () =
   let result =
-    simplify
-    @@ optimise
+    optimise
+    @@ simplify
     @@ compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "y"))))
   and expected = LAMBDA (IF_LEFT (SEQ [ DROP (0, "y"); PUSH UNIT ], SEQ [])) in
   Alcotest.(check string)

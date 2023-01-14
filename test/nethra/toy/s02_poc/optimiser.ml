@@ -18,7 +18,7 @@ let generate (o, s) =
     | Right a :: l -> generate l @ generate [ a ] @ [ RIGHT ]
     | Deferred a :: l -> generate l @ [ a ]
   in
-  SEQ (generate s @ o)
+  match generate s @ o with [ a ] -> a | l -> SEQ l
 
 let rec remove_at l i =
   if i = 0
@@ -60,10 +60,10 @@ let rec optimise s =
     else
       let _, s = remove_at s i in
       ([], s)
-  | SWAP ->
-    if List.length s < 2
-    then ([], Deferred SWAP :: s)
-    else ([], List.hd (List.tl s) :: List.hd s :: List.tl (List.tl s))
+  | SWAP -> (
+    match s with
+    | a :: b :: s -> ([], b :: a :: s)
+    | _ -> ([], Deferred SWAP :: s) )
   | LEFT ->
     if List.length s < 1
     then ([], Deferred LEFT :: s)
