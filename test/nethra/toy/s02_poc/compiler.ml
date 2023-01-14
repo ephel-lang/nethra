@@ -91,9 +91,9 @@ and compile e s =
       , VAL "case" :: List.tl (List.tl s) )
     (* product *)
     | Pair (l, r) ->
-      let l_o, s = compile l s in
-      let r_o, s = compile r (List.tl s) in
-      (SEQ [ l_o; r_o; PAIR ], VAL "pair" :: List.tl s)
+      let r_o, s = compile r s in
+      let l_o, s = compile l (List.tl s) in
+      (SEQ [ r_o; l_o; PAIR ], VAL "pair" :: List.tl s)
     | Fst o ->
       let l_o, s = compile o s in
       (SEQ [ l_o; CAR ], VAL "fst" :: List.tl s)

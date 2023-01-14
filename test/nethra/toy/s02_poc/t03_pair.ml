@@ -1,35 +1,38 @@
 open Expr
 open Vm
 open Compiler
-open Optimizer
+open Optimiser
+open Simplifier
 
 let compile_01 () =
-  let result = optimise @@ compile (Pair (Int 1, Int 2))
-  and expected = SEQ [ PUSH (INT 1); PUSH (INT 2); PAIR ] in
+  let result = simplify @@ optimise @@ compile (Pair (Int 1, Int 2))
+  and expected = SEQ [ PUSH (INT 2); PUSH (INT 1); PAIR ] in
   Alcotest.(check string)
     "compile (1,2)" (to_string expected) (to_string result)
 
 let compile_02 () =
-  let result = optimise @@ compile (Fst (Pair (Int 1, Int 2)))
+  let result = simplify @@ optimise @@ compile (Fst (Pair (Int 1, Int 2)))
   and expected = PUSH (INT 1) in
   Alcotest.(check string)
     "compile fst (1,2)" (to_string expected) (to_string result)
 
 let compile_03 () =
-  let result = optimise @@ compile (Snd (Pair (Int 1, Int 2)))
+  let result = simplify @@ optimise @@ compile (Snd (Pair (Int 1, Int 2)))
   and expected = PUSH (INT 2) in
   Alcotest.(check string)
     "compile snd (1,2)" (to_string expected) (to_string result)
 
 let compile_04 () =
-  let result = optimise @@ compile (Abs ("p", Fst (Var "p")))
+  let result = simplify @@ optimise @@ compile (Abs ("p", Fst (Var "p")))
   and expected = LAMBDA CAR in
   Alcotest.(check string)
     "compile (fun p -> fst p)" (to_string expected) (to_string result)
 
 let compile_05 () =
   let result =
-    optimise @@ compile (Abs ("p", App (Fst (Var "p"), Snd (Var "p"))))
+    simplify
+    @@ optimise
+    @@ compile (Abs ("p", App (Fst (Var "p"), Snd (Var "p"))))
   and expected = LAMBDA (SEQ [ DUP (0, "p"); CAR; CDR; EXEC ]) in
   Alcotest.(check string)
     "compile (fun p -> (fst p) (snd p))" (to_string expected) (to_string result)

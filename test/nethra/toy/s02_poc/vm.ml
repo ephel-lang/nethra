@@ -2,18 +2,18 @@ type value =
   | INT of int
   | UNIT
 
-type order =
-  | SEQ of order list
+type instruction =
+  | SEQ of instruction list
   | PUSH of value
   | EXEC
-  | LAMBDA of order
+  | LAMBDA of instruction
   | DIG of int * string
   | DUP of int * string
   | DROP of int * string
   | SWAP
   | LEFT
   | RIGHT
-  | IF_LEFT of order * order
+  | IF_LEFT of instruction * instruction
   | PAIR
   | CAR
   | CDR
