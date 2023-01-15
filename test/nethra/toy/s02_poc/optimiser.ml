@@ -58,6 +58,7 @@ let rec optimise s =
     if List.length s <= i
     then ([], Deferred (DROP (i, n)) :: s)
     else
+      (* What about DIP elimination in presence of previous DUP instruction? *)
       let _, s = remove_at s i in
       ([], s)
   | SWAP -> (
