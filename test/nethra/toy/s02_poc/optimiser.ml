@@ -33,7 +33,7 @@ let rec optimise s =
   | SEQ [] -> ([], s)
   | SEQ (a :: l) ->
     let o, s = optimise s a in
-    if o = []
+    if o = [] (* Use deferred instead ? *)
     then optimise s (SEQ l)
     else (o @ [ generate (optimise [] (SEQ l)) ], s)
   | PUSH v -> ([], Val v :: s)
