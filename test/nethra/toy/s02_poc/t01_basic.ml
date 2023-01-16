@@ -11,13 +11,13 @@ let compile_01 () =
 
 let compile_02 () =
   let result = optimise @@ simplify @@ compile (Abs ("x", Var "x"))
-  and expected = LAMBDA (SEQ []) in
+  and expected = LAMBDA ("x", SEQ []) in
   Alcotest.(check string)
     "compile fun x -> x" (to_string expected) (to_string result)
 
 let compile_03 () =
   let result = optimise @@ simplify @@ compile (Abs ("x", Unit))
-  and expected = LAMBDA (SEQ [ DROP (0, "x"); PUSH UNIT ]) in
+  and expected = LAMBDA ("x", SEQ [ DROP (0, "x"); PUSH UNIT ]) in
   Alcotest.(check string)
     "compile fun x -> unit" (to_string expected) (to_string result)
 
@@ -64,7 +64,7 @@ let compile_09 () =
     optimise
     @@ simplify
     @@ compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
-  and expected = LAMBDA (LAMBDA (SEQ [ DIG (1, "f"); EXEC ])) in
+  and expected = LAMBDA ("f", LAMBDA ("x", SEQ [ DIG (1, "f"); EXEC ])) in
   Alcotest.(check string)
     "compile (fun f x -> f x)" (to_string expected) (to_string result)
 
@@ -73,7 +73,7 @@ let compile_10 () =
     optimise
     @@ simplify
     @@ compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
-  and expected = LAMBDA (SEQ [ PUSH (INT 1); SWAP; EXEC ]) in
+  and expected = LAMBDA ("f", SEQ [ PUSH (INT 1); EXEC ]) in
   Alcotest.(check string)
     "compile (fun f -> let x = 1 in f x)" (to_string expected)
     (to_string result)

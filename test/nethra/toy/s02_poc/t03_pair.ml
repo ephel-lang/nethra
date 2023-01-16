@@ -24,7 +24,7 @@ let compile_03 () =
 
 let compile_04 () =
   let result = optimise @@ simplify @@ compile (Abs ("p", Fst (Var "p")))
-  and expected = LAMBDA CAR in
+  and expected = LAMBDA ("p", CAR) in
   Alcotest.(check string)
     "compile (fun p -> fst p)" (to_string expected) (to_string result)
 
@@ -33,7 +33,7 @@ let compile_05 () =
     optimise
     @@ simplify
     @@ compile (Abs ("p", App (Fst (Var "p"), Snd (Var "p"))))
-  and expected = LAMBDA (SEQ [ DUP (0, "p"); CAR; CDR; EXEC ]) in
+  and expected = LAMBDA ("p", SEQ [ DUP (0, "p"); CAR; CDR; EXEC ]) in
   Alcotest.(check string)
     "compile (fun p -> (fst p) (snd p))" (to_string expected) (to_string result)
 

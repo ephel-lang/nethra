@@ -8,18 +8,17 @@ let rec simplify_sequence =
   | SEQ l1 :: l2 -> l1 @ l2
   | DIG (0, _) :: l -> l
   | DIG (1, _) :: l -> SWAP :: l
-  | a :: DROP (i, n) :: l when i > 0 -> DROP (i - 1, n) :: a :: l
-  | DUP (0, _)
-    :: IF_LEFT (SEQ (DROP (0, _) :: l1), SEQ (DROP (0, _) :: l2))
-    :: l ->
-    IF_LEFT (SEQ l1, SEQ l2) :: l (* TO BE DONE IN THE OPTIMISATION *)
+  | PUSH a :: DROP (1, n) :: l -> DROP (0, n) :: PUSH a :: l
+  | DUP (i, n) :: DROP (j, _) :: l when j = i + 1 -> DIG (i, n) :: l
+  | IF_LEFT (SEQ (a :: l1), SEQ (b :: l2)) :: l when equal a b ->
+    a :: IF_LEFT (SEQ l1, SEQ l2) :: l
   | a :: l -> simplify_instruction a :: simplify_sequence l
   | [] -> []
 
 and simplify_instruction =
   let open Vm in
   function
-  | LAMBDA l -> LAMBDA (simplify_instruction l)
+  | LAMBDA (n, l) -> LAMBDA (n, simplify_instruction l)
   | IF_LEFT (l, r) -> IF_LEFT (simplify_instruction l, simplify_instruction r)
   | SEQ [ a ] -> a
   | SEQ l -> SEQ (simplify_sequence l)

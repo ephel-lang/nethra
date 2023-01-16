@@ -6,7 +6,7 @@ type instruction =
   | SEQ of instruction list
   | PUSH of value
   | EXEC
-  | LAMBDA of instruction
+  | LAMBDA of string * instruction
   | DIG of int * string
   | DUP of int * string
   | DROP of int * string
@@ -35,7 +35,7 @@ and render ppf =
   | SEQ l -> fprintf ppf "SEQ [%a]" render_list l
   | PUSH v -> fprintf ppf "PUSH (%a)" render_value v
   | EXEC -> fprintf ppf "EXEC"
-  | LAMBDA l -> fprintf ppf "LAMBDA (%a)" render l
+  | LAMBDA (n, l) -> fprintf ppf "LAMBDA[%s] (%a)" n render l
   | DIG (i, n) -> fprintf ppf "DIG (%d,%s)" i n
   | DUP (i, n) -> fprintf ppf "DUP (%d,%s)" i n
   | DROP (i, n) -> fprintf ppf "DROP (%d,%s)" i n
@@ -46,5 +46,12 @@ and render ppf =
   | PAIR -> fprintf ppf "PAIR"
   | CAR -> fprintf ppf "CAR"
   | CDR -> fprintf ppf "CDR"
+
+let equal a b =
+  match (a, b) with
+  | DIG (i, _), DIG (j, _) -> i = j
+  | DROP (i, _), DROP (j, _) -> i = j
+  | DUP (i, _), DUP (j, _) -> i = j
+  | _ -> a = b
 
 let to_string o = Render.to_string render o
