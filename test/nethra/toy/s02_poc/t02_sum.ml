@@ -87,7 +87,7 @@ let compile_09 () =
     @@ simplify
     @@ compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "y"))))
   and expected =
-    LAMBDA ("y", IF_LEFT (SEQ [ DROP (0, "y"); PUSH UNIT ], SEQ []))
+    LAMBDA ("y", SEQ [ IF_LEFT (PUSH UNIT, DUP (1, "y")); DROP (1, "y") ])
   in
   Alcotest.(check string)
     "compile fun y -> case y (fun x -> unit) (fun x -> y)" (to_string expected)

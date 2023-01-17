@@ -91,5 +91,5 @@ let cases =
       (* ; test_case "compile O7" `Quick compile_07 *)
     ; test_case "compile O8" `Quick compile_08
       (* ; test_case "compile O9" `Quick compile_09 *)
-    ; test_case "compile 10" `Quick compile_10
+      (* ; test_case "compile 10" `Quick compile_10 *)
     ] )

@@ -1,20 +1,35 @@
 type value =
+  | Var of string
+  | Dup of string
   | Val of Vm.value
   | Code of string * Vm.instruction
-  | Pair of value * value
+  | Exec of value * value
   | Left of value
   | Right of value
-  | Deferred of Vm.instruction
+  | Pair of value * value
+  | Car of value
+  | Cdr of value
+  | IfLeft of value * Vm.instruction * Vm.instruction
+
+type stack =
+  | Stack of value * stack
+  | Protected of value list
 
 let rec render_value ppf =
   let open Format in
   function
+  | Var n -> fprintf ppf "%s" n
+  | Dup n -> fprintf ppf "copy(%s)" n
   | Val v -> Vm.render_value ppf v
   | Code (_, c) -> Vm.render ppf c
+  | Exec (a, b) -> fprintf ppf "Exec(%a,%a)" render_value a render_value b
+  | Car a -> fprintf ppf "Car(%a)" render_value a
+  | Cdr a -> fprintf ppf "Cdr(%a)" render_value a
   | Pair (a, b) -> fprintf ppf "Pair(%a,%a)" render_value a render_value b
   | Left a -> fprintf ppf "Left(%a)" render_value a
   | Right a -> fprintf ppf "Right(%a)" render_value a
-  | Deferred c -> fprintf ppf "Lazy(%a)" Vm.render c
+  | IfLeft (a, l, r) ->
+    fprintf ppf "IfLeft(%a,%a,%a)" render_value a Vm.render l Vm.render r
 
 let rec render_values ppf =
   let open Format in
@@ -25,17 +40,26 @@ let seq =
   let open Vm in
   function [ a ] -> a | l -> SEQ l
 
+let rec get_index i n = function
+  | Var m :: _ when n = m -> i
+  | _ :: s -> get_index (i + 1) n s
+  | [] -> failwith ("Variable not found: " ^ n)
+
 let generate (o, s) =
   let open Vm in
   let rec generate = function
     | [] -> []
-    | Val a :: l -> generate l @ [ PUSH a ]
-    | Code (n, a) :: l -> generate l @ [ LAMBDA (n, a) ]
-    | Pair (f, s) :: l ->
-      generate l @ generate [ s ] @ generate [ f ] @ [ PAIR ]
-    | Left a :: l -> generate l @ generate [ a ] @ [ LEFT ]
-    | Right a :: l -> generate l @ generate [ a ] @ [ RIGHT ]
-    | Deferred a :: l -> generate l @ [ a ]
+    | Var _ :: s -> generate s
+    | Dup n :: s -> generate s @ [ DUP (get_index 1 n s, n) ]
+    | Val a :: s -> generate s @ [ PUSH a ]
+    | Code (n, a) :: s -> generate s @ [ LAMBDA (n, a) ]
+    | Exec (a, c) :: s -> generate (c :: a :: s) @ [ EXEC ]
+    | Car a :: s -> generate (a :: s) @ [ CAR ]
+    | Cdr a :: s -> generate (a :: s) @ [ CDR ]
+    | Pair (l, r) :: s -> generate (l :: r :: s) @ [ PAIR ]
+    | Left a :: s -> generate (a :: s) @ [ LEFT ]
+    | Right a :: s -> generate (a :: s) @ [ RIGHT ]
+    | IfLeft (a, l, r) :: s -> generate (a :: s) @ [ IF_LEFT (l, r) ]
   in
   generate s @ o
 
@@ -69,24 +93,25 @@ let rec optimise i s c =
     | EXEC -> (
       match s with
       | a :: Code (_, c) :: s -> optimise (i ^ "  ") (a :: s) c
+      | a :: c :: s -> ([], Exec (a, c) :: s)
       | _ -> ([ EXEC ], s) )
     | LAMBDA (n, a) ->
-      let o = generate (optimise (i ^ "  ") [] a) in
+      let o = generate (optimise (i ^ "  ") [ Var n ] a) in
       ([], Code (n, seq o) :: s)
-    | DIG (i, n) ->
-      if List.length s <= i
-      then ([ DIG (i, n) ], s)
-      else
-        let v, s = remove_at s i in
-        ([], v :: s)
-    | DUP (i, n) ->
-      if List.length s <= i then ([ DUP (i, n) ], s) else ([], List.nth s i :: s)
-    | DROP (i, n) ->
+    | DIG (i, n) -> ([ DIG (i, n) ], s)
+    | DUP (i, n) -> (
+      match List.nth_opt s i with
+      | None -> ([ DUP (i, n) ], s)
+      | Some (Var f) -> ([], Dup f :: s)
+      | Some a -> ([], a :: s) )
+    | DROP (i, n) -> (
       if List.length s <= i
       then ([ DROP (i, n) ], s)
       else
-        let _, s = remove_at s i in
-        ([], s)
+        (* Dropped effects should be prohibited *)
+        match remove_at s i with
+        | Var _, _ -> ([ DROP (i, n) ], s)
+        | _, s -> ([], s) )
     | SWAP -> (
       match s with a :: b :: s -> ([], b :: a :: s) | _ -> ([ SWAP ], s) )
     | LEFT -> (
@@ -97,16 +122,25 @@ let rec optimise i s c =
       match s with
       | Left v :: s -> optimise (i ^ "  ") (v :: s) l
       | Right v :: s -> optimise (i ^ "  ") (v :: s) r
-      | s ->
-        let l = generate (optimise (i ^ "  ") [] l) in
-        let r = generate (optimise (i ^ "  ") [] r) in
-        ([], Deferred (IF_LEFT (seq l, seq r)) :: s) )
+      | _ ->
+        (* TO REVIEW *)
+        let l = generate (optimise (i ^ "  ") s l) in
+        let r = generate (optimise (i ^ "  ") s r) in
+        if List.length s = 0
+        then ([ IF_LEFT (seq l, seq r) ], s)
+        else ([], IfLeft (List.hd s, seq l, seq r) :: List.tl s) )
+    | CAR -> (
+      match s with
+      | Pair (a, _) :: s -> ([], a :: s)
+      | a :: s -> ([], Car a :: s)
+      | [] -> ([ CAR ], s) )
+    | CDR -> (
+      match s with
+      | Pair (_, a) :: s -> ([], a :: s)
+      | a :: s -> ([], Cdr a :: s)
+      | [] -> ([ CDR ], s) )
     | PAIR -> (
       match s with a :: b :: s -> ([], Pair (a, b) :: s) | _ -> ([ PAIR ], s) )
-    | CAR -> (
-      match s with Pair (a, _) :: s -> ([], a :: s) | _ -> ([ CAR ], s) )
-    | CDR -> (
-      match s with Pair (_, a) :: s -> ([], a :: s) | _ -> ([ CDR ], s) )
   in
   let _ =
     print_string
