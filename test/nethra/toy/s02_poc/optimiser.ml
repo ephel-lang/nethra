@@ -48,7 +48,8 @@ let generate (o, s) =
     match s with
     | [] -> r
     | [ Var _ ] -> r
-    | Dup n :: s -> DUP (get_index 1 n s, n) |> push_in r |> generate s
+    | Var f :: a :: s -> SWAP |> push_in r |> generate (a :: Var f :: s)
+    | Dup n :: s -> DUP (get_index 0 n s, n) |> push_in r |> generate s
     | Val a :: s -> PUSH a |> push_in r |> generate s
     | Code (n, a) :: s -> LAMBDA (n, a) |> push_in r |> generate s
     | Exec (a, c) :: s -> EXEC |> push_in r |> generate (c :: a :: s)
@@ -59,7 +60,6 @@ let generate (o, s) =
     | Right a :: s -> RIGHT |> push_in r |> generate (a :: s)
     | IfLeft (a, pl, pr) :: s ->
       IF_LEFT (pl, pr) |> push_in r |> generate (a :: s)
-    | s -> failwith ("Generation error for: " ^ Render.to_string render_values s)
   in
   generate s o
 

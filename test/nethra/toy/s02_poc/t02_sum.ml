@@ -1,26 +1,28 @@
 open Expr
 open Vm
 open Compiler
-open Simplifier
+open Expander
 open Optimiser
+open Simplifier
+open Normaliser
+
+let compile s = s |> compile |> expand |> optimise |> simplify |> normalise
 
 let compile_01 () =
-  let result = optimise @@ compile (Inl (Int 1))
+  let result = compile (Inl (Int 1))
   and expected = [ PUSH (INT 1); LEFT ] in
   Alcotest.(check string)
     "compile Inl 1" (to_string expected) (to_string result)
 
 let compile_02 () =
-  let result = optimise @@ simplify @@ compile (Inr (Int 1))
+  let result = compile (Inr (Int 1))
   and expected = [ PUSH (INT 1); RIGHT ] in
   Alcotest.(check string)
     "compile Inr 1" (to_string expected) (to_string result)
 
 let compile_03 () =
   let result =
-    optimise
-    @@ simplify
-    @@ compile (Case (Inl (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
+    compile (Case (Inl (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile case (inl 1) (fun x -> x) (fun x -> x)" (to_string expected)
@@ -28,29 +30,21 @@ let compile_03 () =
 
 let compile_04 () =
   let result =
-    optimise
-    @@ simplify
-    @@ compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
+    compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Var "x")))
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile case (inr 1) (fun x -> x) (fun x -> x)" (to_string expected)
     (to_string result)
 
 let compile_05 () =
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (Case (Inl (Int 1), Abs ("x", Int 2), Abs ("x", Var "x")))
+  let result = compile (Case (Inl (Int 1), Abs ("x", Int 2), Abs ("x", Var "x")))
   and expected = [ PUSH (INT 2) ] in
   Alcotest.(check string)
     "compile case (inl 1) (fun x -> 2) (fun x -> x)" (to_string expected)
     (to_string result)
 
 let compile_06 () =
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Int 2)))
+  let result = compile (Case (Inr (Int 1), Abs ("x", Var "x"), Abs ("x", Int 2)))
   and expected = [ PUSH (INT 2) ] in
   Alcotest.(check string)
     "compile case (inr 1) (fun x -> x) (fun x -> 2)" (to_string expected)
@@ -58,13 +52,11 @@ let compile_06 () =
 
 let compile_07 () =
   let result =
-    optimise
-    @@ simplify
-    @@ compile
-         (Case
-            ( Inl (Inr (Int 1))
-            , Abs ("x", Case (Var "x", Abs ("y", Var "y"), Abs ("y", Int 2)))
-            , Abs ("x", Int 3) ) )
+    compile
+      (Case
+         ( Inl (Inr (Int 1))
+         , Abs ("x", Case (Var "x", Abs ("y", Var "y"), Abs ("y", Int 2)))
+         , Abs ("x", Int 3) ) )
   and expected = [ PUSH (INT 2) ] in
   Alcotest.(check string)
     "compile case (inl inr 1) (fun x -> case x (fun y -> y) (fun y -> 2)) (fun \
@@ -72,10 +64,7 @@ let compile_07 () =
     (to_string expected) (to_string result)
 
 let compile_08 () =
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (Case (Inl (Int 1), Abs ("x", Unit), Abs ("x", Var "x")))
+  let result = compile (Case (Inl (Int 1), Abs ("x", Unit), Abs ("x", Var "x")))
   and expected = [ PUSH UNIT ] in
   Alcotest.(check string)
     "compile case (inl 1) (fun x -> unit) (fun x -> x)" (to_string expected)
@@ -83,13 +72,9 @@ let compile_08 () =
 
 let compile_09 () =
   let result =
-    optimise
-    @@ simplify
-    @@ compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "y"))))
+    compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "y"))))
   and expected =
-    [
-      LAMBDA ("y", [ IF_LEFT ([ PUSH UNIT ], [ DUP (1, "y") ]); DROP (1, "y") ])
-    ]
+    [ LAMBDA ("y", [ IF_LEFT ([ DROP (0, "y"); PUSH UNIT ], []) ]) ]
   in
   Alcotest.(check string)
     "compile fun y -> case y (fun x -> unit) (fun x -> y)" (to_string expected)

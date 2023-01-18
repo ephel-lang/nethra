@@ -2,23 +2,37 @@ let is_push =
   let open Vm in
   function PUSH _ | LAMBDA _ -> true | _ -> false
 
+let is_replace =
+  let open Vm in
+  function CAR | CDR | LEFT | RIGHT -> true | _ -> false
+
+let rec last =
+  let open Preface.Option.Functor.Infix in
+  function
+  | [] -> None
+  | [ a ] -> Some (a, [])
+  | a :: l -> last l <&> fun (b, l) -> (b, a :: l)
+
 let rec simplify_sequence =
   let open Vm in
   function
   | DIG (0, _) :: l -> l
   | DIG (1, _) :: l -> SWAP :: l
-  | PUSH a :: DROP (1, n) :: l -> DROP (0, n) :: PUSH a :: l
+  | EXEC :: DROP (i, n) :: l when i > 0 -> DROP (i + 1, n) :: EXEC :: l
+  | a :: DROP (i, n) :: l when is_push a && i > 0 -> DROP (i - 1, n) :: a :: l
+  | a :: DROP (i, n) :: l when is_replace a && i > 0 -> DROP (i, n) :: a :: l
   | DUP (i, n) :: DROP (j, _) :: l when j = i + 1 -> DIG (i, n) :: l
+  | DUP (i, m) :: DROP (j, n) :: l when j > i ->
+    DROP (j - 1, n) :: DUP (i, m) :: l
   | DUP (i, m) :: DROP (j, n) :: l when j > 0 ->
-    if j > i
-    then DROP (j - 1, n) :: DUP (i, m) :: l
-    else DROP (j - 1, n) :: DUP (i - 1, m) :: l
+    DROP (j - 1, n) :: DUP (i - 1, m) :: l
   | DIG (i, m) :: DROP (j, n) :: l when j > 0 ->
     if j > i
     then DROP (j - 1, n) :: DIG (i, m) :: l
     else DROP (j - 1, n) :: DIG (i - 1, m) :: l
-  | IF_LEFT (l, r) :: s when List.length s > 0 -> [ IF_LEFT (l @ s, r @ s) ]
-  | a :: l -> simplify_instruction a :: simplify_sequence l
+  | DUP _ :: IF_LEFT (DROP (0, _) :: l, DROP (0, _) :: r) :: s ->
+    IF_LEFT (l, r) :: s
+  | a :: s -> simplify_instruction a :: simplify_sequence s
   | [] -> []
 
 and simplify_instruction =

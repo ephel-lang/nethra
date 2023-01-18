@@ -1,78 +1,70 @@
 open Expr
 open Vm
 open Compiler
-open Simplifier
+open Expander
 open Optimiser
+open Simplifier
+open Normaliser
+
+let compile s = s |> compile |> expand |> optimise |> simplify |> normalise
 
 let compile_01 () =
-  let result = optimise @@ simplify @@ compile (Int 1)
+  let result = compile (Int 1)
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string) "compile 1" (to_string expected) (to_string result)
 
 let compile_02 () =
-  let result = optimise @@ simplify @@ compile (Abs ("x", Var "x"))
+  let result = compile (Abs ("x", Var "x"))
   and expected = [ LAMBDA ("x", []) ] in
   Alcotest.(check string)
     "compile fun x -> x" (to_string expected) (to_string result)
 
 let compile_03 () =
-  let result = optimise @@ simplify @@ compile (Abs ("x", Unit))
+  let result = compile (Abs ("x", Unit))
   and expected = [ LAMBDA ("x", [ DROP (0, "x"); PUSH UNIT ]) ] in
   Alcotest.(check string)
     "compile fun x -> unit" (to_string expected) (to_string result)
 
 let compile_04 () =
-  let result = optimise @@ simplify @@ compile (App (Abs ("x", Var "x"), Int 1))
+  let result = compile (App (Abs ("x", Var "x"), Int 1))
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile (fun x -> x) 1" (to_string expected) (to_string result)
 
 let compile_05 () =
-  let result = optimise @@ simplify @@ compile (App (Abs ("x", Unit), Int 1))
+  let result = compile (App (Abs ("x", Unit), Int 1))
   and expected = [ PUSH UNIT ] in
   Alcotest.(check string)
     "compile (fun x -> unit) 1" (to_string expected) (to_string result)
 
 let compile_06 () =
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (App (App (Abs ("x", Abs ("y", Var "y")), Int 1), Int 2))
+  let result = compile (App (App (Abs ("x", Abs ("y", Var "y")), Int 1), Int 2))
   and expected = [ PUSH (INT 2) ] in
   Alcotest.(check string)
     "compile (fun x y -> y) 1 2" (to_string expected) (to_string result)
 
 let compile_07 () =
   (* PARTIAL APPLICATION *)
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (App (App (Abs ("x", Abs ("y", Var "x")), Int 1), Int 2))
+  let result = compile (App (App (Abs ("x", Abs ("y", Var "x")), Int 1), Int 2))
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile (fun x y -> x) 1 2" (to_string expected) (to_string result)
 
 let compile_08 () =
-  let result = optimise @@ simplify @@ compile (Let ("x", Int 1, Var "x"))
+  let result = compile (Let ("x", Int 1, Var "x"))
   and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile let x = 1 in x" (to_string expected) (to_string result)
 
 let compile_09 () =
   (* PARTIAL APPLICATION *)
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
+  let result = compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
   and expected = [ LAMBDA ("f", [ LAMBDA ("x", [ DIG (1, "f"); EXEC ]) ]) ] in
   Alcotest.(check string)
     "compile (fun f x -> f x)" (to_string expected) (to_string result)
 
 let compile_10 () =
-  let result =
-    optimise
-    @@ simplify
-    @@ compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
+  let result = compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
   and expected = [ LAMBDA ("f", [ PUSH (INT 1); EXEC ]) ] in
   Alcotest.(check string)
     "compile (fun f -> let x = 1 in f x)" (to_string expected)
@@ -91,5 +83,5 @@ let cases =
       (* ; test_case "compile O7" `Quick compile_07 *)
     ; test_case "compile O8" `Quick compile_08
       (* ; test_case "compile O9" `Quick compile_09 *)
-      (* ; test_case "compile 10" `Quick compile_10 *)
+    ; test_case "compile 10" `Quick compile_10
     ] )

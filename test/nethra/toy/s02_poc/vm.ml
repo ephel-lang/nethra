@@ -33,14 +33,14 @@ and render_instruction ppf =
   function
   | PUSH v -> fprintf ppf "PUSH (%a)" render_value v
   | EXEC -> fprintf ppf "EXEC"
-  | LAMBDA (n, l) -> fprintf ppf "LAMBDA[%s] (%a)" n render l
+  | LAMBDA (n, l) -> fprintf ppf "LAMBDA[%s] { %a }" n render l
   | DIG (i, n) -> fprintf ppf "DIG (%d, %s)" i n
   | DUP (i, n) -> fprintf ppf "DUP (%d, %s)" i n
   | DROP (i, n) -> fprintf ppf "DROP (%d, %s)" i n
   | SWAP -> fprintf ppf "SWAP"
   | LEFT -> fprintf ppf "LEFT"
   | RIGHT -> fprintf ppf "RIGHT"
-  | IF_LEFT (l, r) -> fprintf ppf "IF_LEFT (%a, %a)" render l render r
+  | IF_LEFT (l, r) -> fprintf ppf "IF_LEFT { %a } { %a }" render l render r
   | PAIR -> fprintf ppf "PAIR"
   | CAR -> fprintf ppf "CAR"
   | CDR -> fprintf ppf "CDR"
