@@ -74,10 +74,36 @@ let compile_09 () =
   let result =
     compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "y"))))
   and expected =
-    [ LAMBDA ("y", [ IF_LEFT ([ DROP (0, "y"); PUSH UNIT ], []) ]) ]
+    [
+      LAMBDA
+        ( "y"
+        , [
+            DUP (0, "y")
+          ; IF_LEFT
+              ([ DROP (0, "x"); DROP (0, "y"); PUSH UNIT ], [ DROP (0, "x") ])
+          ] )
+    ]
   in
   Alcotest.(check string)
     "compile fun y -> case y (fun x -> unit) (fun x -> y)" (to_string expected)
+    (to_string result)
+
+let compile_10 () =
+  let result =
+    compile (Abs ("y", Case (Var "y", Abs ("x", Unit), Abs ("x", Var "x"))))
+  and expected =
+    [
+      LAMBDA
+        ( "y"
+        , [
+            DUP (0, "y")
+          ; IF_LEFT
+              ([ DROP (0, "x"); DROP (0, "y"); PUSH UNIT ], [ DROP (1, "y") ])
+          ] )
+    ]
+  in
+  Alcotest.(check string)
+    "compile fun y -> case y (fun x -> unit) (fun x -> x)" (to_string expected)
     (to_string result)
 
 let cases =
@@ -93,4 +119,5 @@ let cases =
     ; test_case "compile O7" `Quick compile_07
     ; test_case "compile O8" `Quick compile_08
     ; test_case "compile O9" `Quick compile_09
+    ; test_case "compile 10" `Quick compile_10
     ] )

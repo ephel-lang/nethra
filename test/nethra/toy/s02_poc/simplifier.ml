@@ -30,8 +30,6 @@ let rec simplify_sequence =
     if j > i
     then DROP (j - 1, n) :: DIG (i, m) :: l
     else DROP (j - 1, n) :: DIG (i - 1, m) :: l
-  | DUP _ :: IF_LEFT (DROP (0, _) :: l, DROP (0, _) :: r) :: s ->
-    IF_LEFT (l, r) :: s
   | a :: s -> simplify_instruction a :: simplify_sequence s
   | [] -> []
 
