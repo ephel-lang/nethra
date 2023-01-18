@@ -10,8 +10,6 @@ let rec simplify_sequence =
   | DIG (1, _) :: l -> SWAP :: l
   | PUSH a :: DROP (1, n) :: l -> DROP (0, n) :: PUSH a :: l
   | DUP (i, n) :: DROP (j, _) :: l when j = i + 1 -> DIG (i, n) :: l
-  | IF_LEFT (SEQ (a :: l1), SEQ (b :: l2)) :: l when equal a b ->
-    a :: IF_LEFT (SEQ l1, SEQ l2) :: l
   | a :: l -> simplify_instruction a :: simplify_sequence l
   | [] -> []
 
