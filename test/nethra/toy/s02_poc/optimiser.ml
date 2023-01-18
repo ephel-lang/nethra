@@ -47,21 +47,24 @@ let rec get_index i n = function
 
 let generate (o, s) =
   let open Vm in
-  let rec generate = function
-    | [] -> []
-    | Var _ :: s -> generate s
-    | Dup n :: s -> generate s @ [ DUP (get_index 1 n s, n) ]
-    | Val a :: s -> generate s @ [ PUSH a ]
-    | Code (n, a) :: s -> generate s @ [ LAMBDA (n, a) ]
-    | Exec (a, c) :: s -> generate (c :: a :: s) @ [ EXEC ]
-    | Car a :: s -> generate (a :: s) @ [ CAR ]
-    | Cdr a :: s -> generate (a :: s) @ [ CDR ]
-    | Pair (l, r) :: s -> generate (l :: r :: s) @ [ PAIR ]
-    | Left a :: s -> generate (a :: s) @ [ LEFT ]
-    | Right a :: s -> generate (a :: s) @ [ RIGHT ]
-    | IfLeft (a, l, r) :: s -> generate (a :: s) @ [ IF_LEFT (l, r) ]
+  let rec generate s r =
+    match s with
+    | [] -> r
+    | [ Var _ ] -> r
+    | Dup n :: s -> DUP (get_index 1 n s, n) :: r |> generate s
+    | Val a :: s -> PUSH a :: r |> generate s
+    | Code (n, a) :: s -> LAMBDA (n, a) :: r |> generate s
+    | Exec (a, c) :: s -> EXEC :: r |> generate (c :: a :: s)
+    | Car a :: s -> CAR :: r |> generate (a :: s)
+    | Cdr a :: s -> CDR :: r |> generate (a :: s)
+    | Pair (pl, pr) :: s -> PAIR :: r |> generate (pl :: pr :: s)
+    | Left a :: s -> LEFT :: r |> generate (a :: s)
+    | Right a :: s -> RIGHT :: r |> generate (a :: s)
+    | IfLeft (a, pl, pr) :: s -> IF_LEFT (pl, pr) :: r |> generate (a :: s)
+    | s ->
+      failwith ("Cannot generate code from: " ^ Render.to_string render_values s)
   in
-  generate s @ o
+  generate s o
 
 let rec remove_at l i =
   if i = 0
@@ -93,7 +96,7 @@ let rec optimise i s c =
     | EXEC -> (
       match s with
       | a :: Code (_, c) :: s -> optimise (i ^ "  ") (a :: s) c
-      | a :: c :: s -> ([], Exec (a, c) :: s)
+      | a :: c :: s -> ([], Exec (c, a) :: s)
       | _ -> ([ EXEC ], s) )
     | LAMBDA (n, a) ->
       let o = generate (optimise (i ^ "  ") [ Var n ] a) in
@@ -123,9 +126,9 @@ let rec optimise i s c =
       | Left v :: s -> optimise (i ^ "  ") (v :: s) l
       | Right v :: s -> optimise (i ^ "  ") (v :: s) r
       | _ ->
-        (* TO REVIEW *)
-        let l = generate (optimise (i ^ "  ") s l) in
-        let r = generate (optimise (i ^ "  ") s r) in
+        (* Not optimal code right now! *)
+        let l = generate (optimise (i ^ "  ") [] l) in
+        let r = generate (optimise (i ^ "  ") [] r) in
         if List.length s = 0
         then ([ IF_LEFT (seq l, seq r) ], s)
         else ([], IfLeft (List.hd s, seq l, seq r) :: List.tl s) )
