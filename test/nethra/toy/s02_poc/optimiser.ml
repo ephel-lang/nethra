@@ -2,14 +2,14 @@ type value =
   | Var of string
   | Dup of string
   | Val of Vm.value
-  | Code of string * Vm.instruction
+  | Code of string * Vm.instruction list
   | Exec of value * value
   | Left of value
   | Right of value
   | Pair of value * value
   | Car of value
   | Cdr of value
-  | IfLeft of value * Vm.instruction * Vm.instruction
+  | IfLeft of value * Vm.instruction list * Vm.instruction list
 
 type stack =
   | Stack of value * stack
@@ -35,10 +35,6 @@ let rec render_values ppf =
   let open Format in
   function
   | [] -> () | a :: s -> fprintf ppf "%a; %a" render_value a render_values s
-
-let seq =
-  let open Vm in
-  function [ a ] -> a | l -> SEQ l
 
 let rec get_index i n = function
   | Var m :: _ when n = m -> i
@@ -74,8 +70,62 @@ let rec remove_at l i =
     let h, t = remove_at (List.tl l) (i - 1) in
     (h, List.hd l :: t)
 
-let rec optimise i s c =
+let rec optimise_instruction i s =
   let open Vm in
+  function
+  | PUSH v -> ([], Val v :: s)
+  | EXEC -> (
+    match s with
+    | a :: Code (_, c) :: s -> optimise (i ^ "  ") (a :: s) c
+    | a :: c :: s -> ([], Exec (c, a) :: s)
+    | _ -> ([ EXEC ], s) )
+  | LAMBDA (n, a) ->
+    let o = generate (optimise (i ^ "  ") [ Var n ] a) in
+    ([], Code (n, o) :: s)
+  | DIG (i, n) -> ([ DIG (i, n) ], s)
+  | DUP (i, n) -> (
+    match List.nth_opt s i with
+    | None -> ([ DUP (i, n) ], s)
+    | Some (Var f) -> ([], Dup f :: s)
+    | Some a -> ([], a :: s) )
+  | DROP (i, n) -> (
+    if List.length s <= i
+    then ([ DROP (i, n) ], s)
+    else
+      (* Dropped effects should be prohibited *)
+      match remove_at s i with
+      | Var _, _ -> ([ DROP (i, n) ], s)
+      | _, s -> ([], s) )
+  | SWAP -> (
+    match s with a :: b :: s -> ([], b :: a :: s) | _ -> ([ SWAP ], s) )
+  | LEFT -> ( match s with a :: s -> ([], Left a :: s) | [] -> ([ LEFT ], s) )
+  | RIGHT -> (
+    match s with a :: s -> ([], Right a :: s) | [] -> ([ RIGHT ], s) )
+  | IF_LEFT (l, r) -> (
+    match s with
+    | Left v :: s -> optimise (i ^ "  ") (v :: s) l
+    | Right v :: s -> optimise (i ^ "  ") (v :: s) r
+    | _ ->
+      (* Not optimal code right now! *)
+      let l = generate (optimise (i ^ "  ") [] l) in
+      let r = generate (optimise (i ^ "  ") [] r) in
+      if List.length s = 0
+      then ([ IF_LEFT (l, r) ], s)
+      else ([], IfLeft (List.hd s, l, r) :: List.tl s) )
+  | CAR -> (
+    match s with
+    | Pair (a, _) :: s -> ([], a :: s)
+    | a :: s -> ([], Car a :: s)
+    | [] -> ([ CAR ], s) )
+  | CDR -> (
+    match s with
+    | Pair (_, a) :: s -> ([], a :: s)
+    | a :: s -> ([], Cdr a :: s)
+    | [] -> ([ CDR ], s) )
+  | PAIR -> (
+    match s with a :: b :: s -> ([], Pair (a, b) :: s) | _ -> ([ PAIR ], s) )
+
+and optimise i s c =
   let _ =
     print_string
       ( i
@@ -87,73 +137,18 @@ let rec optimise i s c =
   in
   let c', s' =
     match c with
-    | SEQ [] -> ([], s)
-    | SEQ (a :: l) ->
-      let o, s = optimise (i ^ "  ") s a in
+    | [] -> ([], s)
+    | a :: l ->
+      let o, s = optimise_instruction (i ^ "  ") s a in
+      (* review this part *)
       if o = []
-      then optimise (i ^ "  ") s (seq l)
-      else (o @ generate (optimise (i ^ "  ") [] (seq l)), s)
-    | PUSH v -> ([], Val v :: s)
-    | EXEC -> (
-      match s with
-      | a :: Code (_, c) :: s -> optimise (i ^ "  ") (a :: s) c
-      | a :: c :: s -> ([], Exec (c, a) :: s)
-      | _ -> ([ EXEC ], s) )
-    | LAMBDA (n, a) ->
-      let o = generate (optimise (i ^ "  ") [ Var n ] a) in
-      ([], Code (n, seq o) :: s)
-    | DIG (i, n) -> ([ DIG (i, n) ], s)
-    | DUP (i, n) -> (
-      match List.nth_opt s i with
-      | None -> ([ DUP (i, n) ], s)
-      | Some (Var f) -> ([], Dup f :: s)
-      | Some a -> ([], a :: s) )
-    | DROP (i, n) -> (
-      if List.length s <= i
-      then ([ DROP (i, n) ], s)
-      else
-        (* Dropped effects should be prohibited *)
-        match remove_at s i with
-        | Var _, _ -> ([ DROP (i, n) ], s)
-        | _, s -> ([], s) )
-    | SWAP -> (
-      match s with a :: b :: s -> ([], b :: a :: s) | _ -> ([ SWAP ], s) )
-    | LEFT -> (
-      match s with a :: s -> ([], Left a :: s) | [] -> ([ LEFT ], s) )
-    | RIGHT -> (
-      match s with a :: s -> ([], Right a :: s) | [] -> ([ RIGHT ], s) )
-    | IF_LEFT (l, r) -> (
-      match s with
-      | Left v :: s -> optimise (i ^ "  ") (v :: s) l
-      | Right v :: s -> optimise (i ^ "  ") (v :: s) r
-      | _ ->
-        (* Not optimal code right now! *)
-        let l = generate (optimise (i ^ "  ") [] l) in
-        let r = generate (optimise (i ^ "  ") [] r) in
-        if List.length s = 0
-        then ([ IF_LEFT (seq l, seq r) ], s)
-        else ([], IfLeft (List.hd s, seq l, seq r) :: List.tl s) )
-    | CAR -> (
-      match s with
-      | Pair (a, _) :: s -> ([], a :: s)
-      | a :: s -> ([], Car a :: s)
-      | [] -> ([ CAR ], s) )
-    | CDR -> (
-      match s with
-      | Pair (_, a) :: s -> ([], a :: s)
-      | a :: s -> ([], Cdr a :: s)
-      | [] -> ([ CDR ], s) )
-    | PAIR -> (
-      match s with a :: b :: s -> ([], Pair (a, b) :: s) | _ -> ([ PAIR ], s) )
+      then optimise (i ^ "  ") s l
+      else (o @ generate (optimise (i ^ "  ") [] l), s)
   in
   let _ =
     print_string
-      ( i
-      ^ Vm.to_string (seq c')
-      ^ " | "
-      ^ Render.to_string render_values s'
-      ^ "\n" )
+      (i ^ Vm.to_string c' ^ " | " ^ Render.to_string render_values s' ^ "\n")
   in
   (c', s')
 
-let optimise o = seq (generate (optimise "" [] o))
+let optimise o = generate (optimise "" [] o)

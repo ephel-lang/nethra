@@ -3,17 +3,16 @@ type value =
   | UNIT
 
 type instruction =
-  | SEQ of instruction list
   | PUSH of value
   | EXEC
-  | LAMBDA of string * instruction
+  | LAMBDA of string * instruction list
   | DIG of int * string
   | DUP of int * string
   | DROP of int * string
   | SWAP
   | LEFT
   | RIGHT
-  | IF_LEFT of instruction * instruction
+  | IF_LEFT of instruction list * instruction list
   | PAIR
   | CAR
   | CDR
@@ -22,17 +21,16 @@ let render_value ppf =
   let open Format in
   function INT i -> fprintf ppf "INT %d" i | UNIT -> fprintf ppf "UNIT"
 
-let rec render_list ppf =
+let rec render ppf =
   let open Format in
   function
   | [] -> ()
-  | [ a ] -> render ppf a
-  | a :: l -> fprintf ppf "%a; %a" render a render_list l
+  | [ a ] -> render_instruction ppf a
+  | a :: l -> fprintf ppf "%a; %a" render_instruction a render l
 
-and render ppf =
+and render_instruction ppf =
   let open Format in
   function
-  | SEQ l -> fprintf ppf "SEQ [%a]" render_list l
   | PUSH v -> fprintf ppf "PUSH (%a)" render_value v
   | EXEC -> fprintf ppf "EXEC"
   | LAMBDA (n, l) -> fprintf ppf "LAMBDA[%s] (%a)" n render l

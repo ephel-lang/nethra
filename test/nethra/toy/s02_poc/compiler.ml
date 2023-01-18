@@ -34,7 +34,6 @@ let garbage n s =
   garbage 0 s
 
 let rec compile_binding i n e s =
-  let open Vm in
   let _ =
     print_string
       ( i
@@ -48,7 +47,7 @@ let rec compile_binding i n e s =
   in
   let o, s' = compile i e (VAR n :: s) in
   let g_o, s' = garbage n s' in
-  let o, s' = (SEQ [ o; g_o ], s') in
+  let o, s' = (o @ [ g_o ], s') in
   let _ =
     print_string
       ( i
@@ -75,46 +74,46 @@ and compile i e s =
   let o, s' =
     match e with
     (* Atoms *)
-    | Unit -> (PUSH UNIT, VAL "unit" :: s)
-    | Int i -> (PUSH (INT i), VAL "int" :: s)
+    | Unit -> ([ PUSH UNIT ], VAL "unit" :: s)
+    | Int i -> ([ PUSH (INT i) ], VAL "int" :: s)
     | Var n ->
       let o, s = consume n s in
-      (SEQ o, VAL n :: s)
+      (o, VAL n :: s)
     (* Sum *)
     | Inl e ->
       let o, s = compile (i ^ "  ") e s in
-      (SEQ [ o; LEFT ], VAL "left" :: s)
+      (o @ [ LEFT ], VAL "left" :: s)
     | Inr e ->
       let o, s = compile (i ^ "  ") e s in
-      (SEQ [ o; RIGHT ], VAL "right" :: s)
+      (o @ [ RIGHT ], VAL "right" :: s)
     | Case (e, Abs (n, l), Abs (m, r)) ->
       let e_o, s = compile (i ^ "  ") e s in
       let l_o, _ = compile_binding (i ^ "  ") n l (List.tl s) in
       let r_o, _ = compile_binding (i ^ "  ") m r (List.tl s) in
-      (SEQ [ e_o; IF_LEFT (SEQ [ l_o ], SEQ [ r_o ]) ], VAL "case" :: List.tl s)
+      (e_o @ [ IF_LEFT (l_o, r_o) ], VAL "case" :: List.tl s)
     (* Product *)
     | Pair (l, r) ->
       let r_o, s = compile (i ^ "  ") r s in
       let l_o, s = compile (i ^ "  ") l (List.tl s) in
-      (SEQ [ r_o; l_o; PAIR ], VAL "pair" :: List.tl s)
+      (r_o @ l_o @ [ PAIR ], VAL "pair" :: List.tl s)
     | Fst o ->
       let l_o, s = compile (i ^ "  ") o s in
-      (SEQ [ l_o; CAR ], VAL "fst" :: List.tl s)
+      (l_o @ [ CAR ], VAL "fst" :: List.tl s)
     | Snd o ->
       let l_o, s = compile (i ^ "  ") o s in
-      (SEQ [ l_o; CDR ], VAL "snd" :: List.tl s)
+      (l_o @ [ CDR ], VAL "snd" :: List.tl s)
     (* Abstraction and Application *)
     | Abs (n, e) ->
       let o, _ = compile_binding (i ^ "  ") n e [] in
-      (LAMBDA (n, o), VAL "lambda" :: s)
+      ([ LAMBDA (n, o) ], VAL "lambda" :: s)
     | Let (n, e, f) ->
       let e_o, s = compile (i ^ "  ") e s in
       let l_o, s' = compile_binding (i ^ "  ") n f (List.tl s) in
-      (SEQ [ e_o; l_o ], s')
+      (e_o @ l_o, s')
     | App (l, r) ->
       let o_l, s = compile (i ^ "  ") l s in
       let o_r, s = compile (i ^ "  ") r s in
-      (SEQ [ o_l; o_r; EXEC ], VAL "app" :: List.tl (List.tl s))
+      (o_l @ o_r @ [ EXEC ], VAL "app" :: List.tl (List.tl s))
     | _ -> failwith ("Cannot compile expression: " ^ Expr.to_string e)
   in
   let _ =

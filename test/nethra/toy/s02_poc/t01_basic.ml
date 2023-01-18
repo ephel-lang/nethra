@@ -6,30 +6,30 @@ open Optimiser
 
 let compile_01 () =
   let result = optimise @@ simplify @@ compile (Int 1)
-  and expected = PUSH (INT 1) in
+  and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string) "compile 1" (to_string expected) (to_string result)
 
 let compile_02 () =
   let result = optimise @@ simplify @@ compile (Abs ("x", Var "x"))
-  and expected = LAMBDA ("x", SEQ []) in
+  and expected = [ LAMBDA ("x", []) ] in
   Alcotest.(check string)
     "compile fun x -> x" (to_string expected) (to_string result)
 
 let compile_03 () =
   let result = optimise @@ simplify @@ compile (Abs ("x", Unit))
-  and expected = LAMBDA ("x", SEQ [ DROP (0, "x"); PUSH UNIT ]) in
+  and expected = [ LAMBDA ("x", [ DROP (0, "x"); PUSH UNIT ]) ] in
   Alcotest.(check string)
     "compile fun x -> unit" (to_string expected) (to_string result)
 
 let compile_04 () =
   let result = optimise @@ simplify @@ compile (App (Abs ("x", Var "x"), Int 1))
-  and expected = PUSH (INT 1) in
+  and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile (fun x -> x) 1" (to_string expected) (to_string result)
 
 let compile_05 () =
   let result = optimise @@ simplify @@ compile (App (Abs ("x", Unit), Int 1))
-  and expected = PUSH UNIT in
+  and expected = [ PUSH UNIT ] in
   Alcotest.(check string)
     "compile (fun x -> unit) 1" (to_string expected) (to_string result)
 
@@ -38,7 +38,7 @@ let compile_06 () =
     optimise
     @@ simplify
     @@ compile (App (App (Abs ("x", Abs ("y", Var "y")), Int 1), Int 2))
-  and expected = PUSH (INT 2) in
+  and expected = [ PUSH (INT 2) ] in
   Alcotest.(check string)
     "compile (fun x y -> y) 1 2" (to_string expected) (to_string result)
 
@@ -48,13 +48,13 @@ let compile_07 () =
     optimise
     @@ simplify
     @@ compile (App (App (Abs ("x", Abs ("y", Var "x")), Int 1), Int 2))
-  and expected = PUSH (INT 1) in
+  and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile (fun x y -> x) 1 2" (to_string expected) (to_string result)
 
 let compile_08 () =
   let result = optimise @@ simplify @@ compile (Let ("x", Int 1, Var "x"))
-  and expected = PUSH (INT 1) in
+  and expected = [ PUSH (INT 1) ] in
   Alcotest.(check string)
     "compile let x = 1 in x" (to_string expected) (to_string result)
 
@@ -64,7 +64,7 @@ let compile_09 () =
     optimise
     @@ simplify
     @@ compile (Abs ("f", Abs ("x", App (Var "f", Var "x"))))
-  and expected = LAMBDA ("f", LAMBDA ("x", SEQ [ DIG (1, "f"); EXEC ])) in
+  and expected = [ LAMBDA ("f", [ LAMBDA ("x", [ DIG (1, "f"); EXEC ]) ]) ] in
   Alcotest.(check string)
     "compile (fun f x -> f x)" (to_string expected) (to_string result)
 
@@ -73,7 +73,7 @@ let compile_10 () =
     optimise
     @@ simplify
     @@ compile (Abs ("f", Let ("x", Int 1, App (Var "f", Var "x"))))
-  and expected = LAMBDA ("f", SEQ [ PUSH (INT 1); EXEC ]) in
+  and expected = [ LAMBDA ("f", [ PUSH (INT 1); EXEC ]) ] in
   Alcotest.(check string)
     "compile (fun f -> let x = 1 in f x)" (to_string expected)
     (to_string result)
