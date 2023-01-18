@@ -47,22 +47,23 @@ let rec get_index i n = function
 
 let generate (o, s) =
   let open Vm in
+  let push_in r a = a :: r in
   let rec generate s r =
     match s with
     | [] -> r
     | [ Var _ ] -> r
-    | Dup n :: s -> DUP (get_index 1 n s, n) :: r |> generate s
-    | Val a :: s -> PUSH a :: r |> generate s
-    | Code (n, a) :: s -> LAMBDA (n, a) :: r |> generate s
-    | Exec (a, c) :: s -> EXEC :: r |> generate (c :: a :: s)
-    | Car a :: s -> CAR :: r |> generate (a :: s)
-    | Cdr a :: s -> CDR :: r |> generate (a :: s)
-    | Pair (pl, pr) :: s -> PAIR :: r |> generate (pl :: pr :: s)
-    | Left a :: s -> LEFT :: r |> generate (a :: s)
-    | Right a :: s -> RIGHT :: r |> generate (a :: s)
-    | IfLeft (a, pl, pr) :: s -> IF_LEFT (pl, pr) :: r |> generate (a :: s)
-    | s ->
-      failwith ("Cannot generate code from: " ^ Render.to_string render_values s)
+    | Dup n :: s -> DUP (get_index 1 n s, n) |> push_in r |> generate s
+    | Val a :: s -> PUSH a |> push_in r |> generate s
+    | Code (n, a) :: s -> LAMBDA (n, a) |> push_in r |> generate s
+    | Exec (a, c) :: s -> EXEC |> push_in r |> generate (c :: a :: s)
+    | Car a :: s -> CAR |> push_in r |> generate (a :: s)
+    | Cdr a :: s -> CDR |> push_in r |> generate (a :: s)
+    | Pair (pl, pr) :: s -> PAIR |> push_in r |> generate (pl :: pr :: s)
+    | Left a :: s -> LEFT |> push_in r |> generate (a :: s)
+    | Right a :: s -> RIGHT |> push_in r |> generate (a :: s)
+    | IfLeft (a, pl, pr) :: s ->
+      IF_LEFT (pl, pr) |> push_in r |> generate (a :: s)
+    | s -> failwith ("Generation error for: " ^ Render.to_string render_values s)
   in
   generate s o
 
