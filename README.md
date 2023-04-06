@@ -412,7 +412,7 @@ val test = (b).case b (_).unit (_).true
 ```
 
 In this example the result of test depends on the parametric boolean. 
-The if the boolean is `true` the type is `unit` and if it's `false`
+Then if the boolean is `true` the type is `unit` and if it's `false`
 the type `Bool`.
 
 #### Dependent pair
