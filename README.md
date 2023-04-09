@@ -412,7 +412,7 @@ val test = (b).case b (_).unit (_).true
 ```
 
 In this example the result of test depends on the parametric boolean. 
-The if the boolean is `true` the type is `unit` and if it's `false`
+Then if the boolean is `true` the type is `unit` and if it's `false`
 the type `Bool`.
 
 #### Dependent pair
@@ -773,7 +773,7 @@ See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.
 
 MIT License
 
-Copyright (c) 2022 Didier Plaindoux
+Copyright (c) 2022-2023 Didier Plaindoux
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
