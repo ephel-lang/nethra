@@ -73,16 +73,16 @@ let compile_basic_dependant_record_type_and_instance () =
         sig Monoid : type
         val Monoid =
             sig struct
-                sig self    : type
+                sig self : type
                 sig neutral : self
                 sig combine : self -> self -> self
                 -- Monoid Laws
-                sig law1    : {a:self} -> equals a (combine neutral a)
+                sig law1 : {a:self} -> equals a (combine neutral a)
                 -{
-                sig law2    : {a:self} -> equals a (combine a neutral)
-                sig law3    : {a b c:self} ->
+                sig law2 : {a:self} -> equals a (combine a neutral)
+                sig law3 : {a b c:self} ->
                     let comb = combine in
-                    equals (c (comb a b) c) (comb a (comb b c))
+                    equals (comb (comb a b) c) (comb a (comb b c))
                 }-
             end
 
@@ -91,15 +91,14 @@ let compile_basic_dependant_record_type_and_instance () =
         sig MonoidNat : Monoid
         val MonoidNat =
             val struct
-                val self    = nat
+                val self = nat
                 val neutral = zero
                 val combine = add
                 -- Monoid Laws
-                val law1    = refl
+                val law1 = refl
                 -- Additionals
                 val plus_one : nat -> nat = (e).(succ e)
                 val one : nat = plus_one (succ neutral)
-                -- val law2    = refl
             end
 
         sig test : nat

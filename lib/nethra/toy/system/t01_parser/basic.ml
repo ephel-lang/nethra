@@ -58,11 +58,12 @@ struct
   let alpha = char_in_range ('A', 'Z') <|> char_in_range ('a', 'z') <|> char '_'
   let special = char_in_string "@&#-=/:?*$^<>()§![]{}"
   let digit = char_in_range ('0', '9')
+  let non_alpha = char_in_string "@&#+*-=/?*$^<>§!%"
 
   let identifier =
     token
       ( alpha
-      <~> opt_rep (char '_' <|> alpha <|> digit)
+      <~> opt_rep (char '_' <|> alpha <|> digit <|> non_alpha)
       <&> (fun (e, l) -> e :: l)
       <&> Utils.string_of_chars
       <?> fun s -> Stdlib.not (List.mem s keywords) )
