@@ -146,7 +146,7 @@ let compile_peano () =
         val succ = (p).fold inr (Succ,p)
 
         sig add : peano -> peano -> peano
-        val add = (p1 p2).case (unfold p1) (_).p2 (p1).(succ (add (snd p1) p2))
+        val add = rec(add:peano -> peano -> peano).(p1 p2).case (unfold p1) (_).p2 (p1).(succ (add (snd p1) p2))
         ------------
       |toy}
     <&> fun (_, l) -> check l
