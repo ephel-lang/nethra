@@ -21,7 +21,9 @@ let pi ppf render (n, bound, body, implicit, _) =
       n render bound render body
 
 let lambda ppf render (n, body, implicit, _) =
-  fprintf ppf (if implicit then "{%s}.(%a)" else "(%s).(%a)") n render body
+  fprintf ppf
+    (if implicit then "(fun {%s} -> %a)" else "(fun %s -> %a)")
+    n render body
 
 let apply ppf render (abstraction, argument, implicit, _) =
   fprintf ppf

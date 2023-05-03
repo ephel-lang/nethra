@@ -316,8 +316,7 @@ term ::=
     "fst" term
     "snd" term
 
-    "(" id+ ")" "." term    
-    "{" id+ "}" "." term
+    "fun" (id | "{" id+ "}")+ "->" term
     
     "sig" "struct" (id ":" term)* "end"
     "val" "struct" (id "=" term)* "end"
@@ -352,7 +351,7 @@ term ::=
 
 ```ocaml
 sig combine : (x:type) -> type
-val combine = (X).(X -> X -> X)
+val combine = fun X -> X -> X -> X
     
 sig add : int -> int -> int
 

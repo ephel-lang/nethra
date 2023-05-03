@@ -11,15 +11,15 @@ let render_pi_implicit () =
 
 let render_lambda () =
   let repr = render @@ Construct.(lambda "x" (id "x")) in
-  Alcotest.(check string) "lambda" "(x).(x)" repr
+  Alcotest.(check string) "lambda" "(fun x -> x)" repr
 
 let render_lambda_implicit () =
   let repr = render @@ Construct.(lambda ~implicit:true "x" (id "x")) in
-  Alcotest.(check string) "lambda" "{x}.(x)" repr
+  Alcotest.(check string) "lambda" "(fun {x} -> x)" repr
 
 let render_apply () =
   let repr = render @@ Construct.(apply (lambda "x" (id "x")) (id "x")) in
-  Alcotest.(check string) "lambda" "(x).(x) (x)" repr
+  Alcotest.(check string) "lambda" "(fun x -> x) (x)" repr
 
 let render_apply_implicit () =
   let repr =
@@ -27,11 +27,11 @@ let render_apply_implicit () =
     @@ Construct.(
          apply ~implicit:true (lambda ~implicit:true "x" (id "x")) (id "x") )
   in
-  Alcotest.(check string) "lambda" "{x}.(x) {x}" repr
+  Alcotest.(check string) "lambda" "(fun {x} -> x) {x}" repr
 
 let render_lambda_apply () =
   let repr = render @@ Construct.(lambda "x" (apply (id "x") (int 1))) in
-  Alcotest.(check string) "lambda/apply" "(x).(x (1))" repr
+  Alcotest.(check string) "lambda/apply" "(fun x -> x (1))" repr
 
 let cases =
   let open Alcotest in

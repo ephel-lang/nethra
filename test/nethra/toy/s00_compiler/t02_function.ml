@@ -113,7 +113,7 @@ let compile_fixpoint_function () =
     Pass.run
       {toy|
         sig fixpoint : {a b:type} -> ((a -> b) -> a -> b) -> a -> b
-        val fixpoint = {a b}.(f).rec(Fix:a -> b).(x).(f Fix x)
+        val fixpoint = fun {a b} f -> rec(Fix:a -> b).fun x -> f Fix x
         -{
           sig f = t
           the expression

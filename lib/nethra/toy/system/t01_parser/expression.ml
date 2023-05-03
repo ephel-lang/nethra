@@ -63,34 +63,25 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   and sigma_or_pi = lazy (do_lazy sigma_or_pi_explicit <|> do_lazy pi_implicit)
   and block = lazy (Reserved._LPAR_ >~> do_lazy term <~< Reserved._RPAR_)
 
-  and lambda_explicit =
+  and lambda =
     lazy
       ( localize
-          ( do_try
-              ( Reserved._LPAR_
-              >~> rep identifier
-              <~< Reserved._RPAR_
-              <~< Reserved._DOT_ )
-          <~> do_lazy sterm )
+          ( Reserved._FUN_
+          >~> rep
+                ( identifier
+                <&> (fun i -> [ (i, false) ])
+                <|> ( Reserved._LACC_
+                    >~> rep identifier
+                    <~< Reserved._RACC_
+                    <&> List.map (fun i -> (i, true)) ) )
+          <&> List.flatten
+          <~< Reserved._ARROW_
+          <~> do_lazy term )
       <&> function
       | Localized ((idl, b), r) ->
-        List.fold_right (fun id b -> Localized (Lambda (id, b, false), r)) idl b
-      )
-
-  and lambda_implicit =
-    lazy
-      ( localize
-          ( Reserved._LACC_
-          >~> rep identifier
-          <~< Reserved._RACC_
-          <~< Reserved._DOT_
-          <~> do_lazy sterm )
-      <&> function
-      | Localized ((idl, b), r) ->
-        List.fold_right (fun id b -> Localized (Lambda (id, b, true), r)) idl b
-      )
-
-  and lambda = lazy (do_lazy lambda_explicit <|> do_lazy lambda_implicit)
+        List.fold_right
+          (fun (id, implicit) b -> Localized (Lambda (id, b, implicit), r))
+          idl b )
 
   and equal =
     lazy

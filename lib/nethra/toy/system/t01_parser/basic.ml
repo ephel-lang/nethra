@@ -37,6 +37,7 @@ struct
       "sig"
     ; "val"
     ; "type"
+    ; "fun"
     ; "case"
     ; "inl"
     ; "inr"
@@ -92,6 +93,7 @@ struct
     let _SIG_ = token (string "sig")
     let _VAL_ = token (string "val")
     let _TYPE_ = token (string "type")
+    let _FUN_ = token (string "fun")
     let _CASE_ = token (string "case")
     let _INL_ = token (string "inl")
     let _INR_ = token (string "inr")

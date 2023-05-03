@@ -14,7 +14,7 @@ let compile_basic_sum () =
         sig char : type
         ------------
         sig ic : int | char -> type
-        val ic = (x).case x (_).char (_).int
+        val ic = fun x -> case x (fun _ -> char) (fun _ -> int)
 
         sig m1 : ic (inl 1) -- char
         val m1 = 'c'
@@ -46,10 +46,10 @@ let compile_bool () =
         val false  = inr unit
 
         sig Test : Bool -> type
-        val Test = (a).case a (_).Unit (_).Bool
+        val Test = fun a -> case a (fun _ -> Unit) (fun _ -> Bool)
 
         sig test : (b:Bool) -> Test b
-        val test = (c).case c (_).unit (_).true
+        val test = fun c -> case c (fun _ -> unit) (fun _ -> true)
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -67,19 +67,19 @@ let compile_recursive_sum () =
         sig int  : type
         ------------
         sig list : (type) -> type
-        val list = (X).rec(l:type).(unit | X * l)
+        val list = fun X -> rec(l:type).(unit | X * l)
 
         sig Nil  : {X:type} -> list X
         val Nil  = fold inl Unit
 
         sig Cons : {X:type} -> X -> list X -> list X
-        val Cons = (X l).fold inr (X,l)
+        val Cons = fun X l -> fold inr (X,l)
 
         sig test : list int
         val test = Cons 1 (Nil {int})
 
         sig append : {X:type} -> list X -> list X -> list X
-        val append = (l1 l2).case (unfold l1) (_).l2 (c).(Cons (fst c) (append (snd c) l2))
+        val append = fun l1 l2 -> case (unfold l1) (fun _ -> l2) (fun c -> Cons (fst c) (append (snd c) l2))
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -96,25 +96,25 @@ let compile_recursive_sum_with_pseudo_constructors () =
         sig string : type
         sig Atom   : (a:string) -> type
         sig data   : {A:type} -> (_:A) -> type
-        val data   = {A}.(_).A
+        val data   = fun {A} _ -> A
         ------------
         sig Nil   : Atom "Nil"
         sig Cons  : Atom "Cons"
 
         sig list : (type) -> type
-        val list = (X).rec(l:type).(data Nil | data Cons * X * l)
+        val list = fun X -> rec(l:type).(data Nil | data Cons * X * l)
 
         sig nil : {X:type} -> list X
         val nil = fold inl Nil
 
         sig cons : {X:type} -> X -> list X -> list X
-        val cons = (h l).fold inr (Cons,h,l)
+        val cons = fun h l -> fold inr (Cons,h,l)
 
         sig test : list int
         val test = cons 1 (nil {int})
 
         sig append : {X:type} -> list X -> list X -> list X
-        val append = (l1 l2).case (unfold l1) (_).l2 (c).(cons (fst (snd c)) (append (snd (snd c)) l2))
+        val append = fun l1 l2 -> case (unfold l1) (fun _ -> l2) (fun c -> cons (fst (snd c)) (append (snd (snd c)) l2))
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -131,7 +131,7 @@ let compile_peano () =
         sig string : type
         sig Atom   : (a:string) -> type
         sig data   : {A:type} -> (_:A) -> type
-        val data   = {A}.(_).A
+        val data   = fun {A} _ -> A
         ------------
         sig Zero : Atom "Zero"
         sig Succ : Atom "Succ"
@@ -143,10 +143,10 @@ let compile_peano () =
         val zero = fold inl Zero
 
         sig succ : peano -> peano
-        val succ = (p).fold inr (Succ,p)
+        val succ = fun p -> fold inr (Succ,p)
 
         sig add : peano -> peano -> peano
-        val add = rec(add:peano -> peano -> peano).(p1 p2).case (unfold p1) (_).p2 (p1).(succ (add (snd p1) p2))
+        val add = rec(add:peano -> peano -> peano).fun p1 p2 -> case (unfold p1) (fun _ -> p2) (fun p1 -> succ (add (snd p1) p2))
         ------------
       |toy}
     <&> fun (_, l) -> check l
@@ -165,31 +165,31 @@ let compile_either () =
         sig string : type
         sig Atom   : string -> type
         sig data   : {A:type} -> A -> type
-        val data   = {A}.(_).A
+        val data   = fun {A} _ -> A
         ------------
         sig Right : Atom "Right"
         sig Left  : Atom "Left"
 
         sig either : (type) -> (type) -> type
-        val either = (A B).((data Left * A) | (data Right * B))
+        val either = fun A B -> (data Left * A) | (data Right * B)
 
         sig left   : {A B:type} -> A -> either A B
-        val left   = (a).inl (Left, a)
+        val left   = fun a -> inl (Left, a)
 
         sig right  : {A B:type}  -> B -> either A B
-        val right  = (b).inr (Right, b)
+        val right  = fun b -> inr (Right, b)
 
         sig map    : {A B C:type} -> (B -> C) -> either A B -> either A C
-        val map    = (f e).case e (e).(left (snd e)) (e).(right (f (snd e)))
+        val map    = fun f e -> case e (fun e -> left (snd e)) (fun e -> right (f (snd e)))
 
         sig apply  : {A B C:type} -> either A (B -> C) -> either A B -> either A C
-        val apply  = (f e).case f (f).(left (snd f)) (f).(map (snd f) e)
+        val apply  = fun f e -> case f (fun f -> left (snd f)) (fun f -> map (snd f) e)
 
         sig join   : {A B:type} -> either A (either A B) -> either A B
-        val join   = (e).case e (e).(left (snd e)) (e).(snd e)
+        val join   = fun e -> case e (fun e -> left (snd e)) (fun e -> snd e)
 
         sig bind   : {A B C:type} -> (B -> either A C) -> either A B -> either A C
-        val bind   = (f e).(join (map f e))
+        val bind   = fun f e -> join (map f e)
         |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -207,29 +207,29 @@ let compile_freer () =
             sig string : type
             sig Atom   : string -> type
             sig data   : {A:type} -> A -> type
-            val data   = {A}.(_).A
+            val data   = fun {A} _ -> A
             ------------
             sig Return : Atom "Return"
             sig Bind   : Atom "Bind"
     
             sig Free : ((type) -> type) -> (type) -> type
-            val Free = (F A).rec(Free:type).((data Return * A) | (data Bind * F Free))
+            val Free = fun F A -> rec(Free:type).((data Return * A) | (data Bind * F Free))
 
             sig return : {F:(type)->type} -> {A:type} -> A -> Free F A 
-            val return = (a).fold inl (Return, a)
+            val return = fun a -> fold inl (Return, a)
 
             sig bind : {F:(type)->type} -> {A:type} -> F (Free F A) -> Free F A 
-            val bind = (a).fold inr (Bind, a)
+            val bind = fun a -> fold inr (Bind, a)
 
             sig map_a : {F:(type)->type} -> {A B:type} -> (A -> B ) -> F A -> F B
             
             sig map : {F:(type)->type} -> {A B :type} -> (A -> B) -> Free F A -> Free F B
-            val map = (f a).case (unfold a) (a).(return (f (snd a))) (a).(bind (map_a (map f) (snd a)))
+            val map = fun f a -> case (unfold a) (fun a -> return (f (snd a))) (fun a -> bind (map_a (map f) (snd a)))
             |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
   Alcotest.(check (result bool string))
-    "either type" expected (string_of_error result)
+    "freer type" expected (string_of_error result)
 
 let cases =
   let open Alcotest in

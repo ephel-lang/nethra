@@ -63,10 +63,10 @@ let compile_basic_dependant_record_type_and_instance () =
         val nat = rec(X:type).(Unit | X)
 
         val zero : nat = fold inl unit
-        val succ : nat -> nat = (n).fold inr n
+        val succ : nat -> nat = fun n -> fold inr n
 
         sig add : nat -> nat -> nat
-        val add = (n1 n2).case (unfold n1) (_).n2 (n1).(add n1 n2)
+        val add = fun n1 n2 -> case (unfold n1) (fun _ -> n2) (fun n1 -> add n1 n2)
 
         -----------
 
@@ -96,8 +96,8 @@ let compile_basic_dependant_record_type_and_instance () =
                 val combine = add
                 -- Monoid Laws
                 val law1 = refl
-                -- Additionals
-                val plus_one : nat -> nat = (e).(succ e)
+                -- Additional i.e. private
+                val plus_one : nat -> nat = succ
                 val one : nat = plus_one (succ neutral)
             end
 
@@ -121,7 +121,7 @@ let compile_parametric_record () =
         -----------
         sig monoid : (type) -> type
         val monoid =
-            (t).sig struct
+            fun t -> sig struct
                 sig initial : t
                 sig combine : t -> t -> t
             end
@@ -165,10 +165,10 @@ let compile_recursive_record () =
             end
 
         val Point : int -> int -> point =
-            (x).(y).fold val struct
+            fun x y -> fold val struct
                 val x  = x
                 val y  = y
-                val mv = (self x y).
+                val mv = fun self x y ->
                     let nx = add x (#x unfold self) in
                     let ny = add y (#y unfold self) in
                     (Point nx ny)
@@ -194,7 +194,7 @@ let compile_monad_dependant_record () =
 
         sig Monad : ((type) -> type) -> type
         val Monad =
-            (M).sig struct
+            fun M -> sig struct
                 sig return : {A:type} -> A -> M A
                 sig map    : {A B:type} -> (A -> B) -> M A -> M B
                 sig apply  : {A B:type} -> M (A -> B) -> M A -> M B
@@ -203,10 +203,10 @@ let compile_monad_dependant_record () =
             end
 
         ------------
-        val Option : (type) -> type = (A).(A | Unit)
+        val Option : (type) -> type = fun A -> A | Unit
 
         sig some : {A:type} -> A -> Option A
-        val some = (a).inl a
+        val some = fun a -> inl a
 
         sig none : {A:type} -> Option A
         val none = inr unit
@@ -216,14 +216,14 @@ let compile_monad_dependant_record () =
         val EitherOption =
             val struct
                 val return = some
-                val map    = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
-                val apply  = {_ B}.(mf ma).(case mf (f).(map f ma) (_).(none {B}))
-                val join   = {A}.(ma).(case ma (a).a (_).(none {A}))
-                val bind   = (f ma).(join (map f ma))
+                val map    = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
+                val apply  = fun {_ B} mf ma -> case mf (fun f -> map f ma) (fun _ -> none {B})
+                val join   = fun {A} ma -> case ma (fun a -> a) (fun _ -> none {A})
+                val bind   = fun f ma -> join (map f ma)
             end
 
         val r : Option Unit =
-            let m = EitherOption in #map m (_).unit (#return m 1)
+            let m = EitherOption in #map m (fun _ -> unit) (#return m 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -241,7 +241,7 @@ let compile_monad_recursive_record () =
 
         sig Monad : ((type) -> type) -> type
         val Monad =
-            (M).sig struct
+            fun M -> sig struct
                 sig map   : {A B:type} -> (A -> B) -> M A -> M B
                 sig apply : {A B:type} -> M (A -> B) -> M A -> M B
                 sig join  : {A:type} -> M (M A) -> M A
@@ -249,23 +249,23 @@ let compile_monad_recursive_record () =
             end
 
         ------------
-        val Option : (type) -> type = (A).(A | Unit)
+        val Option : (type) -> type = fun A -> A | Unit
 
         sig some : {A:type} -> A -> Option A
-        val some = (a).inl a
+        val some = fun a -> inl a
 
         sig none : {A:type} -> Option A
         val none = inr unit
 
         val EitherOption : Monad Option =
             rec(S:Monad Option).val struct
-                val map   = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
-                val apply = {_ B}.(mf ma).(case mf (f).(#map S f ma) (_).(none {B}))
-                val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
-                val bind  = (f ma).(#join S (#map S f ma))
+                val map   = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
+                val apply = fun {_ B} mf ma -> case mf (fun f -> #map S f ma) (fun _ -> none {B})
+                val join  = fun {A} ma -> case ma (fun a -> a)  (fun _ -> none {A})
+                val bind  = fun f ma -> #join S (#map S f ma)
             end
 
-        val r : Option Unit = #map EitherOption (_).unit (some 1)
+        val r : Option Unit = #map EitherOption (fun _ -> unit) (some 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

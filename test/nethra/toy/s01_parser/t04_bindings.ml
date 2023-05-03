@@ -17,7 +17,7 @@ let parser_definition () =
   let result =
     response render_bindings
     @@ bindings
-    @@ Parsec.source (Utils.chars_of_string "val a = (b).c")
+    @@ Parsec.source (Utils.chars_of_string "val a = fun b -> c")
   and expected = (Some "val a = (b).(c)", true) in
   Alcotest.(check (pair (option string) bool)) "definition" expected result
 

@@ -97,10 +97,10 @@ let compile_trait_denotation () =
         val Compose = (t:type) * (t -> t -> t)
 
         sig empty : Monoid -> Empty
-        val empty = (x).(fst x, fst (snd x))
+        val empty = fun x -> fst x, fst (snd x)
 
         sig compose : Monoid -> Compose
-        val compose = (x).(fst x, snd (snd x))
+        val compose = fun x -> fst x, snd (snd x)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -128,10 +128,10 @@ let compile_trait_implementation () =
         val Compose = (t:type) * (t -> t -> t)
 
         sig empty : Monoid -> Empty
-        val empty = (x).(fst x, fst (snd x))
+        val empty = fun x -> fst x, fst (snd x)
 
         sig compose : Monoid -> Compose
-        val compose = (x).(fst x, snd (snd x))
+        val compose = fun x -> fst x, snd (snd x)
 
         ------------
 

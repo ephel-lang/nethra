@@ -65,10 +65,12 @@ let parser_pair () =
   and expected = (Some "(b),(c)", true) in
   Alcotest.(check (pair (option string) bool)) "pair" expected result
 
-let parser_lambda_implicit () =
+let parser_lambda_fun_implicit () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render @@ term @@ Parsec.source (Utils.chars_of_string "{a}.(c)")
+    response render
+    @@ term
+    @@ Parsec.source (Utils.chars_of_string "fun {a} -> (c)")
   and expected = (Some "{a}.(c)", true) in
   Alcotest.(check (pair (option string) bool)) "lambda implicit" expected result
 
@@ -79,12 +81,23 @@ let parser_apply_implicit () =
   and expected = (Some "a {c}", true) in
   Alcotest.(check (pair (option string) bool)) "apply implicit" expected result
 
-let parser_lambda_explicit () =
+let parser_lambda_fun_explicit () =
   let open Expression.Impl (Parsec) in
   let result =
-    response render @@ term @@ Parsec.source (Utils.chars_of_string "(a).(c)")
+    response render
+    @@ term
+    @@ Parsec.source (Utils.chars_of_string "fun a -> c")
   and expected = (Some "(a).(c)", true) in
   Alcotest.(check (pair (option string) bool)) "lambda explicit" expected result
+
+let parser_lambda_fun_mixed () =
+  let open Expression.Impl (Parsec) in
+  let result =
+    response render
+    @@ term
+    @@ Parsec.source (Utils.chars_of_string "fun a {b c} d -> e")
+  and expected = (Some "(a).({b}.({c}.((d).(e))))", true) in
+  Alcotest.(check (pair (option string) bool)) "lambda mixed" expected result
 
 let parser_apply_explicit () =
   let open Expression.Impl (Parsec) in
@@ -167,9 +180,10 @@ let cases =
     ; test_case "pair" `Quick parser_pair
     ; test_case "left" `Quick parser_left
     ; test_case "right" `Quick parser_right
-    ; test_case "lambda implicit" `Quick parser_lambda_implicit
+    ; test_case "lambda implicit" `Quick parser_lambda_fun_implicit
     ; test_case "apply implicit" `Quick parser_apply_implicit
-    ; test_case "lambda explicit" `Quick parser_lambda_explicit
+    ; test_case "lambda explicit" `Quick parser_lambda_fun_explicit
+    ; test_case "lambda mixed" `Quick parser_lambda_fun_mixed
     ; test_case "apply explicit" `Quick parser_apply_explicit
     ; test_case "let in" `Quick parser_let_in
     ; test_case "rec" `Quick parser_rec

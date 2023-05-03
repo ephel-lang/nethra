@@ -21,9 +21,9 @@ let compile_gadt () =
       sig int : type
 
       val id_subst_right : {A B:type} -> (A * equals B A) -> B
-                         = (e).(subst fst e by snd e)
+                         = fun e -> subst fst e by snd e
       val id_subst_left  : {A B:type} -> (A * equals A B) -> B
-                         = {A B}.(e).(id_subst_right {A} {B} (fst e, subst refl by snd e))
+                         = fun {A B} e -> id_subst_right {A} {B} (fst e, subst refl by snd e)
 
       -{
          data Expr A =
@@ -32,16 +32,16 @@ let compile_gadt () =
       }-
 
       sig Expr : (type) -> type
-      val Expr = (A).((Bool * equals A Bool) | (int * equals A int))
+      val Expr = fun A -> (Bool * equals A Bool) | (int * equals A int)
 
       sig Boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A
-      val Boolean = {_ p}.(b).inl (b,p)
+      val Boolean = fun {_ p} b -> inl (b,p)
 
       sig Integer : {A:type} -> {_:equals A int}  -> int  -> Expr A
-      val Integer = {_ p}.(b).inr (b,p)
+      val Integer = fun {_ p} b -> inr (b,p)
 
       sig eval : {A:type} -> Expr A -> A
-      val eval = {A}.(e).case e (id_subst_right {Bool} {A}) (id_subst_right {int} {A})
+      val eval = fun {A} e -> case e (id_subst_right {Bool} {A}) (id_subst_right {int} {A})
 
       val res1 : int  = eval (Integer 1)
       val res2 : Bool = eval (Boolean true)
@@ -66,9 +66,9 @@ let compile_recursive_gadt () =
       sig int  : type
 
       val id_subst_right : {A B:type} -> (A * equals B A) -> B
-                         = (e).(subst fst e by snd e)
+                         = fun e -> subst fst e by snd e
       val id_subst_left  : {A B:type} -> (A * equals A B) -> B
-                         = {A B}.(e).(id_subst_right {A} {B} (fst e, subst refl by snd e))
+                         = fun {A B} e -> id_subst_right {A} {B} (fst e, subst refl by snd e)
 
       -{
          data Expr A =
@@ -77,23 +77,23 @@ let compile_recursive_gadt () =
          | Add     of Expr int * Expr int   with A = int
       }-
 
-      val Expr : (type) -> type = (A).rec(E:type).(
+      val Expr : (type) -> type = fun A -> rec(E:type).(
             (Bool * equals A Bool)
           | (int * equals A int)
           | (E * E * equals A int) -- cannot denote functional recursive type
       )
 
       sig Boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A
-      val Boolean = {_ p}.(b).fold inl (b,p)
+      val Boolean = fun {_ p} b -> fold inl (b,p)
 
       sig Integer : {A:type} -> {_:equals A int} -> int  -> Expr A
-      val Integer = {_ p}.(b).fold inr inl (b,p)
+      val Integer = fun {_ p} b -> fold inr inl (b,p)
 
       sig Add : {A:type} -> {_:equals A int} -> Expr A -> Expr A -> Expr A
-      val Add = {_ p}.(a b).fold inr inr (a,b,p)
+      val Add = fun {_ p} a b -> fold inr inr (a,b,p)
 
       sig eval : {A:type} -> Expr A -> A
-      -- val eval = {A}.(e).case (unfold e) (id_subst_right {Bool} {A}) (id_subst_right {int} {A})
+      -- val eval = fun {A} e -> case (unfold e) (id_subst_right {Bool} {A}) (id_subst_right {int} {A})
 
       val res1 : int  = eval (Integer 1)
       val res2 : Bool = eval (Boolean true)
