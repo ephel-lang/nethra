@@ -351,7 +351,7 @@ term ::=
 
 ```ocaml
 sig combine : (x:type) -> type
-val combine = fun X -> X -> X -> X
+val combine = fun X . X -> X -> X
     
 sig add : int -> int -> int
 
@@ -378,7 +378,7 @@ Then if the parameter is an `int` it returns the type `char` and if it's a `char
 
 ```ocaml
 sig ic : int | char -> type
-val ic = (x).(case x (_).char (_).int)
+val ic = fun x -> case x (fun _ -> char) (fun _ -> int)
 ```
 
 Then such function can be used in type level. For instance the expression `ic (inl 1)` produces the type `char`.
@@ -404,10 +404,10 @@ sig false  : Bool
 val false  = inr unit
 
 sig Test : Bool -> type
-val Test = (b).case b (_).Unit (_).Bool
+val Test = fun b -> case b (fun _ -> Unit) (fun _ -> Bool)
 
 sig test : (b:Bool) -> Test b
-val test = (b).case b (_).unit (_).true
+val test = fun b -> case b (fun _ -> unit) (fun _ -> true)
 ```
 
 In this example the result of test depends on the parametric boolean. 
@@ -451,10 +451,10 @@ val Compose = (self:type) * (self -> self -> self)
 
 ```ocaml
 sig empty : Monoid -> Empty
-val empty = (x).(fst x, fst (snd x))
+val empty = fun x -> fst x, fst (snd x)
 
 sig compose : Monoid -> Compose
-val compose = (x).(fst x, snd (snd x))
+val compose = fun x -> fst x, snd (snd x)
 ```
 
 Then an implementation can be easily done using pairs.
@@ -482,7 +482,7 @@ For this purpose we can review it adding a polymorphic parameter in order to mim
 
 ```ocaml
 sig Monoid_T : type -> type
-val Monoid_T = (X).((t:type) * t * (t -> t -> t) * X)
+val Monoid_T = fun X -> (t:type) * t * (t -> t -> t) * X
 
 sig Empty_T : type
 val Empty_T = (t:type) * t
@@ -495,10 +495,10 @@ Then we can propose the functions accessing trait elements.
 
 ```ocaml
 sig empty : {X:type} -> Monoid_T X -> Empty_T
-val empty = (x).(fst x, fst (snd x))
+val empty = fun x -> fst x, fst (snd x)
 
 sig compose : {X:type} -> Monoid_T X -> Compose_T
-val compose = (x).(fst x, fst (snd (snd x)))
+val compose = fun x -> fst x, fst (snd (snd x))
 ```
 
 With such approach `X` cannot capture the existential type which is not really satisfactory.
@@ -514,10 +514,10 @@ sig nil  : {X:type} -> list X
 val nil  = fold (inl Unit)
 
 sig cons : {X:type} -> X -> list X -> list X
-val cons = (head tail).(fold (inr (head,tail)))
+val cons = fun head tail -> fold (inr (head,tail))
 
 sig isEmpty : {X:type} -> list X -> bool
-val isEmpty = (l).case (unfold l) (_).(inl True) (_).(inr False)
+val isEmpty = fun l -> case (unfold l) (fun _ -> true) (fun _ -> inr false)
 ```
 
 #### Propositional equality
@@ -543,7 +543,7 @@ sig symmetric :
        ----------
     -> equals b a
 
-val symmetric = (a_eq_b).
+val symmetric = fun a_eq_b ->
     subst refl by a_eq_b
 
 sig transitivity :
@@ -553,11 +553,13 @@ sig transitivity :
        ----------
     -> equals a c
 
-val transitivity = (a_eq_b b_eq_c).
+val transitivity = fun a_eq_b b_eq_c ->
     subst (subst refl by a_eq_b) by b_eq_c
 ```
 
 ##### Congruence and substitution
+
+The following code fragment shows how propositional equality is expressed thanks to expressions like `refl` and `subst`.
 
 ```ocaml
 sig congruent :
@@ -566,8 +568,8 @@ sig congruent :
        ------------------
     -> equals (f a) (f b)
 
-val congruent = (f a_eq_b).
-    subst refl by (a_eq_b)
+val congruent = fun f a=b ->
+    subst refl by (a=b)
 
 sig congruent_2 :
     {A B C:type} -> (f:A -> B -> C) -> {a b:A} -> {c d:B}
@@ -576,46 +578,46 @@ sig congruent_2 :
        ----------------------
     -> equals (f a c) (f b d)
 
-val congruent_2 = (f a_eq_b c_eq_d).
-    subst (subst refl by a_eq_b) by c_eq_d
+val congruent_2 = fun f a=b c=d ->
+    subst (subst refl by a=b) by c=d
 
 sig congruent_app : {A B:type} -> (f g:A -> B)
     -> equals f g
        ---------------------------
     -> {a:A} -> equals (f a) (g a)
 
-val congruent_app = (f g f_eq_g).
-    subst refl by (f_eq_g)
+val congruent_app = fun f g f=g ->
+    subst refl by (f=g)
 
 sig substitution : {A:type} -> {x y:A} -> (P:A -> type)
     -> equals x y
        ----------
     -> P x -> P y
 
-val substitution = (P x_eq_y px).
-    subst px by x_eq_y
+val substitution = fun P x=y px ->
+    subst px by x=y
 ```
 
 #### Leibniz equality
 
-This implementation reproduces the Agda version proposed [here](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
+This implementation reproduces the Agda version proposed [in this paper](https://homepages.inf.ed.ac.uk/wadler/papers/leibniz/leibniz.pdf).
 
 ```ocaml
 sig equal : {A:type} -> (a:A) -> (b:A) -> type
-val equal = {A}.(a b).((P : A -> type) -> P a -> P b)
+val equal = fun {A} a b -> (P : A -> type) -> P a -> P b
 
 sig reflexive : {A:type} -> {a:A} -> equal a a
-val reflexive = (P Pa).Pa
+val reflexive = fun P Pa -> Pa
 
 sig transitive : {A:type} -> {a:A} -> {b:A} -> {c:A} -> equal a b -> equal b c -> equal a c
-val transitive = (eq_a_b eq_b_c).(P Pa).(eq_b_c P (eq_a_b P Pa))
+val transitive = fun a=b b=c P Pa -> b=c P (a=b P Pa)
 
 sig symmetric : {A:type} -> {a b:A} -> equal a b -> equal b a
-val symmetric = {A a b}.(a_eq_b).(P).
+val symmetric = fun {A a b} a=b P ->
     let Q = A -> type in
-    let Q = (c).(P c -> P a) in
+    let Q = fun c -> P c -> P a in
     let Qa : Q a = reflexive P in
-    let Qb : Q b = a_eq_b Q Qa in
+    let Qb : Q b = a=b Q Qa in
     Qb
 ```
 
@@ -638,7 +640,7 @@ val zero =
     end
 ```
 
-Object-oriented approach can be "simulated" thanks to structures and recursive type.
+Object-oriented approach can be "simulated" thanks to structures and recursive type. 
 
 ```ocaml
 sig int : type
@@ -653,11 +655,11 @@ val point =
     end
 
 sig mkPoint : int -> int -> point
-val mkPoint = (x).(y).
+val mkPoint = fun x y ->
     fold val struct
         val x  = x
         val y  = y
-        val mv = (self x y).
+        val mv = fun self x y ->
             let nx = add x (#x unfold self) in
             let ny = add y (#y unfold self) in
             (mkPoint nx ny)
@@ -690,10 +692,10 @@ val none : {A:type} -> Option A = inr unit
 
 val EitherOption : Monad Option =
     val struct
-        val map   = {_ B}.(f ma).(case ma (a).(some (f a)) (_).(none {B}))
-        val apply = {_ B}.(mf ma).(case mf (f).(map f ma) (_).(none {B}))
-        val join  = {A}.(ma).(case ma (a).a (_).(none {A}))
-        val bind  = (f ma).(join (map f ma))
+        val map   = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
+        val apply = fun {_ B} mf ma -> case mf (fun f -> map f ma) (fun _ -> none {B})
+        val join  = fun {A} ma -> case ma (fun a -> a) (fun _ -> none {A})
+        val bind  = fun f ma -> join (map f ma)
     end
 
 val r : Option Unit = #map EitherOption (_).unit (some 1)
@@ -712,7 +714,7 @@ val zero : nat = fold inl unit
 val succ : nat -> nat = (n).fold inr n
 
 sig add : nat -> nat -> nat
-val add = (n1 n2).case (unfold n1) (_).n2 (n1).(add n1 n2)
+val add = fun n1 n2 -> case (unfold n1) (fun _ -> n2) (fun n1 -> add n1 n2)
 
 sig Monoid : type
 val Monoid =
@@ -748,16 +750,16 @@ sig int  : type
 }-
 
 sig Expr : (type) -> type
-val Expr = (A).((equals A Bool * Bool) | (equals A int * int))
+val Expr = fun A -> (equals A Bool * Bool) | (equals A int * int)
 
 sig boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A
-val boolean = {_ p}.(b).inl (p,b)
+val boolean = fun {_ p} b -> inl (p,b)
 
 sig number  : {A:type} -> {_:equals A int}  -> int  -> Expr A
-val number  = {_ p}.(b).inr (p,b)
+val number  = fun {_ p} b -> inr (p,b)
 
 sig eval : {A:type} -> Expr A -> A
-val eval = (e).case e (e).(subst snd e by fst e) (e).(subst snd e by fst e)
+val eval = fun e -> case e (fun e -> subst snd e by fst e) (fun e -> subst snd e by fst e)
 
 -- Usage
 
