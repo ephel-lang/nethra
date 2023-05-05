@@ -542,8 +542,8 @@ sig symmetric :
        ----------
     -> equals b a
 
-val symmetric = fun a_eq_b ->
-    subst refl by a_eq_b
+val symmetric = fun a=b ->
+    subst refl by a=b
 
 sig transitivity :
     {A:type} -> {a b c :A}
@@ -552,8 +552,8 @@ sig transitivity :
        ----------
     -> equals a c
 
-val transitivity = fun a_eq_b b_eq_c ->
-    subst (subst refl by a_eq_b) by b_eq_c
+val transitivity = fun a=b b=c ->
+    subst (subst refl by a=b) by b=c
 ```
 
 ##### Congruence and substitution
