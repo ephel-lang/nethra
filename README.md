@@ -507,11 +507,10 @@ With such approach `X` cannot capture the existential type which is not really s
 
 ```ocaml
 sig list : type -> type
-
-val list = (X).rec(l:type).(unit | (X * l)) 
+val list = fun X -> rec(l:type).(Unit | (X * l)) 
 
 sig nil  : {X:type} -> list X
-val nil  = fold (inl Unit)
+val nil  = fold (inl unit)
 
 sig cons : {X:type} -> X -> list X -> list X
 val cons = fun head tail -> fold (inr (head,tail))
