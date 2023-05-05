@@ -558,8 +558,6 @@ val transitivity = fun a=b b=c ->
 
 ##### Congruence and substitution
 
-The following code fragment shows how propositional equality is expressed thanks to expressions like `refl` and `subst`.
-
 ```ocaml
 sig congruent :
     {A B:type} -> (f:A -> B) -> {a b:A}
