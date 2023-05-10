@@ -124,14 +124,36 @@ module Destruct = struct
   let fold_opt =
     let internal_fold = fold in
     let none _ = None in
+    let orElse f1 f2 t a = match f1 a with None -> f2 t | r -> r in
     fun ?(kind = none) ?(int = none) ?(char = none) ?(string = none)
         ?(id = none) ?(pi = none) ?(lambda = none) ?(apply = none)
         ?(let_binding = none) ?(sigma = none) ?(pair = none) ?(fst = none)
         ?(snd = none) ?(sum = none) ?(inl = none) ?(inr = none) ?(case = none)
         ?(mu = none) ?(fold = none) ?(unfold = none) ?(hole = none)
         ?(annotation = none) ?(equals = none) ?(refl = none) ?(subst = none)
-        ?(record_sig = none) ?(record_val = none) ?(access = none) term ->
-      internal_fold ~kind ~int ~char ~string ~id ~pi ~lambda ~apply ~let_binding
-        ~sigma ~pair ~fst ~snd ~sum ~inl ~inr ~case ~mu ~fold ~unfold ~hole
-        ~annotation ~equals ~refl ~subst ~record_sig ~record_val ~access term
+        ?(record_sig = none) ?(record_val = none) ?(access = none)
+        ?(default = none) term ->
+      internal_fold ~kind:(orElse kind default term)
+        ~int:(orElse int default term) ~char:(orElse char default term)
+        ~string:(orElse string default term)
+        ~id:(orElse id default term) ~pi:(orElse pi default term)
+        ~lambda:(orElse lambda default term)
+        ~apply:(orElse apply default term)
+        ~let_binding:(orElse let_binding default term)
+        ~sigma:(orElse sigma default term)
+        ~pair:(orElse pair default term) ~fst:(orElse fst default term)
+        ~snd:(orElse snd default term) ~sum:(orElse sum default term)
+        ~inl:(orElse inl default term) ~inr:(orElse inr default term)
+        ~case:(orElse case default term) ~mu:(orElse mu default term)
+        ~fold:(orElse fold default term)
+        ~unfold:(orElse unfold default term)
+        ~hole:(orElse hole default term)
+        ~annotation:(orElse annotation default term)
+        ~equals:(orElse equals default term)
+        ~refl:(orElse refl default term)
+        ~subst:(orElse subst default term)
+        ~record_sig:(orElse record_sig default term)
+        ~record_val:(orElse record_val default term)
+        ~access:(orElse access default term)
+        term
 end

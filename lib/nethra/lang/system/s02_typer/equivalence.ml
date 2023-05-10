@@ -18,71 +18,80 @@ module Impl (Theory : Specs.Theory) = struct
 
   let equivalent_kind _hypothesis term' (level, _) =
     proof_from_option
-      ( fold_opt ~kind:return term'
-      >>= fun (level', _) ->
-      if Theory.type_in_type || level = level' then Some [] else None )
+      (fold_opt
+         ~kind:(fun (level', _) ->
+           if Theory.type_in_type || level = level' then Some [] else None )
+         term' )
   (* Type in Type *)
 
   let equivalent_int _hypothesis term' (value, _) =
     proof_from_option
-      ( fold_opt ~int:return term'
-      >>= fun (value', _) -> if value = value' then Some [] else None )
+      (fold_opt
+         ~int:(fun (value', _) -> if value = value' then Some [] else None)
+         term' )
 
   let equivalent_char _hypothesis term' (value, _) =
     proof_from_option
-      ( fold_opt ~char:return term'
-      >>= fun (value', _) -> if value = value' then Some [] else None )
+      (fold_opt
+         ~char:(fun (value', _) -> if value = value' then Some [] else None)
+         term' )
 
   let equivalent_string _hypothesis term' (value, _) =
     proof_from_option
-      ( fold_opt ~string:return term'
-      >>= fun (value', _) -> if value = value' then Some [] else None )
+      (fold_opt
+         ~string:(fun (value', _) -> if value = value' then Some [] else None)
+         term' )
 
   let equivalent_id _hypothesis term' (name, _, _) =
     proof_from_option
-      ( fold_opt ~id:return term'
-      >>= fun (name', _, _) -> if name = name' then Some [] else None )
+      (fold_opt
+         ~id:(fun (name', _, _) -> if name = name' then Some [] else None)
+         term' )
 
   let rec equivalent_pi hypothesis term' (name, bound, body, implicit, c) =
     proof_from_option
-      ( fold_opt ~pi:return term'
-      >>= fun (name', bound', body', implicit', c') ->
-      if implicit' = implicit
-      then
-        let var, hypothesis = fresh_variable hypothesis name in
-        let body = substitute name (id ~c ~initial:(Some name) var) body
-        and body' =
-          substitute name' (id ~c:c' ~initial:(Some name') var) body'
-        in
-        Some [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ]
-      else None )
+      (fold_opt
+         ~pi:(fun (name', bound', body', implicit', c') ->
+           if implicit' = implicit
+           then
+             let var, hypothesis = fresh_variable hypothesis name in
+             let body = substitute name (id ~c ~initial:(Some name) var) body
+             and body' =
+               substitute name' (id ~c:c' ~initial:(Some name') var) body'
+             in
+             Some
+               [ hypothesis |- bound =?= bound'; hypothesis |- body =?= body' ]
+           else None )
+         term' )
 
   and equivalent_lambda hypothesis term' (name, body, implicit, c) =
     proof_from_option
-      ( fold_opt ~lambda:return term'
-      >>= fun (name', body', implicit', c') ->
-      if implicit' = implicit
-      then
-        let var, hypothesis = fresh_variable hypothesis name in
-        let body = substitute name (id ~c ~initial:(Some name) var) body
-        and body' =
-          substitute name' (id ~c:c' ~initial:(Some name') var) body'
-        in
-        Some [ hypothesis |- body =?= body' ]
-      else None )
+      (fold_opt
+         ~lambda:(fun (name', body', implicit', c') ->
+           if implicit' = implicit
+           then
+             let var, hypothesis = fresh_variable hypothesis name in
+             let body = substitute name (id ~c ~initial:(Some name) var) body
+             and body' =
+               substitute name' (id ~c:c' ~initial:(Some name') var) body'
+             in
+             Some [ hypothesis |- body =?= body' ]
+           else None )
+         term' )
 
   and equivalent_apply hypothesis term' (abstraction, argument, implicit, _) =
     proof_from_option
-      ( fold_opt ~apply:return term'
-      >>= fun (abstraction', argument', implicit', _) ->
-      if implicit' = implicit
-      then
-        Some
-          [
-            hypothesis |- abstraction =?= abstraction'
-          ; hypothesis |- argument =?= argument'
-          ]
-      else None )
+      (fold_opt
+         ~apply:(fun (abstraction', argument', implicit', _) ->
+           if implicit' = implicit
+           then
+             Some
+               [
+                 hypothesis |- abstraction =?= abstraction'
+               ; hypothesis |- argument =?= argument'
+               ]
+           else None )
+         term' )
 
   and equivalent_let_binding hypothesis term' (name, arg, body, _c) =
     proof_from_option

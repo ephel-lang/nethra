@@ -96,6 +96,7 @@ module Destruct : sig
     -> ?record_sig:((string * 'a t) list * 'a option -> 'b option)
     -> ?record_val:((string * 'a t) list * 'a option -> 'b option)
     -> ?access:('a t * string * 'a option -> 'b option)
+    -> ?default:('a t -> 'b option)
     -> 'a t
     -> 'b option
 end

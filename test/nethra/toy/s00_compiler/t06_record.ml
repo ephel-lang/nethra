@@ -300,7 +300,7 @@ let compile_record_of_record () =
   Alcotest.(check (result bool string))
     "record of record" expected (string_of_error result)
 
-let compile_category () =
+let compile_control () =
   let result =
     Pass.run
       {toy|
@@ -326,6 +326,30 @@ let compile_category () =
   Alcotest.(check (result bool string))
     "functor, applicative ..." expected (string_of_error result)
 
+let compile_category () =
+  let result =
+    Pass.run
+      {toy|
+        -- Cf. https://arxiv.org/pdf/1401.7694.pdf
+
+        sig Category : type
+        val Category = sig struct
+            sig Ob : type
+            sig Hom : Ob -> Ob -> type
+            sig compose : {a b c:Ob} -> Hom b c -> Hom a b -> Hom a c
+            sig id : {x: Ob} -> Hom x x
+            -- Laws
+            sig Assoc : (a b c d:Ob) -> (f: Hom c d) -> (g: Hom b c) -> (h: Hom a b) -> equals (compose (compose f g) h) (compose f (compose g h))
+            sig LeftId : (a b:Ob) -> (f: Hom a b) -> equals (compose id f) f
+            sig RightId : (a b:Ob) -> (f: Hom a b) -> equals (compose f (id {a})) f -{ Here {a} should be specified! }-
+            sig Truncated : (a b:Ob) -> (f g: Hom a b) -> (p q: equals f g) -> equals p q
+        end
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "category ..." expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Record Compiler"
@@ -339,5 +363,6 @@ let cases =
     ; test_case "Monad Dependant Record" `Quick compile_monad_dependant_record
     ; test_case "Monad Recursive Record" `Quick compile_monad_recursive_record
     ; test_case "Record of Record" `Quick compile_record_of_record
-    ; test_case "functor, applicative ..." `Quick compile_category
+    ; test_case "functor, applicative ..." `Quick compile_control
+    ; test_case "category ..." `Quick compile_category
     ] )

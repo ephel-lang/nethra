@@ -5,7 +5,7 @@ module FromList (Locator : Specs.LOCATOR) = struct
   type nonrec t = e t
 
   module Construct = struct
-    type nonrec c = e list
+    type c = e list
 
     let create s = (s, Location.Construct.initial)
   end
