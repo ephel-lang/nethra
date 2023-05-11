@@ -80,7 +80,7 @@ let compile_recursive_gadt () =
       val Expr : (type) -> type = fun A -> rec(E:type).(
             (Bool * equals A Bool)
           | (int * equals A int)
-          | (E * E * equals A int) -- cannot denote functional recursive type
+          | (E * E * equals A int) -- cannot denote functional recursive type correctly!
       )
 
       sig Boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A

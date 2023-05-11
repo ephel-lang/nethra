@@ -39,6 +39,24 @@ let compile_implicit_identity () =
   Alcotest.(check (result bool string))
     "basic implicit identity" expected (string_of_error result)
 
+let compile_identity_usage () =
+  let result =
+    Pass.run
+      {toy|
+        -----------
+        sig int : type
+        -----------
+        sig id   : {a:type} -> a -> a
+        sig test : int -> int
+        -----------
+        -- Not capable to infer int type for the moment
+        val test = id
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok false in
+  Alcotest.(check (result bool string))
+    "basic implicit identity usage" expected (string_of_error result)
+
 let compile_function () =
   let result =
     Pass.run
@@ -127,12 +145,33 @@ let compile_fixpoint_function () =
   Alcotest.(check (result bool string))
     "fixpoint function" expected (string_of_error result)
 
+let compile_continuation () =
+  let result =
+    Pass.run
+      {toy|
+        -- Basic continuation definition
+        sig cont : (type) -> (type) -> type
+        val cont = fun r a -> sig struct
+            sig run : (r -> a) -> r
+        end
+        -- Continuation definition with monad transformer
+        sig contT : (type) -> ((type) -> type) -> (type) -> type
+        val contT = fun r M a -> sig struct
+            sig run : (a -> M r) -> M r
+        end
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "continuation" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Function Compiler"
   , [
       test_case "basic identity" `Quick compile_identity
     ; test_case "basic implicit identity" `Quick compile_implicit_identity
+    ; test_case "basic implicit identity usage" `Quick compile_identity_usage
     ; test_case "basic function" `Quick compile_function
     ; test_case "basic polymorphic function" `Quick compile_polymorphic_function
     ; test_case "basic implicit polymorphic function" `Quick
@@ -140,4 +179,5 @@ let cases =
     ; test_case "basic inferred implicit polymorphic function" `Quick
         compile_inferred_implicit_polymorphic_function
     ; test_case "fixpoint function" `Quick compile_fixpoint_function
+    ; test_case "continuation" `Quick compile_continuation
     ] )

@@ -22,8 +22,7 @@ let render l =
 let string_of_error r =
   let open Preface_stdlib.Result.Bifunctor in
   let to_error = function
-    | `SyntaxError l ->
-      "syntax error at " ^ render (fst l) ^ " waiting: " ^ snd l
+    | `SyntaxError l -> "syntax error at " ^ render (fst l) ^ ": " ^ snd l
     | `AbstractionError s -> s
     | `FreeVarsError l ->
       List.fold_left
