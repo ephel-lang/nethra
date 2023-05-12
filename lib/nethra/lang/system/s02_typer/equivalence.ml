@@ -183,7 +183,7 @@ module Impl (Theory : Specs.Theory) = struct
 
   and equivalent_annotation hypothesis term' (term, kind, _c) =
     proof_from_option
-      ( fold_opt ~pair:return term'
+      ( fold_opt ~annotation:return term'
       <&> fun (term', kind', _) ->
       [ hypothesis |- term =?= term'; hypothesis |- kind =?= kind' ] )
 

@@ -12,8 +12,8 @@ module Impl = struct
     Region.t Hypothesis.t * (string * Region.t Proof.t option) list
 
   type _ error =
-    [ `SyntaxError of unit Parser.error
-    | `AbstractionError of unit Abstraction.error
+    [ `SyntaxError of Region.t Parser.error
+    | `AbstractionError of Region.t Abstraction.error
     | `FreeVarsError of Region.t Normalization.error
     | `TypeError of Region.t Type_checker.error
     ]

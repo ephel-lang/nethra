@@ -60,6 +60,9 @@ let reduce_access reduce hypothesis (term, ident, _) =
   <&> (fun (_, t) -> t)
   >>= reduce hypothesis
 
+let reduce_annotation reduce hypothesis (term, _, _) =
+  reduce hypothesis term >>= reduce hypothesis
+
 let rec reduce_opt hypothesis term =
   fold_right const
     (fold_opt
@@ -72,6 +75,7 @@ let rec reduce_opt hypothesis term =
        ~snd:(reduce_snd reduce_opt hypothesis)
        ~case:(reduce_case reduce_opt hypothesis)
        ~access:(reduce_access reduce_opt hypothesis)
+       ~annotation:(reduce_annotation reduce_opt hypothesis)
        term )
     term
   |> return

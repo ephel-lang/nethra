@@ -116,8 +116,7 @@ let compile_leibniz_equal () =
                 -> equal b a
 
       val symmetric = fun {A a b} a=b P ->
-            let Q = A -> type in
-            let Q = fun c -> P c -> P a in
+            let Q  : A -> type = fun c -> P c -> P a in
             let Qa : Q a = reflexive P in
             let Qb : Q b = a=b Q Qa in
             Qb
