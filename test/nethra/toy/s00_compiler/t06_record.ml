@@ -313,12 +313,14 @@ let compile_control () =
         val Functor = fun M ->
             sig struct
                 sig map : {a b:type} -> (a -> b) -> M a -> M b
-                -- Functor laws specification
-                sig Law1 : {a:type} ->
+                -{
+                    Functor laws specification
+                }-
+                sig `map id = id` : {a:type} ->
                     let lhd = map (id {a}) in
                     let rhd = id {M a} in
                     equals lhd rhd
-                sig Law2 : {a b c:type} -> (f: b -> c) -> (g: a -> b) ->
+                sig `map (f o g) = (map f) o (map g)` : {a b c:type} -> (f: b -> c) -> (g: a -> b) ->
                     let lhd = map (compose f g) in
                     let rhd = compose (map f) (map g) in
                     equals lhd rhd
@@ -329,6 +331,25 @@ let compile_control () =
             sig struct
                 sig pure  : {a:type} -> a -> M a
                 sig apply : {a b:type} -> M (a -> b) -> M a -> M b
+                -{
+                    Applicative laws
+                }-
+                sig `pure id <*> v = v` : {a:type} -> (v:M a) ->
+                    let lhd = apply (pure id) v in
+                    let rhd = v in
+                    equals lhd rhd
+               sig `pure f <*> pure x = pure (f x)` : {a b:type} -> (f:a -> b) -> (x:a) ->
+                    let lhd = apply (pure f) (pure x) in
+                    let rhd = pure (f x) in
+                    equals lhd rhd
+               sig `pure (fun f -> f v) <*> u = u <*> pure v` : {a b:type} -> (u: M (a -> b)) -> (v:a) ->
+                    let lhd = apply (pure (fun f -> f v)) u in
+                    let rhd = apply u (pure v) in
+                    equals lhd rhd
+               sig `pure o <*> u <*> v <*> w = u <*> (v <*> w)` : {a b c:type} -> (u: M (b -> c)) -> (v: M (a -> b)) -> (w: M a) ->
+                    let lhd = apply (apply (apply (pure compose) u) v) w in
+                    let rhd = apply u (apply v w) in
+                    equals lhd rhd
             end
 
         sig Monad : ((type) -> type) -> type

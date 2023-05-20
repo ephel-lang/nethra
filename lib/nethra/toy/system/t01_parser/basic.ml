@@ -61,13 +61,23 @@ struct
   let digit = char_in_range ('0', '9')
   let non_alpha = char_in_string "@&#+*-=/?*$^<>§!%"
 
-  let identifier =
+  let textual_identifier =
+    token
+      ( char '`'
+      >~> rep (not (char '`'))
+      <~< char '`'
+      <&> Utils.string_of_chars
+      <?> fun s -> Stdlib.not (List.mem s keywords) )
+
+  let basic_identifier =
     token
       ( alpha
       <~> opt_rep (char '_' <|> alpha <|> digit <|> non_alpha)
       <&> (fun (e, l) -> e :: l)
       <&> Utils.string_of_chars
       <?> fun s -> Stdlib.not (List.mem s keywords) )
+
+  let identifier = basic_identifier <|> textual_identifier
 
   let operator =
     token
