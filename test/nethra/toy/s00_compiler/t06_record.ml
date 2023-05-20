@@ -304,18 +304,35 @@ let compile_control () =
   let result =
     Pass.run
       {toy|
-        sig Functor : (M:(type) -> type) ->
+        -- Preamble
+        sig id : {a:type} -> a -> a
+        sig compose : {a b c:type} -> (f: b -> c) -> (g: a -> b) -> a -> c
+        --
+
+        sig Functor : ((type) -> type) -> type
+        val Functor = fun M ->
             sig struct
                 sig map : {a b:type} -> (a -> b) -> M a -> M b
+                -- Functor laws specification
+                sig Law1 : {a:type} ->
+                    let lhd = map (id {a}) in
+                    let rhd = id {M a} in
+                    equals lhd rhd
+                sig Law2 : {a b c:type} -> (f: b -> c) -> (g: a -> b) ->
+                    let lhd = map (compose f g) in
+                    let rhd = compose (map f) (map g) in
+                    equals lhd rhd
             end
 
-        sig Applicative : (M:(type) -> type) ->
+        sig Applicative : ((type) -> type) -> type
+        val Applicative = fun M ->
             sig struct
                 sig pure  : {a:type} -> a -> M a
                 sig apply : {a b:type} -> M (a -> b) -> M a -> M b
             end
 
-        sig Monad : (M:(type) -> type) ->
+        sig Monad : ((type) -> type) -> type
+        val Monad = fun M ->
             sig struct
                 sig return : {a:type} -> a -> M a
                 sig bind   : {a b:type} -> M a -> (a -> M b) -> M b
