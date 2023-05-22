@@ -55,7 +55,7 @@ e ::=
     fst e           -- Left projection
     snd e           -- Right Projection
     
-    e + e           -- Disjunction
+    e + e           -- Sum type
     inl e           -- Left injection
     inr e           -- Right injection
     case n e e      -- Catamorphism
