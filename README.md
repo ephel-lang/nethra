@@ -683,8 +683,8 @@ val Monad =
 
 ------------
 
-val Option : type -> type = (A).(A | Unit)
-val some : {A:type} -> A -> Option A = (a).inl a
+val Option : type -> type = fun A -> A | Unit
+val some : {A:type} -> A -> Option A = fun a -> inl a
 val none : {A:type} -> Option A = inr unit
 
 val EitherOption : Monad Option =
@@ -695,7 +695,7 @@ val EitherOption : Monad Option =
         val bind  = fun f ma -> join (map f ma)
     end
 
-val r : Option Unit = #map EitherOption (_).unit (some 1)
+val r : Option Unit = #map EitherOption (fun _ -> unit) (some 1)
 ```
 
 ### First Basic formal proof
