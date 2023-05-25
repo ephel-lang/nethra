@@ -72,9 +72,10 @@ let compile_recursive_gadt () =
 
       -{
          data Expr A =
-         | Boolean of Bool                  with A = Bool
-         | Integer of int                   with A = int
-         | Add     of Expr int * Expr int   with A = int
+         | Boolean of Bool                          with A = Bool
+         | Integer of int                           with A = int
+         | Add     of Expr int * Expr int           with A = int
+         | If      of Expr Bool * Expr A * Expr A
       }-
 
       val Expr : type -> type = fun A -> rec(E:type).(
