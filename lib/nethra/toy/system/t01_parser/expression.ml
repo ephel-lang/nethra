@@ -14,7 +14,7 @@ module Impl (Parsec : PARSEC with type Source.e = char) = struct
   open Basic.Impl (Parsec)
 
   let kind =
-    localize (Reserved._TYPE_ >~> (integer <|> return 0) <&> fun a -> Type a)
+    localize (Reserved._TYPE_ >~> (natural <|> return 0) <&> fun a -> Type a)
 
   let refl = localize (Reserved._REFL_ <&> fun _ -> Refl)
   let var = localize (identifier <&> fun a -> Var a)

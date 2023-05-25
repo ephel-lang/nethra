@@ -119,7 +119,7 @@ let compile_parametric_record () =
         sig string : type
         sig concat : string -> string -> string
         -----------
-        sig monoid : (type) -> type
+        sig monoid : type -> type
         val monoid =
             fun t -> sig struct
                 sig initial : t
@@ -192,7 +192,7 @@ let compile_monad_dependant_record () =
         sig unit : Unit
         ------------
 
-        sig Monad : ((type) -> type) -> type
+        sig Monad : (type -> type) -> type
         val Monad =
             fun M -> sig struct
                 sig return : {A:type} -> A -> M A
@@ -203,7 +203,7 @@ let compile_monad_dependant_record () =
             end
 
         ------------
-        val Option : (type) -> type = fun A -> A | Unit
+        val Option : type -> type = fun A -> A | Unit
 
         sig some : {A:type} -> A -> Option A
         val some = fun a -> inl a
@@ -239,7 +239,7 @@ let compile_monad_recursive_record () =
         sig unit : Unit
         ------------
 
-        sig Monad : ((type) -> type) -> type
+        sig Monad : (type -> type) -> type
         val Monad =
             fun M -> sig struct
                 sig map   : {A B:type} -> (A -> B) -> M A -> M B
@@ -249,7 +249,7 @@ let compile_monad_recursive_record () =
             end
 
         ------------
-        val Option : (type) -> type = fun A -> A | Unit
+        val Option : type -> type = fun A -> A | Unit
 
         sig some : {A:type} -> A -> Option A
         val some = fun a -> inl a
@@ -309,7 +309,7 @@ let compile_control () =
         sig compose : {a b c:type} -> (f: b -> c) -> (g: a -> b) -> a -> c
         --
 
-        sig Functor : ((type) -> type) -> type
+        sig Functor : (type -> type) -> type
         val Functor = fun M ->
             sig struct
                 sig map : {a b:type} -> (a -> b) -> M a -> M b
@@ -326,7 +326,7 @@ let compile_control () =
                     equals lhd rhd
             end
 
-        sig Applicative : ((type) -> type) -> type
+        sig Applicative : (type -> type) -> type
         val Applicative = fun M ->
             sig struct
                 sig pure  : {a:type} -> a -> M a
@@ -352,7 +352,7 @@ let compile_control () =
                     equals lhd rhd
             end
 
-        sig Monad : ((type) -> type) -> type
+        sig Monad : (type -> type) -> type
         val Monad = fun M ->
             sig struct
                 sig return : {a:type} -> a -> M a

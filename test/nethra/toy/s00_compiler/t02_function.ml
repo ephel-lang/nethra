@@ -150,12 +150,12 @@ let compile_continuation () =
     Pass.run
       {toy|
         -- Basic continuation definition
-        sig cont : (type) -> (type) -> type
+        sig cont : type -> type -> type
         val cont = fun r a -> sig struct
             sig run : (r -> a) -> r
         end
         -- Continuation definition with monad transformer
-        sig contT : (type) -> ((type) -> type) -> (type) -> type
+        sig contT : type -> (type -> type) -> type -> type
         val contT = fun r M a -> sig struct
             sig run : (a -> M r) -> M r
         end

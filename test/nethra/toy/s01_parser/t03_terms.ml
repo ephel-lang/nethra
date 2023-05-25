@@ -26,7 +26,7 @@ let parser_pi_simplified () =
   let result =
     response render
     @@ term
-    @@ Parsec.source (Utils.chars_of_string "(type) -> type")
+    @@ Parsec.source (Utils.chars_of_string "type -> type")
   and expected = (Some "type0 -> type0", true) in
   Alcotest.(check (pair (option string) bool)) "pi simplified" expected result
 

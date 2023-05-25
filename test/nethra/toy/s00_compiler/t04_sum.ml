@@ -90,7 +90,7 @@ let compile_recursive_sum () =
         sig Unit : unit
         sig int  : type
         ------------
-        sig list : (type) -> type
+        sig list : type -> type
         val list = fun X -> rec(l:type).(unit | X * l)
 
         sig Nil  : {X:type} -> list X
@@ -125,7 +125,7 @@ let compile_recursive_sum_with_pseudo_constructors () =
         sig Nil   : Atom "Nil"
         sig Cons  : Atom "Cons"
 
-        sig list : (type) -> type
+        sig list : type -> type
         val list = fun X -> rec(l:type).(data Nil | data Cons * X * l)
 
         sig nil : {X:type} -> list X
@@ -194,7 +194,7 @@ let compile_either () =
         sig Right : Atom "Right"
         sig Left  : Atom "Left"
 
-        sig either : (type) -> (type) -> type
+        sig either : type -> type -> type
         val either = fun A B -> (data Left * A) | (data Right * B)
 
         sig left   : {A B:type} -> A -> either A B
@@ -236,18 +236,18 @@ let compile_freer () =
             sig Return : Atom "Return"
             sig Bind   : Atom "Bind"
     
-            sig Free : ((type) -> type) -> (type) -> type
+            sig Free : (type -> type) -> type -> type
             val Free = fun F A -> rec(Free:type).((data Return * A) | (data Bind * F Free))
 
-            sig return : {F:(type)->type} -> {A:type} -> A -> Free F A 
+            sig return : {F:type->type} -> {A:type} -> A -> Free F A
             val return = fun a -> fold inl (Return, a)
 
-            sig bind : {F:(type)->type} -> {A:type} -> F (Free F A) -> Free F A 
+            sig bind : {F:type->type} -> {A:type} -> F (Free F A) -> Free F A
             val bind = fun a -> fold inr (Bind, a)
 
-            sig map_a : {F:(type)->type} -> {A B:type} -> (A -> B ) -> F A -> F B
+            sig map_a : {F:type->type} -> {A B:type} -> (A -> B ) -> F A -> F B
             
-            sig map : {F:(type)->type} -> {A B :type} -> (A -> B) -> Free F A -> Free F B
+            sig map : {F:type->type} -> {A B :type} -> (A -> B) -> Free F A -> Free F B
             val map = fun f a -> case (unfold a) (fun a -> return (f (snd a))) (fun a -> bind (map_a (map f) (snd a)))
             |toy}
     <&> fun (_, l) -> check l

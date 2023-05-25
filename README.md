@@ -672,7 +672,7 @@ val x = #x unfold zero
 #### Dependant record
 
 ```ocaml
-sig Monad : ((type) -> type) -> type
+sig Monad : (type -> type) -> type
 val Monad =
     (M).sig struct
         sig map   : {A B:type} -> (A -> B) -> M A -> M B
@@ -683,7 +683,7 @@ val Monad =
 
 ------------
 
-val Option : (type) -> type = (A).(A | Unit)
+val Option : type -> type = (A).(A | Unit)
 val some : {A:type} -> A -> Option A = (a).inl a
 val none : {A:type} -> Option A = inr unit
 
@@ -746,7 +746,7 @@ sig int  : type
  | Integer of int  with A = int
 }-
 
-sig Expr : (type) -> type
+sig Expr : type -> type
 val Expr = fun A -> (equals A Bool * Bool) | (equals A int * int)
 
 sig boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A

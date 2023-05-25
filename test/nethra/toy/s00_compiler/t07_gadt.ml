@@ -31,7 +31,7 @@ let compile_gadt () =
          | Integer of int  with A = int
       }-
 
-      sig Expr : (type) -> type
+      sig Expr : type -> type
       val Expr = fun A -> (Bool * equals A Bool) | (int * equals A int)
 
       sig Boolean : {A:type} -> {_:equals A Bool} -> Bool -> Expr A
@@ -77,7 +77,7 @@ let compile_recursive_gadt () =
          | Add     of Expr int * Expr int   with A = int
       }-
 
-      val Expr : (type) -> type = fun A -> rec(E:type).(
+      val Expr : type -> type = fun A -> rec(E:type).(
             (Bool * equals A Bool)
           | (int * equals A int)
           | (E * E * equals A int) -- cannot denote functional recursive type correctly!
