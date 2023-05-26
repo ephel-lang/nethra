@@ -674,7 +674,7 @@ val x = #x unfold zero
 ```ocaml
 sig Monad : (type -> type) -> type
 val Monad =
-    (M).sig struct
+    fun M -> sig struct
         sig map   : {A B:type} -> (A -> B) -> M A -> M B
         sig apply : {A B:type} -> M (A -> B) -> M A -> M B
         sig join  : {A:type} -> M (M A) -> M A
