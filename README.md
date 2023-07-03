@@ -763,6 +763,8 @@ val eval = fun e -> case e (fun e -> subst snd e by fst e) (fun e -> subst snd e
 val res : int = eval (number 1)
 ```
 
+Warning: GADT in the presence of a recursive type cannot be expressed (for the moment).
+
 # Why Nethra?
 
 See [Nethra](https://www.elfdict.com/wt/518511) definition for more information.
