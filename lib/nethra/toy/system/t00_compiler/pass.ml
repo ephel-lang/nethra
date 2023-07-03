@@ -3,7 +3,7 @@ module Impl = struct
   open Nethra_lang_ast
   module Parser = Nethra_toy_parser.Pass
   module Abstraction = Nethra_toy_abstract.Pass
-  module Normalization = Nethra_lang_system_normalize.Pass
+  module Normalization = Nethra_lang_system_variables.Pass
   module Type_checker = Nethra_lang_system_type.Pass
 
   type _ input = string

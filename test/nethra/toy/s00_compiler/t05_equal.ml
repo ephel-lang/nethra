@@ -98,7 +98,8 @@ let compile_leibniz_equal () =
                 ------------
                 -> equal a a
 
-      val reflexive = fun P Pa -> Pa
+      val reflexive = fun P Pa ->
+                Pa
 
       sig transitive :
                 {A:type} -> {a b c:A}
@@ -107,7 +108,8 @@ let compile_leibniz_equal () =
                 ------------
                 -> equal a c
 
-      val transitive = fun a=b b=c P Pa -> b=c P (a=b P Pa)
+      val transitive = fun a=b b=c P Pa ->
+                b=c P (a=b P Pa)
 
       sig symmetric :
                 {A:type} -> {a b:A}

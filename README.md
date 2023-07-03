@@ -431,8 +431,8 @@ This can be used to encode modules and records. Then for instance a trait like:
 
 ```rust
 trait Monoid {
-    sig empty   : self
-    sig compose : self -> self -> self
+    fn empty() -> Self;
+    fn compose(l: Self, r: Self) -> Self;
 }
 ```
 
