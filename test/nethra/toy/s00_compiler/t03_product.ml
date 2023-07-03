@@ -153,6 +153,23 @@ let compile_trait_implementation () =
   Alcotest.(check (result bool string))
     "trait implementation" expected (string_of_error result)
 
+let compile_high_rank_polymorphism () =
+  let result =
+    Pass.run
+      {toy|
+        ------------
+        sig int : type
+        sig string : type
+        ------------
+
+        sig f : ({a:type} -> a -> a) -> (int * string)
+        val f = fun g -> g 1, g "2"
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "high rank polymorphism" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Product Compiler"
@@ -163,4 +180,5 @@ let cases =
     ; test_case "basic product second" `Quick compile_basic_product_second
     ; test_case "trait denotation" `Quick compile_trait_denotation
     ; test_case "trait implementation" `Quick compile_trait_implementation
+    ; test_case "high rank polymorphism" `Quick compile_high_rank_polymorphism
     ] )

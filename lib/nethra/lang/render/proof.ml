@@ -1,50 +1,46 @@
 open Format
 
-let check render hypothesis_render render_term prefix ppf
+let render_list render hypothesis_render render_term ppf proofs =
+  List.iter (fun p -> render hypothesis_render render_term ppf p) proofs
+
+let check render hypothesis_render render_term ppf
     (hypothesis, term, kind, proofs) =
-  let () =
-    fprintf ppf "%s%a ⊢ %a <= %a\n" prefix hypothesis_render hypothesis
+  fprintf ppf "@\n@[<v 2>%a ⊢ %a <= %a%a@]" hypothesis_render hypothesis
+    render_term term render_term kind
+    (render_list render hypothesis_render render_term)
+    proofs
+
+let infer render hypothesis_render render_term ppf
+    (hypothesis, term, kind, proofs) =
+  match kind with
+  | Some kind ->
+    fprintf ppf "@\n@[<v 2>%a ⊢ %a => %a%a@]" hypothesis_render hypothesis
       render_term term render_term kind
-  in
-  List.iter
-    (fun p -> render hypothesis_render render_term (prefix ^ "|  ") ppf p)
-    proofs
+      (render_list render hypothesis_render render_term)
+      proofs
+  | None ->
+    fprintf ppf "@\n@[<v 2>%a ⊢ %a => ?%a@]" hypothesis_render hypothesis
+      render_term term
+      (render_list render hypothesis_render render_term)
+      proofs
 
-let infer render hypothesis_render render_term prefix ppf
+let equivalent render hypothesis_render render_term ppf
     (hypothesis, term, kind, proofs) =
-  let () =
-    match kind with
-    | Some kind ->
-      fprintf ppf "%s%a ⊢ %a => %a\n" prefix hypothesis_render hypothesis
-        render_term term render_term kind
-    | None ->
-      fprintf ppf "%s%a ⊢ %a => ?\n" prefix hypothesis_render hypothesis
-        render_term term
-  in
-  List.iter
-    (fun p -> render hypothesis_render render_term (prefix ^ "|  ") ppf p)
+  fprintf ppf "@\n@[<v 2>%a ⊢ %a =?= %a%a@]" hypothesis_render hypothesis
+    render_term term render_term kind
+    (render_list render hypothesis_render render_term)
     proofs
 
-let equivalent render hypothesis_render render_term prefix ppf
-    (hypothesis, term, kind, proofs) =
-  let () =
-    fprintf ppf "%s%a ⊢ %a =?= %a\n" prefix hypothesis_render hypothesis
-      render_term term render_term kind
-  in
-  List.iter
-    (fun p -> render hypothesis_render render_term (prefix ^ "|  ") ppf p)
-    proofs
+let failure ppf reason =
+  fprintf ppf " %s"
+    (match reason with Some s -> "❌ (" ^ s ^ ")" | _ -> "❌ ")
 
-let failure prefix ppf reason =
-  fprintf ppf "%s%s \n" prefix
-    (match reason with Some s -> "❌  (" ^ s ^ ")" | _ -> "❌")
-
-let rec render hypothesis_render render_term prefix ppf p =
+let rec render hypothesis_render render_term ppf p =
   Nethra_lang_ast.Proof.Destruct.fold
-    ~check:(check render hypothesis_render render_term prefix ppf)
-    ~infer:(infer render hypothesis_render render_term prefix ppf)
-    ~equivalent:(equivalent render hypothesis_render render_term prefix ppf)
-    ~failure:(failure prefix ppf) p
+    ~check:(check render hypothesis_render render_term ppf)
+    ~infer:(infer render hypothesis_render render_term ppf)
+    ~equivalent:(equivalent render hypothesis_render render_term ppf)
+    ~failure:(failure ppf) p
 
 let render ?(term_render = Term.render) ppf p =
-  render Hypothesis.render term_render "" ppf p
+  fprintf ppf "%a@\n" (render Hypothesis.render term_render) p
