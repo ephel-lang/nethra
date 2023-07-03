@@ -297,7 +297,7 @@ s0 ::=
 
 binding ::= 
     "sig" ID ":" term
-    "def" ID (":" term)? "=" term 
+    "val" ID (":" term)? "=" term 
 ```
 
 ```
