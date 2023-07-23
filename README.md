@@ -297,7 +297,7 @@ s0 ::=
 
 binding ::= 
     "sig" ID ":" term
-    "def" ID (":" term)? "=" term 
+    "val" ID (":" term)? "=" term 
 ```
 
 ```
@@ -762,6 +762,8 @@ val eval = fun e -> case e (fun e -> subst snd e by fst e) (fun e -> subst snd e
 
 val res : int = eval (number 1)
 ```
+
+Warning: GADT in the presence of a recursive type cannot be expressed (for the moment).
 
 # Why Nethra?
 
