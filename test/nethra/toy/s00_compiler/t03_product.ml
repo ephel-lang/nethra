@@ -170,6 +170,42 @@ let compile_high_rank_polymorphism () =
   Alcotest.(check (result bool string))
     "high rank polymorphism" expected (string_of_error result)
 
+let compile_nat_definition () =
+  let result =
+    Pass.run
+      {toy|
+        sig int : type
+        sig unit : type
+        sig `()` : unit
+        ------------
+        val `?`  : type -> type = fun t -> t | unit
+        val some : {a:type} -> a -> `?` a = fun a -> inl a
+        val none : {a:type} -> `?` a = inr `()`
+        ------------
+        sig `>=` : int -> int -> type
+        ------------
+        sig nat : type
+        val nat = (x:int) * (`>=` x 0)
+        sig is_nat : (x: int) -> `?` (`>=` x 0)
+        ------------
+        sig nat_to_int : nat -> int
+        val nat_to_int = fun n -> fst n
+        ------------
+        sig int_to_nat : (x:int) -> {p:`>=` x 0} -> nat
+        val int_to_nat = fun x {p} -> (x,p)
+        ------------
+        sig int_to_nat_opt : (x:int) -> `?` nat
+        val int_to_nat_opt = fun x ->
+                case (is_nat x)
+                     (fun p -> some {nat} (x,p))
+                     (fun u -> none {nat})
+        ------------
+      |toy}
+    <&> fun (_, l) -> check l
+  and expected = Result.Ok true in
+  Alcotest.(check (result bool string))
+    "nat definition" expected (string_of_error result)
+
 let cases =
   let open Alcotest in
   ( "Product Compiler"
@@ -181,4 +217,5 @@ let cases =
     ; test_case "trait denotation" `Quick compile_trait_denotation
     ; test_case "trait implementation" `Quick compile_trait_implementation
     ; test_case "high rank polymorphism" `Quick compile_high_rank_polymorphism
+    ; test_case "nat defintion" `Quick compile_nat_definition
     ] )
