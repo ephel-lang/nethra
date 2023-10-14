@@ -31,7 +31,7 @@ let compile_implicit_identity () =
         -----------
         sig id  : {a:type} -> a -> a
         sig one : int
-        val one = id 2
+        val one = id 1
         -----------
       |toy}
     <&> fun (_, l) -> check l
