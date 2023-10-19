@@ -353,9 +353,9 @@
             <center><p>type of return value varies with its argument</p></center>
 
             <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ B : N
+    Γ, x : M ⊢ b : N
     ----------------------
-    Γ ⊢ λ(x).B : Π(x:M).N
+    Γ ⊢ λ(x).b : Π(x:M).N
 
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
     -----------------------------
@@ -1106,7 +1106,7 @@
         </section>
 
         <section>
-            <h4>Propositional equality: GADT encoding</h4>
+            <h4>Propositional equality: encoding GADT</h4>
 
             <pre><code class="language-ocaml" data-noescape>
     -{
