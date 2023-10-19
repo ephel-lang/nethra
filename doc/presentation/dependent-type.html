@@ -938,7 +938,7 @@
             <h4>Sum type: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
-    sig ic : int | char → type
+    sig ic : int + char → type
     val ic =  λ(x).case x λ(_).char λ(_).int
 
     sig aChar : char
@@ -950,7 +950,7 @@
             <h4>Dependent pair type: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
-    sig ic : int | char → type
+    sig ic : int + char → type
     val ic =  λ(x).case x λ(_).char λ(_).int
 
     sig aChar : ic (inl 1)
@@ -963,7 +963,7 @@
 
             <pre><code class="language-ocaml" data-noescape>
     sig Bool : type
-    val Bool = Unit | Unit
+    val Bool = Unit + Unit
 
 
 
@@ -983,7 +983,7 @@
 
             <pre><code class="language-ocaml" data-noescape>
     sig Bool : type
-    val Bool = Unit | Unit
+    val Bool = Unit + Unit
 
     sig true  : Bool
     val true  = inl unit
@@ -1003,7 +1003,7 @@
 
             <pre><code class="language-ocaml" data-noescape>
     sig Bool : type
-    val Bool = Unit | Unit
+    val Bool = Unit + Unit
 
     sig true  : Bool
     val true  = inl unit
@@ -1023,7 +1023,7 @@
 
             <pre><code class="language-ocaml" data-noescape>
     sig Bool : type
-    val Bool = Unit | Unit
+    val Bool = Unit + Unit
 
     sig true  : Bool
     val true  = inl unit
@@ -1043,7 +1043,7 @@
 
             <pre><code class="language-ocaml" data-noescape>
     sig Bool : type
-    val Bool = Unit | Unit
+    val Bool = Unit + Unit
 
     sig true  : Bool
     val true  = inl unit
@@ -1116,7 +1116,7 @@
     }-
 
     sig Expr : type → type
-    val Expr = &lambda;(A).(A = Bool * Bool) | (A = int * int)
+    val Expr = &lambda;(A).(A = Bool * Bool) + (A = int * int)
             </code></pre>
         </section>
 
