@@ -29,7 +29,7 @@
     <!-- Any section element inside of this container is displayed as a slide -->
     <div class="slides">
         <section data-background-color="white">
-            <h3>Dependent types: a quick overview</h3>
+            <h3>Understanding Dependent Types</h3>
             <p><img src="images/MySelf.png"></p>
         </section>
 
@@ -458,7 +458,7 @@
             <pre><code class="language-ocaml" data-noescape>
     (* A → B &equiv; Π(_:A).B *)
 
-    sig select : int -> type
+    sig select : int → type
     (* with select 0 = string and select i = char for i != 0 *)
 
 
@@ -475,7 +475,7 @@
             <pre><code class="language-ocaml" data-noescape>
     (* A → B &equiv; Π(_:A).B *)
 
-    sig select : int -> type
+    sig select : int → type
     (* with select 0 = string and select i = char for i != 0 *)
 
     sig aString : string
@@ -492,7 +492,7 @@
             <pre><code class="language-ocaml" data-noescape>
     (* A → B &equiv; Π(_:A).B *)
 
-    sig select : int -> type
+    sig select : int → type
     (* with select 0 = string and select i = char for i != 0 *)
 
     sig aString : select 0
@@ -938,7 +938,7 @@
             <h4>Sum type: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
-    sig ic : int | char -> type
+    sig ic : int | char → type
     val ic =  λ(x).case x λ(_).char λ(_).int
 
     sig aChar : char
@@ -950,7 +950,7 @@
             <h4>Dependent pair type: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
-    sig ic : int | char -> type
+    sig ic : int | char → type
     val ic =  λ(x).case x λ(_).char λ(_).int
 
     sig aChar : ic (inl 1)
@@ -1010,7 +1010,7 @@
     sig false : Bool
     val false = inr unit
 
-    sig Test : Bool -> type
+    sig Test : Bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
 
@@ -1030,7 +1030,7 @@
     sig false : Bool
     val false = inr unit
 
-    sig Test : Bool -> type
+    sig Test : Bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
     sig test : Π(b:Bool).?
@@ -1050,7 +1050,7 @@
     sig false : Bool
     val false = inr unit
 
-    sig Test : Bool -> type
+    sig Test : Bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
     sig test : Π(b:Bool).(Test b)
@@ -1100,7 +1100,7 @@
             <h4>Propositional equality: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
-    sig symmetric : &Pi;(A:type).&Pi;(a:A).&Pi;(b:A).(a = b -> b = a)
+    sig symmetric : &Pi;(A:type).&Pi;(a:A).&Pi;(b:A).(a = b → b = a)
     val symmetric = &lambda;(_).&lambda;(a).&lambda;(b).&lambda;(a=b).(subst refl by a=b)
             </code></pre>
         </section>
@@ -1115,7 +1115,7 @@
      | Integer of int  with A = int
     }-
 
-    sig Expr : type -> type
+    sig Expr : type → type
     val Expr = &lambda;(A).(A = Bool * Bool) | (A = int * int)
             </code></pre>
         </section>
