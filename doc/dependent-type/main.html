@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8">
 
-    <title>reveal.js – The HTML Presentation Framework</title>
+    <title>Understanding Dependent Types</title>
 
     <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-    <meta name="author" content="Hakim El Hattab">
+    <meta name="author" content="Didier Plaindoux">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -30,6 +30,7 @@
     <div class="slides">
         <section data-background-color="white">
             <h3>Understanding Dependent Types</h3>
+            <h4>From theory to practice</h4>
             <p><img src="images/MySelf.png"></p>
         </section>
 
@@ -923,7 +924,7 @@
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
     Γ ⊢ a : M + N
-    Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(_:N).P[a:=inr x]
+    Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(x:N).P[a:=inr x]
     --------------------------------------------------------
     Γ ⊢ case a l r : P
 
@@ -1061,7 +1062,7 @@
         <section>
             <h4>Propositional Equality</h4>
 
-            <p>Extentional</p>
+            <p>Extensional type theory</p>
         </section>
 
         <section>
