@@ -18,7 +18,7 @@ Some References covering dependent types and type checking in general:
 - [Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism](https://www.cl.cam.ac.uk/~nk480/bidir.pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
 
-Note: [Presentation on this subject](http://d.plaindoux.free.fr/talks/dependent-type/main.html#/73) 
+Note: [Presentation on this subject](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
 
 ## Works in progress
 
