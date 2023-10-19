@@ -59,6 +59,8 @@ let compile_bool () =
         --- Preamble
         sig Unit : type
         sig unit : Unit
+        sig int : type
+        sig char : type
         ------------
         sig Bool : type
         val Bool = Unit | Unit
@@ -70,10 +72,10 @@ let compile_bool () =
         val false  = inr unit
 
         sig Test : Bool -> type
-        val Test = fun a -> case a (fun _ -> Unit) (fun _ -> Bool)
+        val Test = fun a -> case a (fun _ -> int) (fun _ -> char)
 
         sig test : (b:Bool) -> Test b
-        val test = fun c -> case c (fun _ -> unit) (fun _ -> true)
+        val test = fun c -> case c (fun _ -> 1) (fun _ -> 'c')
         ------------
       |toy}
     <&> fun (_, l) -> check l

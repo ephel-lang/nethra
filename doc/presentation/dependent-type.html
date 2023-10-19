@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>reveal.js – The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="revealjs/dist/reset.css">
+    <link rel="stylesheet" href="revealjs/dist/reveal.css">
+    <link rel="stylesheet" href="revealjs/dist/theme/dracula.css" id="theme">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="revealjs/plugin/highlight/monokai.css">
+</head>
+
+<body>
+
+<div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+        <section data-background-color="white">
+            <h3>Dependent types: a quick overview</h3>
+            <p><img src="images/MySelf.png"></p>
+        </section>
+
+        <section>
+
+            <h4>A short definition</h4>
+
+            <p>A dependent type is a type whose <br> definition depends on a value</p>
+
+        </section>
+
+        <section>
+
+            <h4>Dependencies everywhere!</h4>
+
+            <ul>
+                <li class="fragment">terms depend on terms aka &lambda;&rightarrow;</li>
+                <li class="fragment">terms depend on types aka &lambda;2</li>
+                <li class="fragment">types depend on types aka &lambda;ω</li>
+                <li class="fragment">types depend on terms aka &lambda;P</li>
+            </ul>
+
+            <p class="fragment">All combinations with &lambda;C or Calculus of Constructions</p>
+
+        </section>
+
+        <section data-background-color="white">
+
+            <h4>The lambda cube</h4>
+
+            <img src="images/Lambda_Cube_img.png">
+        </section>
+
+        <section>
+            <h4>☕️ &nbsp; Break</h4>
+
+            <pre><code class="language-swift" data-noescape>
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>☕️ &nbsp; Break</h4>
+
+            <pre><code class="language-swift" data-noescape>
+  P0 ... Pn      when premisses P0 ... Pn are verified
+  ---------      then
+  C              we conclude C
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>☕️ &nbsp; Break</h4>
+
+            <pre><code class="language-swift" data-noescape>
+  P0 ... Pn      when premisses P0 ... Pn are verified
+  ---------      then
+  C              we conclude C
+
+  Γ              type bindings i.e. hypothesis
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>☕️ &nbsp; Break</h4>
+
+            <pre><code class="language-swift" data-noescape>
+  P0 ... Pn      when premisses P0 ... Pn are verified
+  ---------      then
+  C              we conclude C
+
+  Γ              type bindings i.e. hypothesis
+
+  Γ ⊢ A : T      given Γ, the term A inhabits the type T
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Language &lambda;1</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variable
+    t ::=
+         i                      -- Basic types (int, ...)
+         t → t                  -- Function type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Functions</h4>
+
+            <p>&lambda;-expressions: abstraction and application</p>
+        </section>
+
+        <section>
+            <h4>Functional type | <code data-noescape>M → N</code></h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    -------------------
+    Γ ⊢ λ(x).b : M → N
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Functional type | <code data-noescape>M → N</code></h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    -------------------
+    Γ ⊢ λ(x).b : M → N
+
+    Γ ⊢ f : M → N   Γ ⊢ e : M
+    --------------------------
+    Γ ⊢ f e : N
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;2 : &lambda;1 and dependant functional type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variables
+    t ::=
+         i                      -- Basic types (int, ...)
+         t → t                  -- Function type
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;2 : &lambda;1 and dependant functional type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variables
+
+         i                      -- Basic types (int, ...)
+         e → e                  -- Function type
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;2 : &lambda;1 and dependant functional type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variables
+
+         i                      -- Basic types (int, ...)
+         e → e                  -- &equiv; Π(_:e).e
+         Π(x:e).e               -- Dependent functional type
+         type                   -- type of type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code data-noescape>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre class="fragment"><code class="language-ocaml" data-noescape>
+    Γ, x : ? ⊢ b : ?
+    ----------------------
+    Γ ⊢ λ(x).b : ?
+
+    Γ ⊢ f : ?          Γ ⊢ e : ?
+    -----------------------------
+    Γ ⊢ f e : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    ----------------------
+    Γ ⊢ λ(x).b : Π(?:M).N
+
+    Γ ⊢ f : ?          Γ ⊢ e : ?
+    -----------------------------
+    Γ ⊢ f e : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    ----------------------
+    Γ ⊢ λ(x).b : Π(x:M).N
+
+    Γ ⊢ f : ?          Γ ⊢ e : ?
+    -----------------------------
+    Γ ⊢ f e : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    ----------------------
+    Γ ⊢ λ(x).b : Π(x:M).N
+
+    Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
+    -----------------------------
+    Γ ⊢ f e : N
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    ----------------------
+    Γ ⊢ λ(x).b : Π(x:M).N
+
+    Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
+    -----------------------------
+    Γ ⊢ f e : N[x:=e]
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ b : N
+    ----------------------
+    Γ ⊢ λ(x).b : Π(x:M).N
+
+    Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
+    -----------------------------
+    Γ ⊢ f e : N[x:=e]
+
+    Γ ⊢ M : ?      Γ, x : M ⊢ N : ?
+    -----------------------------------
+    Γ ⊢ Π(x:M).N : ?
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <center><p>type of return value varies with its argument</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ, x : M ⊢ B : N
+    ----------------------
+    Γ ⊢ λ(x).B : Π(x:M).N
+
+    Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
+    -----------------------------
+    Γ ⊢ f e : N[x:=e]
+
+    Γ ⊢ M : type   Γ, x : M ⊢ N : type
+    -----------------------------------
+    Γ ⊢ Π(x:M).N : type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig id_t : ?
+    val id_t = λ(X).X → X
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig id_t : type → type
+    val id_t = λ(X).X → X
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig id_t : type → type
+    val id_t = λ(X).X → X
+
+    sig add : int → int → int
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig id_t : type → type
+    val id_t = λ(X).X → X
+
+    sig add : int → int → int
+
+    sig incr : int → int
+    val incr = add 1
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig id_t : type → type
+    val id_t = λ(X).X → X
+
+    sig add : int → int → int
+
+    sig incr : id_t int
+    val incr = add 1
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: intuitive example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig select : int -> type
+    (* with select 0 = string and select i = char for i != 0 *)
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: intuitive example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig select : int -> type
+    (* with select 0 = string and select i = char for i != 0 *)
+
+    sig aString : string
+    val aString = "Hello World 👋"
+
+    sig aChar   : char
+    val aChar   = '😀'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type: intuitive example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    (* A → B &equiv; Π(_:A).B *)
+
+    sig select : int -> type
+    (* with select 0 = string and select i = char for i != 0 *)
+
+    sig aString : select 0
+    val aString = "Hello World 👋"
+
+    sig aChar   : select 1
+    val aChar   = '😀'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4> Pairs </h4>
+        </section>
+
+        <section>
+            <h4>Pair type | <code data-noescape>M * N</code></h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N
+    ----------------------
+    Γ ⊢ (a,b) : (M * N)
+
+    Γ ⊢ e : (M * N)         Γ ⊢ e : (M * N)
+    ----------------        ----------------
+    Γ ⊢ fst e : M           Γ ⊢ snd e : N
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;3: Language &lambda;2 and dependant pair type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    e ::=
+         ...
+         e,e                    -- Pair
+         fst e                  -- Left projection
+         snd e                  -- Right projection
+
+         ...
+         e * e                  -- Pair type
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;3: Language &lambda;2 and dependant pair type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    e ::=
+         ...
+         e,e                    -- Pair
+         fst e                  -- Left projection
+         snd e                  -- Right projection
+
+         ...
+         e * e                  -- &equiv; Σ(_:e).e
+         Σ(x:e).e               -- Dependent pair type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : ?   Γ ⊢ b : ?
+    ---------------------------
+    Γ ⊢ a,b : ?
+
+    Γ ⊢ p : ?                 Γ ⊢ p : ?
+    -----------------         -----------------------
+    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : ?                 Γ ⊢ p : ?
+    -----------------         -----------------------
+    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : ?                 Γ ⊢ p : ?
+    -----------------         -----------------------
+    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : ?
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : ?
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N[x:=fst p]
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependant pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <center><p>type of right value varies with its left value</p></center>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
+    ---------------------------
+    Γ ⊢ a,b : Σ(x:M).N
+
+    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N[x:=fst p]
+
+    Γ ⊢ M : type   Γ, x : M ⊢ N : type
+    -----------------------------------
+    Γ ⊢ Σ(x:M).N : type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : ?
+    val pair = (char , '🤟')
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : (type * char)
+    val pair = (char , '🤟')
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+    sig first : type
+    val first = fst pair
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+    sig first : type
+    val first = fst pair
+
+    sig second : ?
+    val second = snd pair
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+    sig first : type
+    val first = fst pair
+
+    sig second : char
+    val second = snd pair
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+    sig first : type
+    val first = fst pair
+
+    sig second : char (* x[x:=fst pair] &Rightarrow; fst pair &Rightarrow; char *)
+    val second = snd pair
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig pair : Σ(x:type).x
+    val pair = (char , '🤟')
+
+    sig first : type
+    val first = fst pair
+
+    sig second : fst pair
+    val second = snd pair
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum</h4>
+        </section>
+
+        <section>
+            <h4>&lambda;4: Language &lambda;3 and sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    x &in; Variables
+
+    e ::=
+         ...
+         inl e                  -- Left injection
+         inr e                  -- Right injection
+         case x e e             -- Catamorphism
+
+         ...
+         e + e                  -- Sum type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : ?                  Γ ⊢ a : ?
+    ------------------         ------------------
+    Γ ⊢ inl a : ?              Γ ⊢ inr a : ?
+
+    Γ ⊢ a : ?
+    Γ ⊢ l : ?                    Γ ⊢ r : ?
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+    Γ ⊢ a : ?
+    Γ ⊢ l : ?                    Γ ⊢ r : ?
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+    Γ ⊢ a : M + N
+    Γ ⊢ l : Π(x:M).P             Γ ⊢ r : Π(x:N).P
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+    Γ ⊢ a : M + N
+    Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(x:N).P[a:=inr x]
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+    Γ ⊢ a : M + N
+    Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(_:N).P[a:=inr x]
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+    Γ ⊢ M : Type    Γ ⊢ N : Type
+    -----------------------------
+    Γ ⊢ M + N : Type
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig ic : int | char -> type
+    val ic =  λ(x).case x λ(_).char λ(_).int
+
+    sig aChar : char
+    val aChar = 'c'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig ic : int | char -> type
+    val ic =  λ(x).case x λ(_).char λ(_).int
+
+    sig aChar : ic (inl 1)
+    val aChar = 'c'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: advanced example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig Bool : type
+    val Bool = Unit | Unit
+
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: advanced example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig Bool : type
+    val Bool = Unit | Unit
+
+    sig true  : Bool
+    val true  = inl unit
+    sig false : Bool
+    val false = inr unit
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: advanced example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig Bool : type
+    val Bool = Unit | Unit
+
+    sig true  : Bool
+    val true  = inl unit
+    sig false : Bool
+    val false = inr unit
+
+    sig Test : Bool -> type
+    val Test = λ(b).case b λ(_).int λ(_).char
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: advanced example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig Bool : type
+    val Bool = Unit | Unit
+
+    sig true  : Bool
+    val true  = inl unit
+    sig false : Bool
+    val false = inr unit
+
+    sig Test : Bool -> type
+    val Test = λ(b).case b λ(_).int λ(_).char
+
+    sig test : Π(b:Bool).?
+    val test = λ(c).case c λ(_).1 λ(c).'c'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: advanced example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig Bool : type
+    val Bool = Unit | Unit
+
+    sig true  : Bool
+    val true  = inl unit
+    sig false : Bool
+    val false = inr unit
+
+    sig Test : Bool -> type
+    val Test = λ(b).case b λ(_).int λ(_).char
+
+    sig test : Π(b:Bool).(Test b)
+    val test = λ(c).case c λ(_).1 λ(c).'c'
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional Equality</h4>
+
+            <p>Extentional</p>
+        </section>
+
+        <section>
+            <h4>&lambda;5: Language &lambda;4 and propositional equality</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    e ::=
+         ...
+         refl                   -- Reflexivity
+         subs e in e            -- Substitution
+
+         ...
+         e = e                  -- Type equality
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+                              Γ ⊢ n : A    Γ ⊢ m : A
+    -----------------         -----------------------
+    Γ ⊢ refl : m = m          Γ ⊢ n = m : Type
+
+    Γ ⊢ b : x = B    Γ ⊢ a : A[x:=B]
+    ---------------------------------
+    Γ ⊢ subst a by b : A
+
+    Γ ⊢ b : B = x    Γ ⊢ a : A[x:=B]
+    ---------------------------------
+    Γ ⊢ subst a by b : A
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: simple example</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    sig symmetric : &Pi;(A:type).&Pi;(a:A).&Pi;(b:A).(a = b -> b = a)
+    val symmetric = &lambda;(_).&lambda;(a).&lambda;(b).&lambda;(a=b).(subst refl by a=b)
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: GADT encoding</h4>
+
+            <pre><code class="language-ocaml" data-noescape>
+    -{
+     data Expr A =
+     | Boolean of Bool with A = Bool
+     | Integer of int  with A = int
+    }-
+
+    sig Expr : type -> type
+    val Expr = &lambda;(A).(A = Bool * Bool) | (A = int * int)
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: open problem</h4>
+
+            <h1 class="fragment">EQUALITY</h1>
+        </section>
+
+        <section>
+            <h4>Not covered in this presentation</h4>
+
+            <ul>
+                <li>Implicits and simple type synthesis</li>
+                <li>Dependent recursive type</li>
+                <li>Dependent record type (&Sigma; type generalisation)</li>
+                <li>Russell's Paradox</li>
+            </ul>
+        </section>
+
+        <section>
+            <h4>Russell's Paradox</h4>
+
+            <center>R = { X &mid; X &notin; X }</center>
+
+            <p>Introduction of a type hierarchy</p>
+
+        </section>
+
+        <section>
+            <h3>Conclusion</h3>
+
+            <p>Think Different!</p>
+        </section>
+
+        <section>
+            <h4>Languages</h4>
+
+            <ul>
+                <li> Coq </li>
+                <li> Agda </li>
+                <li> Idris </li>
+                <li> F* </li>
+                <li> Lean </li>
+                <li> ... </li>
+                <li><a href="https://github.com/lambe-lang/nethra">Nethra</a></li>
+            </ul>
+
+        </section>
+
+        <section>
+            <h4>References</h4>
+
+            <ul>
+                <li><a href="https://hal.inria.fr/inria-00076024/document">The calculus of constructions</a>
+                <li><a href="https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf">A simple type-theoretic language: Mini-TT</a>
+                <li><a href="http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf">ΠΣ: Dependent Types without the Sugar</a>
+                <li><a href="https://dl.acm.org/doi/pdf/10.1145/289423.289451">Cayenne a language with dependent types</a>
+                <li><a href="https://arxiv.org/pdf/2207.02129.pdf">Implementing Dependent Types in pi-forall</a>
+                <li><a href="https://homotopytypetheory.org/book/">Homotopy Type Theory</a>
+                <li><a href="https://nextjournal.com/zampino/russell-paradox">Russell's Paradox - Agda Edition</a></li>
+            </ul>
+        </section>
+
+    </div>
+
+</div>
+
+<script src="revealjs/dist/reveal.js"></script>
+<script src="revealjs/plugin/zoom/zoom.js"></script>
+<script src="revealjs/plugin/notes/notes.js"></script>
+<script src="revealjs/plugin/search/search.js"></script>
+<script src="revealjs/plugin/markdown/markdown.js"></script>
+<script src="revealjs/plugin/highlight/highlight.js"></script>
+<script>
+
+    // Also available as an ES module, see:
+    // https://revealjs.com/initialization/
+    Reveal.initialize({
+        controls: false,
+        progress: false,
+        center: true,
+        hash: true,
+        transition: 'none',
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+    });
+
+</script>
+
+</body>
+</html>

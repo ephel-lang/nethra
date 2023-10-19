@@ -232,17 +232,18 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
       <&> fun (_, rhd, _) -> [ hypothesis |- term <= rhd ] )
 
   (*
-    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C[a:=inl l]   Γ ⊢ r : Π(_:B).T[a:=inr r]   a in Id
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(x:A).C[a:=inl x]   Γ ⊢ r : Π(x:B).C[a:=inr x]   a in Id
     ---------------------------------------------------------------------------------
     Γ ⊢ case a l r : C
 
-    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).T    a not in Id
+    Γ ⊢ a : A + B   Γ ⊢ l : Π(_:A).C   Γ ⊢ r : Π(_:B).C    a not in Id
     ------------------------------------------------------------------
     Γ ⊢ case a l r : C
   *)
-  and check_case hypothesis term' (term, left, right, _c) =
+  and check_case hypothesis term' (term, left, right, c) =
     let proof = hypothesis |- term => () in
     let term'' = get_type proof in
+    let v, hypothesis = fresh_variable hypothesis "_" in
     proof_from_option ~proofs:[ proof ]
       ~reason:(return "Waiting for a Sum term")
       ( term''
@@ -252,11 +253,11 @@ module Impl (Theory : Specs.Theory) (Infer : Specs.Infer) = struct
         proof
       ; hypothesis
         |- left
-        <= pi "_" lhd (reduce hypothesis @@ try_substitute term (inl left) term')
+        <= pi v lhd (reduce hypothesis @@ try_substitute term (inl (id ~c v)) term')
       ; hypothesis
         |- right
-        <= pi "_" rhd
-             (reduce hypothesis @@ try_substitute term (inr right) term')
+        <= pi v rhd
+             (reduce hypothesis @@ try_substitute term (inr (id ~c v)) term')
       ] )
 
   (*
