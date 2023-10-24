@@ -1,12 +1,18 @@
 # Nethra
 
-Nethra is an experiment based on well know theories and constructions like:
+Nethra is an experiment based on well-known theories and constructions like:
 - dependent function type,
 - sigma type
 - dependent record (can subsume sigma type),
 - recursive type,
 - sum type
 - core lambda calculus
+
+## Presentation
+
+[A presentation about this project and dependent types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
+
+## References
 
 Some References covering dependent types and type checking in general:
 
@@ -17,10 +23,6 @@ Some References covering dependent types and type checking in general:
 - [Implementing Dependent Types in pi-forall](https://arxiv.org/pdf/2207.02129.pdf)
 - [Complete and Easy Bidirectional Typechecking for Higher-Rank Polymorphism](https://www.cl.cam.ac.uk/~nk480/bidir.pdf)
 - [Homotopy Type Theory](https://homotopytypetheory.org/book/)
-
-## Presentation
-
-[A presentation about this project and dependent types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
 
 ## Works in progress
 
