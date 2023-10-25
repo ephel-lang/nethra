@@ -35,15 +35,46 @@
         </section>
 
         <section>
+            <h4>Why Dependent Types?</h4>
 
-            <h4>A short definition</h4>
+            <ul>
+                <li class="fragment">Reinforcing programme security</li>
+                <li class="fragment">Critical software (Space, Automation, Blockchains ...)</li>
+            </ul>
 
-            <p>A dependent type is a type whose <br> definition depends on a value</p>
+            <br><br>
 
+            <h6 class="fragment">Curry–Howard correspondence (Proof and Programs)</h6>
         </section>
 
         <section>
+            <h4>Dependent Types and Blockchains</h4>
 
+            <ul>
+                <li class="fragment">Proof of laws e.g. consensus</li>
+                <li class="fragment">Tezos with Coq, Cardano with Agda ...</li>
+                <li class="fragment">Tezos byte code with MI-CHO-COQ</li>
+                <li class="fragment">What about Smart Contracts?</li>
+            </ul>
+        </section>
+
+        <section>
+            <h4>Understanding Dependent Types means ...</h4>
+
+            <ul>
+                <li class="fragment">Learn from foundations</li>
+                <li class="fragment">Don't rely on sugar!</li>
+                <li class="fragment">Design my own P.L. i.e. Nethra</li>
+            </ul>
+        </section>
+
+        <section>
+            <h4>A short definition</h4>
+
+            <p>A dependent type is a type whose <br> definition depends on a value</p>
+        </section>
+
+        <section>
             <h4>Dependencies everywhere!</h4>
 
             <ul>
@@ -54,7 +85,6 @@
             </ul>
 
             <p class="fragment">All combinations with &lambda;C or Calculus of Constructions</p>
-
         </section>
 
         <section data-background-color="white">
@@ -948,7 +978,7 @@
         </section>
 
         <section>
-            <h4>Dependent pair type: simple example</h4>
+            <h4>Sum type: simple example</h4>
 
             <pre><code class="language-ocaml" data-noescape>
     sig ic : int + char → type
@@ -1118,6 +1148,12 @@
 
     sig Expr : type → type
     val Expr = &lambda;(A).(A = Bool * Bool) + (A = int * int)
+
+    sig Boolean : &Pi;(A:type).&Pi;(_:A = Bool).(Bool -> Expr A)
+    val Boolean = &lambda;(_).&lambda;(p)&lambda;(b).inl (p,b)
+
+    sig Integer : &Pi;(A:type).&Pi;(_:A = Bool).(Int -> Expr A)
+    val Integer = &lambda;(_).&lambda;(p)&lambda;(b).inr (p,b)
             </code></pre>
         </section>
 
@@ -1157,12 +1193,12 @@
             <h4>Languages</h4>
 
             <ul>
-                <li> Coq </li>
-                <li> Agda </li>
-                <li> Idris </li>
-                <li> F* </li>
-                <li> Lean </li>
-                <li> ... </li>
+                <li> Coq</li>
+                <li> Agda</li>
+                <li> Idris</li>
+                <li> F*</li>
+                <li> Lean</li>
+                <li> ...</li>
                 <li><a href="https://github.com/lambe-lang/nethra">Nethra</a></li>
             </ul>
 
@@ -1173,9 +1209,12 @@
 
             <ul>
                 <li><a href="https://hal.inria.fr/inria-00076024/document">The calculus of constructions</a>
-                <li><a href="https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf">A simple type-theoretic language: Mini-TT</a>
-                <li><a href="http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf">ΠΣ: Dependent Types without the Sugar</a>
-                <li><a href="https://dl.acm.org/doi/pdf/10.1145/289423.289451">Cayenne a language with dependent types</a>
+                <li><a href="https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf">A simple type-theoretic language:
+                    Mini-TT</a>
+                <li><a href="http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf">ΠΣ: Dependent Types without the
+                    Sugar</a>
+                <li><a href="https://dl.acm.org/doi/pdf/10.1145/289423.289451">Cayenne a language with dependent
+                    types</a>
                 <li><a href="https://arxiv.org/pdf/2207.02129.pdf">Implementing Dependent Types in pi-forall</a>
                 <li><a href="https://homotopytypetheory.org/book/">Homotopy Type Theory</a>
                 <li><a href="https://nextjournal.com/zampino/russell-paradox">Russell's Paradox - Agda Edition</a></li>
