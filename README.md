@@ -4,7 +4,7 @@ Nethra is an experiment based on well-known theories and constructions like:
 - dependent function type,
 - sigma type
 - dependent record (can subsume sigma type),
-- recursive type,
+- dependant recursive type,
 - sum type
 - core lambda calculus
 
