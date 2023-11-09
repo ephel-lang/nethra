@@ -958,9 +958,9 @@
     --------------------------------------------------------
     Γ ⊢ case a l r : P
 
-    Γ ⊢ M : Type    Γ ⊢ N : Type
+    Γ ⊢ M : type    Γ ⊢ N : type
     -----------------------------
-    Γ ⊢ M + N : Type
+    Γ ⊢ M + N : type
             </code></pre>
 
         </section>
@@ -1105,7 +1105,7 @@
          subst e by e           -- Substitution
 
          ...
-         e = e                  -- Type equality
+         e = e                  -- type equality
             </code></pre>
         </section>
 
@@ -1115,7 +1115,7 @@
             <pre><code class="language-ocaml" data-noescape>
                               Γ ⊢ n : A    Γ ⊢ m : A
     -----------------         -----------------------
-    Γ ⊢ refl : m = m          Γ ⊢ n = m : Type
+    Γ ⊢ refl : m = m          Γ ⊢ n = m : type
 
     Γ ⊢ b : x = B    Γ ⊢ a : A[x:=B]
     ---------------------------------
