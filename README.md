@@ -1,16 +1,16 @@
 # Nethra
 
 Nethra is an experiment based on well-known theories and constructions like:
-- dependant function type (Pi type),
-- dependant pair type (Sigma type), 
+- dependent function type (Pi type),
+- dependent pair type (Sigma type), 
 - dependent record (can subsume sigma type),
-- dependant recursive type,
-- dependant sum type
+- dependent recursive type,
+- dependent sum type
 - core lambda calculus
 
 ## Presentation
 
-[A presentation about this project and dependant types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
+[A presentation about this project and dependent types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
 
 ## References
 
@@ -48,15 +48,15 @@ e ::=
     c               -- Character literal
     s               -- String literal
     
-    Π(n:e).e        -- Dependant function type
+    Π(n:e).e        -- Dependent function type
     λ(n).e          -- Function
     e e             -- Application
-    Π{n:e}.e        -- Dependant function type possibly implicit
+    Π{n:e}.e        -- Dependent function type possibly implicit
     λ{n}.e          -- Function possibly implicit
     e {e}           -- Application possibly implicit
     let n = e in e  -- Let binding 
     
-    Σ(n:e).e        -- Dependant pair type
+    Σ(n:e).e        -- Dependent pair type
     e , e           -- Pair
     fst e           -- Left projection
     snd e           -- Right Projection
@@ -76,14 +76,14 @@ e ::=
     refl            -- Reflexivity   
     subst e by e    -- Substitution 
     
-    < n : e, ...>   -- Dependant record type
+    < n : e, ...>   -- Dependent record type
     { n = e, ...}   -- Record
     e.n             -- Field access
 ```
 
 ### Typing rules
 
-#### Stratified types and cumulativity
+#### Stratified types and cumulatively
 
 By default, the type system is designed on stratified types. 
 
@@ -99,7 +99,7 @@ By default, the type system is designed on stratified types.
 
 #### Type in Type i.e. impredicative
 
-It's also possible to enable the type in type capability. In this case, the previous rules can be revisited as follows.
+It's also possible to enable the type-in-type capability. In this case, the previous rules can be revisited as follows.
 
 ```
 Γ ⊢
@@ -131,7 +131,7 @@ l ∈ string
 Γ ⊢ l : string
 ```
 
-#### Dependant function type and application
+#### Dependent function type and application
 
 ```
 Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
@@ -159,7 +159,7 @@ l ∈ string
 Γ ⊢ let x = e in f : N[x:=e]            
 ```
 
-#### Implicit type in Dependant function type and application
+#### Implicit type in Dependent function type and application
 
 ```
 Γ ⊢ λ{x}.B : Π{x:A}.T   B ≠ λ{y}.C
@@ -171,7 +171,7 @@ l ∈ string
 Γ ⊢ f : N
 ```
 
-#### Dependant pair type and deconstructions
+#### Dependent pair type and deconstructions
 
 ```
 Γ ⊢ M : Type_i   Γ, x : M ⊢ N : Type_j
@@ -260,7 +260,7 @@ l ∈ string
 Γ ⊢ subst a by b : A
 ```
 
-#### Dependant record
+#### Dependent record
 
 ```
 Γ ⊢ 
@@ -366,7 +366,7 @@ sig combineInt : combine int
 val combineInt = add
 ```
 
-Or with possibly implicit parameter ...
+Or with possibly implicit parameters...
 
 ```ocaml
 sig combine : {x:type} -> X -> X -> X
@@ -379,7 +379,7 @@ val combineInt = add
 
 #### Type level programming
 
-In this example with first define a function returning a type depending on the parameter.
+In this example we first define a function returning a type depending on the parameter.
 
 Then if the parameter is an `int` it returns the type `char` and if it's a `char` it returns an `int`.
 
@@ -388,14 +388,14 @@ sig ic : int | char -> type
 val ic = fun x -> case x (fun _ -> char) (fun _ -> int)
 ```
 
-Then such function can be used in type level. For instance the expression `ic (inl 1)` produces the type `char`.
+Then such function can be used in type level. For instance, the expression `ic (inl 1)` produces the type `char`.
 
 ```ocaml
 sig m1 : ic (inl 1)
 val m1 = 'c'
 ```
 
-An advanced usage can be proposed thanks to dependent types and `case` construction.
+Thanks to dependent types and `case` construction, an advanced usage can be proposed.
 
 ```ocaml
 sig Unit : type
@@ -423,7 +423,7 @@ the type `Bool`.
 
 #### Dependent pair
 
-In this example, the dependent pair is illustrated thanks to the couple data structure.
+This example illustrates the dependent pair thanks to the couple data structure.
 
 ```ocaml
 sig m : (t:type) * t
@@ -443,7 +443,8 @@ trait Monoid {
 }
 ```
 
-can be expressed by the type `(self:type) * (self * (self -> self -> self))`. Of course projections facilities provided by a trait should also be expressed thanks to the couple deconstruction using `fst` and `snd`.
+can be expressed by the type `(self:type) * (self * (self -> self -> self))`. Of course projections facilities 
+provided by a trait should also be expressed thanks to the couple deconstruction using `fst` and `snd`.
 
 ```ocaml
 sig Monoid : type
@@ -481,11 +482,11 @@ sig IntMonoid : Monoid
 val IntMonoid = (int, 0, add)
 ```
 
-With this denotation the implementation can't be done using "internal" functions.
+With this denotation, the implementation can't be done using "internal" functions.
 
 ###### Extensible approach
 
-For this purpose we can review it adding a polymorphic parameter in order to mimic the row polymorphism.
+For this purpose, we can review it by adding a polymorphic parameter to mimic the row polymorphism.
 
 ```ocaml
 sig Monoid_T : type -> type
@@ -508,7 +509,7 @@ sig compose : {X:type} -> Monoid_T X -> Compose_T
 val compose = fun x -> fst x, fst (snd (snd x))
 ```
 
-With such approach `X` cannot capture the existential type which is not really satisfactory.
+With such an approach `X` cannot capture the existential type which is not satisfactory.
 
 #### Recursive sum types
 
@@ -644,7 +645,7 @@ val zero =
     end
 ```
 
-Object-oriented approach can be "simulated" thanks to structures and recursive type. 
+The object-oriented approach can be "simulated" thanks to structures and recursive type. 
 
 ```ocaml
 sig int : type
@@ -676,7 +677,7 @@ sig x : int
 val x = #x unfold zero
 ```
 
-#### Dependant record
+#### Dependent record
 
 ```ocaml
 sig Monad : (type -> type) -> type
