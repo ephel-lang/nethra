@@ -81,8 +81,9 @@ let compile_basic_dependant_record_type_and_instance () =
                 -{
                 sig law2 : {a:self} -> equals a (combine a neutral)
                 sig law3 : {a b c:self} ->
-                    let comb = combine in
-                    equals (comb (comb a b) c) (comb a (comb b c))
+                    let lhd = combine (combine a b) c in
+                    let rhd = combine a (combine b c) in
+                    equals lhd rhd
                 }-
             end
 
