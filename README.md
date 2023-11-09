@@ -2,7 +2,7 @@
 
 Nethra is an experiment based on well-known theories and constructions like:
 - dependant function type (Pi type),
-- dependant product type (Sigma type), 
+- dependant pair type (Sigma type), 
 - dependent record (can subsume sigma type),
 - dependant recursive type,
 - dependant sum type
