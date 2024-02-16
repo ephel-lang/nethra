@@ -43,7 +43,9 @@ let compile_gadt () =
       sig eval : {A:type} -> Expr A -> A
       val eval = fun {A} e -> case e (id_subst_right {Bool} {A}) (id_subst_right {int} {A})
 
-      val res1 : int  = eval (Integer 1)
+      val i1 : Expr int = Integer {int} {refl} 1
+
+      val res1 : int  = eval i1
       val res2 : Bool = eval (Boolean true)
       |toy}
     <&> fun (_, l) -> check l

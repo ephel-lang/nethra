@@ -13,6 +13,7 @@ let compile_identity () =
         sig int : type
         -----------
         sig id  : (a:type) -> a -> a
+        val id  = fun _ a -> a
         sig one : int
         val one = id int 1
         -----------

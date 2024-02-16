@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Understanding Dependent Types</title>
+    <title>Dependent Types</title>
 
     <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
     <meta name="author" content="Didier Plaindoux">
@@ -29,9 +29,10 @@
     <!-- Any section element inside of this container is displayed as a slide -->
     <div class="slides">
         <section data-background-color="white">
-            <h3>Understanding Dependent Types</h3>
+            <h3>Dependent Types</h3>
             <h4>From theory to practice</h4>
-            <p><img src="images/MySelf.png"></p>
+            <!-- p><img src="images/MySelf.png"></p -->
+            <p> D. Plaindoux | ScalaIO 2024</p>
         </section>
 
         <section>
@@ -39,31 +40,27 @@
 
             <ul>
                 <li class="fragment">Reinforcing programme security</li>
-                <li class="fragment">Critical software (Space, Automation, Blockchains ...)</li>
+                <li class="fragment">Critical software (Space, Automation, Blockchains etc.)</li>
             </ul>
-
-            <br><br>
-
-            <h6 class="fragment">Curry–Howard correspondence (Proof and Programs)</h6>
         </section>
 
         <section>
             <h4>Dependent Types and Blockchains</h4>
 
             <ul>
-                <li class="fragment">Tezos with Coq, Cardano with Agda ...</li>
+                <li class="fragment">Tezos with Coq, Cardano with Agda</li>
                 <li class="fragment">Tezos byte code with MI-CHO-COQ</li>
                 <li class="fragment">Proof of laws e.g. consensus</li>
             </ul>
         </section>
 
         <section>
-            <h4>Understanding Dependent Types means ...</h4>
+            <h4>Understanding Dependent Types means</h4>
 
             <ul>
                 <li class="fragment">Learn from foundations</li>
-                <li class="fragment">Don't rely on sugar</li>
-                <li class="fragment">Design my own P.L. i.e. Nethra</li>
+                <li class="fragment">Focus on a core calculus</li>
+                <li class="fragment">Design a language!</li>
             </ul>
         </section>
 
@@ -143,16 +140,50 @@
   ---------      then
   C              we conclude C
 
-  Γ              type bindings i.e. hypothesis
+  Γ              type bindings (X : T) i.e. hypothesis
 
-  Γ ⊢ A : T      given Γ, the term A inhabits the type T
+  Γ ⊢ A : T      Given Γ, the term A inhabits the type T
             </code></pre>
         </section>
 
         <section>
             <h4>Language &lambda;1</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Language &lambda;1</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variable
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Language &lambda;1</h4>
+
+            <pre><code class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -161,7 +192,7 @@
          e e                    -- Application
          x                      -- Variable
     t ::=
-         i                      -- Basic types (int, ...)
+         i                      -- Basic types
          t → t                  -- Function type
             </code></pre>
         </section>
@@ -175,10 +206,11 @@
         <section>
             <h4>Functional type | <code data-noescape>M → N</code></h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
     -------------------
     Γ ⊢ λ(x).b : M → N
+
 
 
 
@@ -189,10 +221,11 @@
         <section>
             <h4>Functional type | <code data-noescape>M → N</code></h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
     -------------------
     Γ ⊢ λ(x).b : M → N
+
 
     Γ ⊢ f : M → N   Γ ⊢ e : M
     --------------------------
@@ -203,7 +236,7 @@
         <section>
             <h4>&lambda;2 : &lambda;1 and dependent functional type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -222,7 +255,7 @@
         <section>
             <h4>&lambda;2 : &lambda;1 and dependent functional type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -241,7 +274,26 @@
         <section>
             <h4>&lambda;2 : &lambda;1 and dependent functional type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         λ(x).e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variables
+
+         i                      -- Basic types (int, ...)
+         e → e                  -- Function type
+         Π(x:e).e               -- Dependent functional type
+         type                   -- type of type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;2 : &lambda;1 and dependent functional type</h4>
+
+            <pre><code class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -260,16 +312,40 @@
         <section>
             <h4>Dependent functional type | <code data-noescape>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre class="fragment"><code class="language-ocaml" data-noescape>
-    Γ, x : ? ⊢ b : ?
-    ----------------------
-    Γ ⊢ λ(x).b : ?
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    --------------------------------
+    Γ ⊢ λ(x).b : M → N
 
-    Γ ⊢ f : ?          Γ ⊢ e : ?
+
+    Γ ⊢ f : M → N   Γ ⊢ e : M
+    --------------------------
+    Γ ⊢ f e : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code data-noescape>&Pi;(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    --------------------------------
+    Γ ⊢ λ(x).b : Π(_:M).N
+
+
+    Γ ⊢ f : Π(_:M).N   Γ ⊢ e : M
     -----------------------------
-    Γ ⊢ f e : ?
+    Γ ⊢ f e : N
+
 
 
 
@@ -280,36 +356,18 @@
         <section>
             <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
-    ----------------------
-    Γ ⊢ λ(x).b : Π(?:M).N
-
-    Γ ⊢ f : ?          Γ ⊢ e : ?
-    -----------------------------
-    Γ ⊢ f e : ?
-
-
-
-
-            </code></pre>
-        </section>
-
-        <section>
-            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
-
-            <center><p>type of return value varies with its argument</p></center>
-
-            <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ b : N
-    ----------------------
+    --------------------------------
     Γ ⊢ λ(x).b : Π(x:M).N
 
-    Γ ⊢ f : ?          Γ ⊢ e : ?
+
+    Γ ⊢ f : Π(_:M).N   Γ ⊢ e : M
     -----------------------------
-    Γ ⊢ f e : ?
+    Γ ⊢ f e : N
+
 
 
 
@@ -320,12 +378,35 @@
         <section>
             <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ b : N
-    ----------------------
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N   Γ ⊢ M : type
+    --------------------------------
     Γ ⊢ λ(x).b : Π(x:M).N
+
+
+    Γ ⊢ f : Π(_:M).N   Γ ⊢ e : M
+    -----------------------------
+    Γ ⊢ f e : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N   Γ ⊢ M : type
+    --------------------------------
+    Γ ⊢ λ(x).b : Π(x:M).N
+
 
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
     -----------------------------
@@ -334,18 +415,20 @@
 
 
 
+
             </code></pre>
         </section>
 
         <section>
             <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ b : N
-    ----------------------
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N   Γ ⊢ M : type
+    --------------------------------
     Γ ⊢ λ(x).b : Π(x:M).N
+
 
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
     -----------------------------
@@ -354,22 +437,25 @@
 
 
 
+
             </code></pre>
         </section>
 
         <section>
             <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ b : N
-    ----------------------
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N   Γ ⊢ M : type
+    --------------------------------
     Γ ⊢ λ(x).b : Π(x:M).N
+
 
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
     -----------------------------
     Γ ⊢ f e : N[x:=e]
+
 
     Γ ⊢ M : ?      Γ, x : M ⊢ N : ?
     -----------------------------------
@@ -380,16 +466,18 @@
         <section>
             <h4>Dependent functional type | <code>&Pi;(x:M).N</code></h4>
 
-            <center><p>type of return value varies with its argument</p></center>
+            <div style="text-align: center;"><p>type of return value varies with its argument</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ, x : M ⊢ b : N
-    ----------------------
+            <pre><code class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N   Γ ⊢ M : type
+    --------------------------------
     Γ ⊢ λ(x).b : Π(x:M).N
+
 
     Γ ⊢ f : Π(x:M).N   Γ ⊢ e : M
     -----------------------------
     Γ ⊢ f e : N[x:=e]
+
 
     Γ ⊢ M : type   Γ, x : M ⊢ N : type
     -----------------------------------
@@ -400,8 +488,8 @@
         <section>
             <h4>Dependent functional type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B
 
     sig id_t : ?
     val id_t = λ(X).X → X
@@ -417,8 +505,8 @@
         <section>
             <h4>Dependent functional type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B
 
     sig id_t : type → type
     val id_t = λ(X).X → X
@@ -434,13 +522,13 @@
         <section>
             <h4>Dependent functional type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B
 
     sig id_t : type → type
     val id_t = λ(X).X → X
 
-    sig add : int → int → int
+    sig combine : Π(A:type).A → A → A
 
 
 
@@ -451,16 +539,16 @@
         <section>
             <h4>Dependent functional type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B
 
     sig id_t : type → type
     val id_t = λ(X).X → X
 
-    sig add : int → int → int
+    sig combine : Π(A:type).A → A → A
 
     sig incr : int → int
-    val incr = add 1
+    val incr = combine int 1
 
             </code></pre>
         </section>
@@ -468,16 +556,16 @@
         <section>
             <h4>Dependent functional type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B
 
     sig id_t : type → type
     val id_t = λ(X).X → X
 
-    sig add : int → int → int
+    sig combine : Π(A:type).A → A → A
 
     sig incr : id_t int
-    val incr = add 1
+    val incr = combine int 1
 
             </code></pre>
         </section>
@@ -485,11 +573,12 @@
         <section>
             <h4>Dependent functional type: intuitive example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B 
 
     sig select : int → type
-    (* with select 0 = string and select i = char for i != 0 *)
+    -- with select 0 = string and
+    --      select i = char for i != 0
 
 
 
@@ -502,11 +591,12 @@
         <section>
             <h4>Dependent functional type: intuitive example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B 
 
     sig select : int → type
-    (* with select 0 = string and select i = char for i != 0 *)
+    -- with select 0 = string and
+    --      select i = char for i != 0
 
     sig aString : string
     val aString = "Hello World 👋"
@@ -519,11 +609,12 @@
         <section>
             <h4>Dependent functional type: intuitive example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    (* A → B &equiv; Π(_:A).B *)
+            <pre><code class="language-nethra" data-noescape>
+    -- A → B &equiv; Π(_:A).B 
 
     sig select : int → type
-    (* with select 0 = string and select i = char for i != 0 *)
+    -- with select 0 = string and
+    --      select i = char for i != 0
 
     sig aString : select 0
     val aString = "Hello World 👋"
@@ -538,15 +629,32 @@
         </section>
 
         <section>
+            <h4>&lambda;3: Language &lambda;2 and dependent pair type</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    e ::=
+         ...
+         e , e                  -- Pair
+         fst e                  -- Left projection
+         snd e                  -- Right projection
+
+         ...
+         e * e                  -- Pair type
+
+            </code></pre>
+        </section>
+
+        <section>
             <h4>Pair type | <code data-noescape>M * N</code></h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : M   Γ ⊢ b : N
     ----------------------
-    Γ ⊢ (a,b) : (M * N)
+    Γ ⊢ a , b : M * N
 
-    Γ ⊢ e : (M * N)         Γ ⊢ e : (M * N)
-    ----------------        ----------------
+
+    Γ ⊢ e : M * N           Γ ⊢ e : M * N
+    --------------          ----------------
     Γ ⊢ fst e : M           Γ ⊢ snd e : N
             </code></pre>
         </section>
@@ -554,10 +662,10 @@
         <section>
             <h4>&lambda;3: Language &lambda;2 and dependent pair type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     e ::=
          ...
-         e,e                    -- Pair
+         e , e                  -- Pair
          fst e                  -- Left projection
          snd e                  -- Right projection
 
@@ -570,10 +678,10 @@
         <section>
             <h4>&lambda;3: Language &lambda;2 and dependent pair type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     e ::=
          ...
-         e,e                    -- Pair
+         e , e                  -- Pair
          fst e                  -- Left projection
          snd e                  -- Right projection
 
@@ -586,56 +694,18 @@
         <section>
             <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
 
-            <center><p>type of right value varies with its left value</p></center>
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : ?   Γ ⊢ b : ?
-    ---------------------------
-    Γ ⊢ a,b : ?
-
-    Γ ⊢ p : ?                 Γ ⊢ p : ?
-    -----------------         -----------------------
-    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
-
-
-
-
-            </code></pre>
-        </section>
-
-        <section>
-            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
-
-            <center><p>type of right value varies with its left value</p></center>
-
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : M   Γ ⊢ b : N
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
-
-    Γ ⊢ p : ?                 Γ ⊢ p : ?
-    -----------------         -----------------------
-    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
+    -------------------------------------------
+    Γ ⊢ a , b : M * N
 
 
+    Γ ⊢ p : M * N             Γ ⊢ p : M * N
+    -------------             -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
 
-
-            </code></pre>
-        </section>
-
-        <section>
-            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
-
-            <center><p>type of right value varies with its left value</p></center>
-
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
-
-    Γ ⊢ p : ?                 Γ ⊢ p : ?
-    -----------------         -----------------------
-    Γ ⊢ fst p : ?             Γ ⊢ snd p : ?
 
 
 
@@ -646,16 +716,18 @@
         <section>
             <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
 
-            <center><p>type of right value varies with its left value</p></center>
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(_:M).N
 
-    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : ?
+
+    Γ ⊢ p : Σ(_:M).N          Γ ⊢ p : Σ(_:M).N
     -----------------         -----------------------
-    Γ ⊢ fst p : M             Γ ⊢ snd p : ?
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
 
 
 
@@ -666,12 +738,101 @@
         <section>
             <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
 
-            <center><p>type of right value varies with its left value</p></center>
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
+
+    Γ ⊢ p : Σ(_:M).N          Γ ⊢ p : Σ(_:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N         Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
+
+    Γ ⊢ p : Σ(_:M).N          Γ ⊢ p : Σ(_:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]   Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
+
+    Γ ⊢ p : Σ(_:M).N          Γ ⊢ p : Σ(_:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]   Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
+
+    Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(_:M).N
+    -----------------         -----------------------
+    Γ ⊢ fst p : M             Γ ⊢ snd p : N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
+
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]   Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
 
     Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
     -----------------         -----------------------
@@ -680,18 +841,20 @@
 
 
 
+
             </code></pre>
         </section>
 
         <section>
             <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
 
-            <center><p>type of right value varies with its left value</p></center>
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]   Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
 
     Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
     -----------------         -----------------------
@@ -700,22 +863,25 @@
 
 
 
+
             </code></pre>
         </section>
 
         <section>
             <h4>Dependent pair type | <code data-noescape>Σ(x:M).N</code></h4>
 
-            <center><p>type of right value varies with its left value</p></center>
+            <div style="text-align: center;"><p>type of right value varies with its left value</p></div>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]
-    ---------------------------
-    Γ ⊢ a,b : Σ(x:M).N
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M   Γ ⊢ b : N[x:=a]   Γ ⊢ M : type
+    -------------------------------------------
+    Γ ⊢ a , b : Σ(x:M).N
+
 
     Γ ⊢ p : Σ(x:M).N          Γ ⊢ p : Σ(x:M).N
     -----------------         -----------------------
     Γ ⊢ fst p : M             Γ ⊢ snd p : N[x:=fst p]
+
 
     Γ ⊢ M : type   Γ, x : M ⊢ N : type
     -----------------------------------
@@ -726,9 +892,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : ?
-    val pair = (char , '🤟')
+    val pair = char , '🤟'
 
 
 
@@ -741,9 +907,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig pair : (type * char)
-    val pair = (char , '🤟')
+            <pre><code class="language-nethra" data-noescape>
+    sig pair : type * char
+    val pair = char , '🐶'
 
 
 
@@ -756,9 +922,24 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
+    sig pair : Σ(x:type).char
+    val pair = char , '🐶'
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = char , '🐶'
 
 
 
@@ -771,9 +952,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = char , '🐶'
 
     sig first : type
     val first = fst pair
@@ -786,9 +967,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = char , '🐶'
 
     sig first : type
     val first = fst pair
@@ -801,9 +982,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = char , '🐶'
 
     sig first : type
     val first = fst pair
@@ -816,14 +997,14 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = char , '🐶'
 
     sig first : type
     val first = fst pair
 
-    sig second : char (* x[x:=fst pair] &Rightarrow; fst pair &Rightarrow; char *)
+    sig second : char -- char &equiv; fst pair (i.e. x[x:=fst pair]) 
     val second = snd pair
             </code></pre>
         </section>
@@ -831,9 +1012,9 @@
         <section>
             <h4>Dependent pair type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     sig pair : Σ(x:type).x
-    val pair = (char , '🤟')
+    val pair = (char , '🐶')
 
     sig first : type
     val first = fst pair
@@ -850,7 +1031,7 @@
         <section>
             <h4>&lambda;4: Language &lambda;3 and sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     x &in; Variables
 
     e ::=
@@ -867,15 +1048,17 @@
         <section>
             <h4>Sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : ?                  Γ ⊢ a : ?
     ------------------         ------------------
     Γ ⊢ inl a : ?              Γ ⊢ inr a : ?
 
+
     Γ ⊢ a : ?
     Γ ⊢ l : ?                    Γ ⊢ r : ?
     --------------------------------------------------------
     Γ ⊢ case a l r : P
+
 
 
 
@@ -887,15 +1070,17 @@
         <section>
             <h4>Sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    Γ ⊢ a : M                  Γ ⊢ a : N
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : ?
     ------------------         ------------------
-    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : ?
+
 
     Γ ⊢ a : ?
     Γ ⊢ l : ?                    Γ ⊢ r : ?
     --------------------------------------------------------
     Γ ⊢ case a l r : P
+
 
 
 
@@ -907,10 +1092,33 @@
         <section>
             <h4>Sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+
+    Γ ⊢ a : ?
+    Γ ⊢ l : ?                    Γ ⊢ r : ?
+    --------------------------------------------------------
+    Γ ⊢ case a l r : P
+
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section>
+            <h4>Sum type</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
 
     Γ ⊢ a : M + N
     Γ ⊢ l : Π(x:M).P             Γ ⊢ r : Π(x:N).P
@@ -920,6 +1128,7 @@
 
 
 
+
             </code></pre>
 
         </section>
@@ -927,10 +1136,11 @@
         <section>
             <h4>Sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
 
     Γ ⊢ a : M + N
     Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(x:N).P[a:=inr x]
@@ -940,6 +1150,7 @@
 
 
 
+
             </code></pre>
 
         </section>
@@ -947,15 +1158,17 @@
         <section>
             <h4>Sum type</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
 
     Γ ⊢ a : M + N
     Γ ⊢ l : Π(x:M).P[a:=inl x]   Γ ⊢ r : Π(x:N).P[a:=inr x]
     --------------------------------------------------------
     Γ ⊢ case a l r : P
+
 
     Γ ⊢ M : type    Γ ⊢ N : type
     -----------------------------
@@ -967,33 +1180,33 @@
         <section>
             <h4>Sum type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig ic : int + char → type
-    val ic =  λ(x).case x λ(_).char λ(_).int
+            <pre><code class="language-nethra" data-noescape>
+    sig int_or_char : int + char → type
+    val int_or_char = λ(x).case x λ(_).char λ(_).int
 
     sig aChar : char
-    val aChar = 'c'
+    val aChar = '🌊'
             </code></pre>
         </section>
 
         <section>
             <h4>Sum type: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig ic : int + char → type
-    val ic =  λ(x).case x λ(_).char λ(_).int
+            <pre><code class="language-nethra" data-noescape>
+    sig int_or_char : int + char → type
+    val int_or_char = λ(x).case x λ(_).char λ(_).int
 
-    sig aChar : ic (inl 1)
-    val aChar = 'c'
+    sig aChar : int_or_char (inl 1)
+    val aChar = '🌊'
             </code></pre>
         </section>
 
         <section>
             <h4>Sum type: advanced example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig Bool : type
-    val Bool = Unit + Unit
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
 
 
 
@@ -1011,13 +1224,13 @@
         <section>
             <h4>Sum type: advanced example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig Bool : type
-    val Bool = Unit + Unit
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
 
-    sig true  : Bool
+    sig true  : bool
     val true  = inl unit
-    sig false : Bool
+    sig false : bool
     val false = inr unit
 
 
@@ -1031,16 +1244,16 @@
         <section>
             <h4>Sum type: advanced example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig Bool : type
-    val Bool = Unit + Unit
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
 
-    sig true  : Bool
+    sig true  : bool
     val true  = inl unit
-    sig false : Bool
+    sig false : bool
     val false = inr unit
 
-    sig Test : Bool → type
+    sig Test : bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
 
@@ -1051,53 +1264,78 @@
         <section>
             <h4>Sum type: advanced example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig Bool : type
-    val Bool = Unit + Unit
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
 
-    sig true  : Bool
+    sig true  : bool
     val true  = inl unit
-    sig false : Bool
+    sig false : bool
     val false = inr unit
 
-    sig Test : Bool → type
+    sig Test : bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
-    sig test : Π(b:Bool).?
-    val test = λ(c).case c λ(_).1 λ(c).'c'
+    sig test : Π(b:bool).?
+    val test = λ(c).case c λ(_).1 λ(c).'🫣'
             </code></pre>
         </section>
 
         <section>
             <h4>Sum type: advanced example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-    sig Bool : type
-    val Bool = Unit + Unit
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
 
-    sig true  : Bool
+    sig true  : bool
     val true  = inl unit
-    sig false : Bool
+    sig false : bool
     val false = inr unit
 
-    sig Test : Bool → type
+    sig Test : bool → type
     val Test = λ(b).case b λ(_).int λ(_).char
 
-    sig test : Π(b:Bool).(Test b)
-    val test = λ(c).case c λ(_).1 λ(c).'c'
+    sig test : Π(b:bool).(Test b)
+    val test = λ(c).case c λ(_).1 λ(c).'🫣'
             </code></pre>
         </section>
 
         <section>
             <h4>Propositional Equality</h4>
 
-            <p>Extensional type theory</p>
+            <ul>
+                <li class="fragment" data-fragment-index="1">Intentional type theory</li>
+                <li class="fragment" data-fragment-index="3">Observational type theory</li>
+                <li class="fragment" data-fragment-index="2">Extensional type theory</li>
+                <li class="fragment" data-fragment-index="4">Homotopy type theory</li>
+            </ul>
+
+            <p></p>
         </section>
 
         <section>
             <h4>&lambda;5: Language &lambda;4 and propositional equality</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <p> Intentional type theory </p>
+
+            <pre><code class="language-nethra" data-noescape>
+    e ::=
+         ...
+         refl                   -- Reflexivity
+
+
+         ...
+         e = e                  -- type equality
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>&lambda;5: Language &lambda;4 and propositional equality</h4>
+
+            <p> Intentional type theory </p>
+
+            <pre><code class="language-nethra" data-noescape>
     e ::=
          ...
          refl                   -- Reflexivity
@@ -1111,14 +1349,56 @@
         <section>
             <h4>Propositional equality</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
-                              Γ ⊢ n : A    Γ ⊢ m : A
-    -----------------         -----------------------
-    Γ ⊢ refl : m = m          Γ ⊢ n = m : type
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ n : A    Γ ⊢ m : A
+    -----------------------
+    Γ ⊢ n = m : type
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ n : A    Γ ⊢ m : A
+    -----------------------         -----------------
+    Γ ⊢ n = m : type                Γ ⊢ refl : m = m
+
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    Γ ⊢ n : A    Γ ⊢ m : A
+    -----------------------         -----------------
+    Γ ⊢ n = m : type                Γ ⊢ refl : m = m
+
 
     Γ ⊢ b : x = B    Γ ⊢ a : A[x:=B]
     ---------------------------------
     Γ ⊢ subst a by b : A
+
 
     Γ ⊢ b : B = x    Γ ⊢ a : A[x:=B]
     ---------------------------------
@@ -1129,7 +1409,34 @@
         <section>
             <h4>Propositional equality: simple example</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
+    sig reflexive : &Pi;(A:type).&Pi;(a:A).(a = a)
+    val reflexive = &lambda;(_).&lambda;(a).refl
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: simple example</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig reflexive : &Pi;(A:type).&Pi;(a:A).(a = a)
+    val reflexive = &lambda;(_).&lambda;(a).refl
+
+    sig symmetric : &Pi;(A:type).&Pi;(a:A).&Pi;(b:A).(a = b → b = a)
+    val symmetric = &lambda;(_).&lambda;(a).&lambda;(b).&lambda;(a=b).?
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: simple example</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig reflexive : &Pi;(A:type).&Pi;(a:A).(a = a)
+    val reflexive = &lambda;(_).&lambda;(a).refl
+
     sig symmetric : &Pi;(A:type).&Pi;(a:A).&Pi;(b:A).(a = b → b = a)
     val symmetric = &lambda;(_).&lambda;(a).&lambda;(b).&lambda;(a=b).(subst refl by a=b)
             </code></pre>
@@ -1138,73 +1445,145 @@
         <section>
             <h4>Propositional equality: encoding GADT</h4>
 
-            <pre><code class="language-ocaml" data-noescape>
+            <pre><code class="language-nethra" data-noescape>
     -{
      data Expr A =
-     | Boolean of Bool with A = Bool
+     | Boolean of bool with A = bool
      | Integer of int  with A = int
     }-
 
     sig Expr : type → type
-    val Expr = &lambda;(A).(A = Bool * Bool) + (A = int * int)
+    val Expr = ?
 
-    sig Boolean : &Pi;(A:type).&Pi;(_:A = Bool).(Bool -> Expr A)
-    val Boolean = &lambda;(_).&lambda;(p)&lambda;(b).inl (p,b)
 
-    sig Integer : &Pi;(A:type).&Pi;(_:A = Bool).(Int -> Expr A)
-    val Integer = &lambda;(_).&lambda;(p)&lambda;(b).inr (p,b)
+
             </code></pre>
         </section>
 
         <section>
-            <h4>Propositional equality: open problem</h4>
+            <h4>Propositional equality: encoding GADT</h4>
 
-            <h1 class="fragment">EQUALITY</h1>
+            <pre><code class="language-nethra" data-noescape>
+    -{
+     data Expr A =
+     | Boolean of bool with A = bool
+     | Integer of int  with A = int
+    }-
+
+    sig Expr : type → type
+    val Expr = &lambda;(A).((A = bool) * bool) + ((A = int) * int)
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: encoding GADT</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig Expr : type → type
+    val Expr = &lambda;(A).((A = bool) * bool) + ((A = int) * int)
+
+
+
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: encoding GADT</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig Expr : type → type
+    val Expr = &lambda;(A).((A = bool) * bool) + ((A = int) * int)
+
+    sig Boolean : &Pi;(A:type).&Pi;(_:A = bool).(bool -> Expr A)
+    val Boolean = &lambda;(_).&lambda;(p).&lambda;(b).inl (p,b)
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: encoding GADT</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig Expr : type → type
+    val Expr = &lambda;(A).((A = bool) * bool) + ((A = int) * int)
+
+    sig Boolean : &Pi;(A:type).&Pi;(_:A = bool).(bool -> Expr A)
+    val Boolean = &lambda;(_).&lambda;(p).&lambda;(b).inl (p,b)
+
+    sig Integer : &Pi;(A:type).&Pi;(_:A = int).(int -> Expr A)
+    val Integer = &lambda;(_).&lambda;(p).&lambda;(i).inr (p,i)
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Propositional equality: encoding GADT</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig Expr : type → type
+    val Expr = &lambda;(A).((A = bool) * bool) + ((A = int) * int)
+
+    sig Boolean : &Pi;(A:type).&Pi;(_:A = bool).(bool -> Expr A)
+    val Boolean = &lambda;(_).&lambda;(p).&lambda;(b).inl (p,b)
+
+    sig Integer : &Pi;(A:type).&Pi;(_:A = int).(int -> Expr A)
+    val Integer = &lambda;(_).&lambda;(p).&lambda;(i).inr (p,i)
+
+    sig one_expr : Expr int
+    val one_expr : Integer int refl 1
+            </code></pre>
         </section>
 
         <section>
             <h4>Not covered in this presentation</h4>
 
             <ul>
-                <li>Implicits and simple type synthesis</li>
-                <li>Dependent recursive type</li>
-                <li>Dependent record type (&Sigma; type generalisation)</li>
-                <li>Russell's Paradox</li>
+                <li class="fragment">Implicits and simple type synthesis</li>
+                <li class="fragment">Dependent recursive type</li>
+                <li class="fragment">Dependent record type (&Sigma; type generalisation)</li>
+                <li class="fragment">Russell's Paradox</li>
             </ul>
         </section>
 
         <section>
-            <h4>Russell's Paradox</h4>
+            <h4> Conclusion </h4>
 
-            <center>R = { X &mid; X &notin; X }</center>
-
-            <p>Introduction of a type hierarchy</p>
-
+            <p class="fragment"> Think different! </p>
         </section>
 
         <section>
-            <h3>Conclusion</h3>
-
-            <p>Think Different!</p>
-        </section>
-
-        <section>
-            <h4>Languages</h4>
+            <h4>Languages with dependent types</h4>
 
             <ul>
-                <li> Coq</li>
-                <li> Agda</li>
-                <li> Idris</li>
-                <li> F*</li>
-                <li> Lean</li>
-                <li> ...</li>
-                <li><a href="https://github.com/lambe-lang/nethra">Nethra</a></li>
+                <li> Coq </li>
+                <li> Agda </li>
+                <li> Idris </li>
+                <li> Lean </li>
+                <li> F* </li>
+                <li> Granule </li>
+                <li> ... </li>
             </ul>
 
         </section>
 
         <section>
-            <h4>References</h4>
+            <h4>Some references</h4>
 
             <ul>
                 <li><a href="https://hal.inria.fr/inria-00076024/document">The calculus of constructions</a>
@@ -1230,8 +1609,9 @@
 <script src="revealjs/plugin/search/search.js"></script>
 <script src="revealjs/plugin/markdown/markdown.js"></script>
 <script src="revealjs/plugin/highlight/highlight.js"></script>
-<script>
+<script src="extension/nethra.js"></script>
 
+<script>
     // Also available as an ES module, see:
     // https://revealjs.com/initialization/
     Reveal.initialize({
@@ -1245,6 +1625,7 @@
         plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
     });
 
+    nethra(RevealHighlight);
 </script>
 
 </body>
