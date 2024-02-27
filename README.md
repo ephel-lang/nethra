@@ -10,7 +10,7 @@ Nethra is an experiment based on well-known theories and constructions like:
 
 ## Presentation
 
-[A presentation about this project and dependent types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
+[A presentation done for ScalaIO 2024 about this project and dependent types in general is available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
 
 ## References
 
