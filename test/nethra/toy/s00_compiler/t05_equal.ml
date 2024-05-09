@@ -90,7 +90,7 @@ let compile_leibniz_equal () =
         Leibniz equality
       }-
 
-      sig equal : {A:type} -> (a b:A) -> type
+      sig equal : {A:type} -> A -> A -> type
       val equal = fun {A} a b -> (P : A -> type) -> P a -> P b
 
       sig reflexive :

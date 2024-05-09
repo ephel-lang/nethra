@@ -212,9 +212,9 @@ let compile_monad_dependant_record () =
         sig none : {A:type} -> Option A
         val none = inr unit
 
-        sig EitherOption : Monad Option
+        sig MonadOption : Monad Option
 
-        val EitherOption =
+        val MonadOption =
             val struct
                 val return = some
                 val map    = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
@@ -224,7 +224,7 @@ let compile_monad_dependant_record () =
             end
 
         val r : Option Unit =
-            let m = EitherOption in #map m (fun _ -> unit) (#return m 1)
+            let m = MonadOption in #map m (fun _ -> unit) (#return m 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -258,7 +258,7 @@ let compile_monad_recursive_record () =
         sig none : {A:type} -> Option A
         val none = inr unit
 
-        val EitherOption : Monad Option =
+        val MonadOption : Monad Option =
             rec(S:Monad Option).val struct
                 val map   = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
                 val apply = fun {_ B} mf ma -> case mf (fun f -> #map S f ma) (fun _ -> none {B})
@@ -266,7 +266,7 @@ let compile_monad_recursive_record () =
                 val bind  = fun f ma -> #join S (#map S f ma)
             end
 
-        val r : Option Unit = #map EitherOption (fun _ -> unit) (some 1)
+        val r : Option Unit = #map MonadOption (fun _ -> unit) (some 1)
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in
@@ -321,7 +321,7 @@ let compile_control () =
                     let lhd = map (id {a}) in
                     let rhd = id {M a} in
                     equals lhd rhd
-                sig `map (f o g) = (map f) o (map g)` : {a b c:type} -> (f: b -> c) -> (g: a -> b) ->
+                sig `map (f o g) = (map f) o (map g)` : {a b c:type} -> (f:b -> c) -> (g:a -> b) ->
                     let lhd = map (compose f g) in
                     let rhd = compose (map f) (map g) in
                     equals lhd rhd

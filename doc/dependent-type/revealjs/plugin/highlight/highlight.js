@@ -5856,8 +5856,8 @@
             name: "Nethra",
             aliases: ["nethra"],
             keywords: {
-                $pattern: "([a-z_]\\w*!?)|[+*λΠΣ→().,]",
-                keyword: "+ * λ Π Σ → ( ) . , refl subst by case inl inr fst snd sig val",
+                $pattern: "([a-z_]\\w*!?)|[+*λΠΣ→>().,-]",
+                keyword: "+ * λ → , fun refl subst by case inl inr fst snd sig val fold unfold rec struct end equals",
                 literal: "type"
             },
             illegal: /\/\/|>>/,
