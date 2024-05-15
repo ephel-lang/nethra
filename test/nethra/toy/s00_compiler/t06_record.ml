@@ -259,11 +259,11 @@ let compile_monad_recursive_record () =
         val none = inr unit
 
         val MonadOption : Monad Option =
-            rec(S:Monad Option).val struct
+            val struct
                 val map   = fun {_ B} f ma -> case ma (fun a -> some (f a)) (fun _ -> none {B})
-                val apply = fun {_ B} mf ma -> case mf (fun f -> #map S f ma) (fun _ -> none {B})
+                val apply = fun {_ B} mf ma -> case mf (fun f -> #map MonadOption f ma) (fun _ -> none {B})
                 val join  = fun {A} ma -> case ma (fun a -> a)  (fun _ -> none {A})
-                val bind  = fun f ma -> #join S (#map S f ma)
+                val bind  = fun f ma -> #join MonadOption (#map MonadOption f ma)
             end
 
         val r : Option Unit = #map MonadOption (fun _ -> unit) (some 1)
