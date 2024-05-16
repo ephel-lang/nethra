@@ -132,7 +132,7 @@ let compile_fixpoint_function () =
     Pass.run
       {toy|
         sig fixpoint : {a b:type} -> ((a -> b) -> a -> b) -> a -> b
-        val fixpoint = fun {a b} f -> rec(Fix:a -> b).fun x -> f Fix x
+        val fixpoint = fun {a b} f -> rec(Fix:a -> b).fun x -> f Fix x -- NON!
         -{
           sig f = t
           the expression
@@ -152,14 +152,10 @@ let compile_continuation () =
       {toy|
         -- Basic continuation definition
         sig cont : type -> type
-        val cont = fun a -> sig struct
-            sig run : {r:type} -> (a -> r) -> r
-        end
+        val cont = fun a -> {r:type} -> (a -> r) -> r
         -- Continuation definition with monad transformer
         sig contT : (type -> type) -> type -> type
-        val contT = fun M a -> sig struct
-            sig run : {r:type} -> (a -> M r) -> M r
-        end
+        val contT = fun M a -> {r:type} -> (a -> M r) -> M r
       |toy}
     <&> fun (_, l) -> check l
   and expected = Result.Ok true in

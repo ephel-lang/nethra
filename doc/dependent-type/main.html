@@ -30,9 +30,6 @@
     <div class="slides">
         <section data-background-color="white">
             <h3>Dependent Types</h3>
-            <h4>From theory to practice</h4>
-            <!-- p><img src="images/MySelf.png"></p -->
-            <p> D. Plaindoux | Lambda Nantes 2024</p>
         </section>
 
         <section data-background-color="white">
@@ -90,8 +87,14 @@
             <img src="images/Lambda_Cube_img.png">
         </section>
 
-        <section data-background-color="white">
-            <h4>☕️ &nbsp; Break</h4>
+        <section>
+            <h3>Dependent Types</h3>
+            <h4>From theory to practice</h4>
+            <p> D. Plaindoux</p>
+        </section>
+
+        <section>
+            <h4>Formalism introduction</h4>
 
             <pre><code class="language-swift" data-noescape>
 
@@ -104,8 +107,8 @@
             </code></pre>
         </section>
 
-        <section data-background-color="white">
-            <h4>☕️ &nbsp; Break</h4>
+        <section>
+            <h4>Formalism introduction</h4>
 
             <pre><code class="language-swift" data-noescape>
   P0 ... Pn      when premisses P0 ... Pn are verified
@@ -118,8 +121,8 @@
             </code></pre>
         </section>
 
-        <section data-background-color="white">
-            <h4>☕️ &nbsp; Break</h4>
+        <section>
+            <h4>Formalism introduction</h4>
 
             <pre><code class="language-swift" data-noescape>
   P0 ... Pn      when premisses P0 ... Pn are verified
@@ -132,8 +135,8 @@
             </code></pre>
         </section>
 
-        <section data-background-color="white">
-            <h4>☕️ &nbsp; Break</h4>
+        <section>
+            <h4>Formalism introduction</h4>
 
             <pre><code class="language-swift" data-noescape>
   P0 ... Pn      when premisses P0 ... Pn are verified
@@ -939,6 +942,21 @@
             <h4>Dependent pair type: simple example</h4>
 
             <pre><code class="language-nethra" data-noescape>
+    sig pair : (_:type) * char
+    val pair = char,'🐶'
+
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Dependent pair type: simple example</h4>
+
+            <pre><code class="language-nethra" data-noescape>
     sig pair : (x:type) * char
     val pair = char,'🐶'
 
@@ -1090,6 +1108,24 @@
 
          ...
          e + e                  -- Sum type
+            </code></pre>
+        </section>
+
+        <section>
+            <h4>Sum type: A quick but complete example</h4>
+
+            <pre><code class="language-nethra" data-noescape>
+    sig bool : type
+    val bool = Unit + Unit
+
+    sig true  : bool
+    val true  = inl unit
+
+    sig false : bool
+    val false = inr unit
+
+    sig if : (A:type) -> bool -> (Unit -> A) -> (Unit -> A) → A
+    val if = λ(_).λ(cond).λ(then).λ(else).case cond then else
             </code></pre>
         </section>
 
@@ -1369,7 +1405,7 @@
     val Test = λ(b).case b λ(_).int λ(_).char
 
     sig test : (b:bool) → ?
-    val test = λ(c).case c λ(_).1 λ(c).'🫣'
+    val test = λ(c).case c λ(_).42 λ(_).'*'
             </code></pre>
         </section>
 
@@ -1389,7 +1425,7 @@
     val Test = λ(b).case b λ(_).int λ(_).char
 
     sig test : (b:bool) → Test b
-    val test = λ(c).case c λ(_).1 λ(c).'🫣'
+    val test = λ(c).case c λ(_).42 λ(_).'*'
             </code></pre>
         </section>
 
@@ -1648,7 +1684,7 @@
             <ul>
                 <li class="fragment">Implicits and simple type synthesis</li>
                 <li class="fragment">Dependent recursive type</li>
-                <li class="fragment">Dependent record type (&Sigma; type generalisation)</li>
+                <li class="fragment">Dependent record type (Pair generalisation)</li>
                 <li class="fragment">Russell's Paradox</li>
             </ul>
         </section>
@@ -1663,13 +1699,13 @@
             <h4>Languages with dependent types</h4>
 
             <ul>
-                <li> Coq </li>
-                <li> Agda </li>
-                <li> Idris </li>
-                <li> Lean </li>
-                <li> F* </li>
-                <li> Granule </li>
-                <li> ... </li>
+                <li> Coq</li>
+                <li> Agda</li>
+                <li> Idris</li>
+                <li> Lean</li>
+                <li> F*</li>
+                <li> Granule</li>
+                <li> ...</li>
             </ul>
 
         </section>
@@ -1678,10 +1714,15 @@
             <h4>Some references</h4>
 
             <ul>
+                <li>
+                    <a href="https://archive.wikiwix.com/cache/display2.php?url=http%3A%2F%2Fdare.ubn.kun.nl%2Fdspace%2Fbitstream%2F2066%2F17240%2F1%2F13256.pdf">Introduction
+                        to generalized type systems </a></li>
                 <li><a href="https://hal.inria.fr/inria-00076024/document">The calculus of constructions</a>
-                <li><a hrefl="https://www.irif.fr/~mellies/mpri/mpri-ens/articles/hofmann-syntax-and-semantics-of-dependent-types.pdf">Syntax and semantics of dependent types</a></li>
-                <li><a href="https://archive.wikiwix.com/cache/display2.php?url=http%3A%2F%2Fdare.ubn.kun.nl%2Fdspace%2Fbitstream%2F2066%2F17240%2F1%2F13256.pdf">Introduction to generalized type systems  </a></li>
-                <li><a href="https://www.cse.chalmers.se/~bengt/papers/GKminiTT.pdf">A simple type-theoretic language:
+                <li>
+                    <a href="https://www.irif.fr/~mellies/mpri/mpri-ens/articles/hofmann-syntax-and-semantics-of-dependent-types.pdf">Syntax
+                        and semantics of dependent types</a></li>
+                <li><a href="https://www.academia.edu/51788443/A_simple_type_theoretic_language_Mini_TT">A simple
+                    type-theoretic language:
                     Mini-TT</a>
                 <li><a href="http://www.cs.nott.ac.uk/~psztxa/publ/pisigma-new.pdf">ΠΣ: Dependent Types without the
                     Sugar</a>
@@ -1778,6 +1819,23 @@
     val transitivity = fun a=b b=c ->
         subst (subst refl by a=b) by b=c
             </code></pre>
+        </section>
+
+        <section>
+            <pre><code class="language-nethra" data-noescape>
+    sig congruent_app :
+        {A B:type} -> (f g:A -> B)
+        -> f = g
+        ------------------------------
+        -> {a:A} -> (f a) = (g a)
+
+    val congruent_app = fun f g f=g ->
+        subst refl by (f=g)
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>That's all folks! </h2>
         </section>
 
     </div>
