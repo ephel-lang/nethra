@@ -8,9 +8,11 @@ Nethra is an experiment based on well-known theories and constructions like:
 - dependent sum type and
 - core lambda calculus
 
-## Presentation
+## Presentations
 
 A presentation done for [ScalaIO 2024](https://scala.io/talks/dependent-types-from-theory-to-practice) about this project and dependent types in general is [available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
+
+A presentation is in preparation for [Sunny-Tech 2024](https://sunny-tech.io/sessions/types-dependants-de-la-theorie).
 
 ## References
 
