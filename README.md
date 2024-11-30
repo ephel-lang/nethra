@@ -10,6 +10,7 @@ Nethra is an experiment based on well-known theories and constructions like:
 
 ## Presentations
 
+- The next presentation based on this work is cheduled [FunctionalScala](https://www.functionalscala.com).
 - A presentation done for [ScalaIO 2024](https://scala.io/talks/dependent-types-from-theory-to-practice) about this project and dependent types in general is [available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
 - A presentation is in preparation for [Sunny-Tech 2024](https://sunny-tech.io/sessions/types-dependants-de-la-theorie).
 
@@ -158,6 +159,10 @@ l ∈ string
 Γ ⊢ e:M   Γ, x:M, x=e ⊢ f : N 
 -----------------------------
 Γ ⊢ let x = e in f : N[x:=e]            
+
+Γ ⊢ e:M   Γ, x:M, x=e ⊢ f : N 
+--------------------------------
+Γ ⊢ let x : M = e in f : N[x:=e]     
 ```
 
 #### Implicit type in Dependent function type and application
