@@ -28,15 +28,16 @@
 
     <!-- Any section element inside of this container is displayed as a slide -->
     <div class="slides">
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <img src="images/functional-scala.svg" width="50%"/>
+        <section data-background-image="images/title-background.svg" data-background-size="100%">
+            <p>&nbsp;</p>
             <h3>Dependent Types</h3>
+            <hr width="50%"/>
             <h4>From theory to practice</h4>
-            <p>Dr. Didier Plaindoux</p>
-            <p>12/05/2024</p>
-        </section>
+            <p>D. Plaindoux</p>
+            <small>@dplaindoux@functional.cafe </small>
+            </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4> Self-promotion </h4>
 
             <h5><a href="https://akawan.com/en">akawan</a> collaborator</h5>
@@ -47,8 +48,14 @@
                 Streamlined Communications </p>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Scala 3</h4>
+        <section <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h3> Scala 3 </h3>
+            <hr width="50%"/>
+            <h4> Type Dependency </h4>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 new types </h4>
 
             <ul>
                 <li> Type Lambda </li>
@@ -58,10 +65,10 @@
             </ul>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
 
   type IdT[X] = X => X
 
@@ -72,10 +79,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
   // Type Lambda
   type IdT = [X] =>> X => X
 
@@ -86,11 +93,25 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-  // Type Lambda
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  // Type Lambda aka Type Constructor
+  type IdT = [X] =>> X => X
+
+
+  def  combine[X](x: X)(y:X): X = ???
+
+
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
+
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  // Type Lambda aka Type Constructor
   type IdT = [X] =>> X => X
 
   // Polymorphic Function Type aka Big Lambda
@@ -100,11 +121,11 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-  // Type Lambda
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  // Type Lambda aka Type Constructor
   type IdT = [X] =>> X => X
 
   // Polymorphic Function Type aka Big Lambda
@@ -114,11 +135,11 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Type Lambda and Polymorphic Function Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-  // Type Lambda
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  // Type Lambda aka Type Constructor
   type IdT = [X] =>> X => X
 
   // Polymorphic Function Type aka Big Lambda
@@ -128,10 +149,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
 
 
 
@@ -146,14 +167,14 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-    type Case[B <: Boolean] <: String | Int =
-      B match
-        case true  => String
-        case false => Int
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String
+      case false => Int
 
 
 
@@ -164,84 +185,184 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-    type Case[B <: Boolean] <: String | Int =
-      B match
-        case true  => String
-        case false => Int
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String // the type true  <: Boolean
+      case false => Int    // the type false <: Boolean
 
-    def default(b: Boolean): Case[b.type] =
-      b match
-        case _: true  => ""
-        case _: false => 0
+
+
+
+
 
 
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-    type Case[B <: Boolean] <: String | Int =
-      B match
-        case true  => String
-        case false => Int
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String
+      case false => Int
 
-    def default(b: Boolean): Case[b.type] =
-      b match
-        case _: true  => ""
-        case _: false => 0
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
+      case _: true  => ""
+      case _: false => 0
 
-    val v: Case[true] = default(true)
+
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-scala" data-noescape>
-    type Case[B <: Boolean] <: String | Int =
-      B match
-        case true  => String
-        case false => Int
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String
+      case false => Int
 
-    def default(b: Boolean): Case[b.type] =
-      b match
-        case _: true  => ""
-        case _: false => 0
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
+      case _: true  => "" // true  inhabits the type true
+      case _: false => 0  // false inhabits the type false
 
-    val v: String = default(true)
+
             </code></pre>
         </section>
 
-        <section data-background-color="#122651"
-                 data-background-opacity="0.2">
-            <h4>Type dependency: A short definition</h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <p class="fragment">"Dependent Type [...] depend on or vary with values" <br> Martin Hoffmann</p>
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String
+      case false => Int
+
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
+      case _: true  => ""
+      case _: false => 0
+
+  val v: Case[true] = default(true)
+            </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Formalism Introduction</h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 | Match Type and Dependent Functional Type</h4>
 
-            <pre class="fragment"><code style="background-color: #122651" class="language-swift" data-noescape>
-  P0 ... Pn      when premisses P0 ... Pn are verified
-  ---------      then
-  C              we conclude C            </code></pre>
-            <pre class="fragment"><code style="background-color: #122651" class="language-swift" data-noescape>
-  Γ              Type bindings { X : T } i.e. hypothesis            </code></pre>
-            <pre class="fragment"><code style="background-color: #122651" class="language-swift" data-noescape>
-  Γ ⊢ A : T      Given Γ, the term A inhabits the type T            </code></pre>
+            <pre><code style="background-color: #12265100" class="language-scala" data-noescape>
+  type Case[B <: Boolean] <: String | Int =
+    B match
+      case true  => String
+      case false => Int
+
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
+      case _: true  => ""
+      case _: false => 0
+
+  val v: String = default(true)
+            </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 and Dependencies</h4>
+
+            <p> According to Henk Pieter Barendregt &lambda;-Cube
+                <ul>
+                    <li class="fragment"> Terms that can bind Terms (λ→) </li>
+                    <li class="fragment"> Terms that can bind Types (λ2) </li>
+                    <li class="fragment"> Types that can bind Types (λω) </li>
+                    <li class="fragment"> Types that can bind Terms (λP) </li>
+        </ul>
+           </p>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 and Dependencies</h4>
+
+            <p> According to Henk Pieter Barendregt &lambda;-Cube
+            <ul>
+                <li style="color: greenyellow"> Terms that can bind Terms (λ→) </li>
+                <li> Terms that can bind Types (λ2) </li>
+                <li> Types that can bind Types (λω) </li>
+                <li> Types that can bind Terms (λP) </li>
+                </ul>
+            </p>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 and Dependencies</h4>
+
+            <p> According to Henk Pieter Barendregt &lambda;-Cube
+            <ul>
+                <li style="color: greenyellow"> Terms that can bind Terms (λ→) </li>
+                <li style="color: greenyellow"> Terms that can bind Types (λ2) </li>
+                <li> Types that can bind Types (λω) </li>
+                <li> Types that can bind Terms (λP) </li>
+            </ul>
+            </p>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 and Dependencies</h4>
+
+            <p> According to Henk Pieter Barendregt &lambda;-Cube
+            <ul>
+                <li style="color: greenyellow"> Terms that can bind Terms (λ→) </li>
+                <li style="color: greenyellow"> Terms that can bind Types (λ2) </li>
+                <li style="color: greenyellow"> Types that can bind Types (λω) </li>
+                <li> Types that can bind Terms (λP) </li>
+            </ul>
+            </p>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Scala 3 and Dependencies</h4>
+
+            <p> According to Henk Pieter Barendregt &lambda;-Cube
+            <ul>
+                <li style="color: greenyellow"> Terms that can bind Terms (λ→) </li>
+                <li style="color: greenyellow"> Terms that can bind Types (λ2) </li>
+                <li style="color: greenyellow"> Types that can bind Types (λω) </li>
+                <li style="color: orange"> Types that can bind Terms (λP) </li>
+            </ul>
+            </p>
+        </section>
+
+        <section <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h3> Back to basics </h3>
+            <hr width="50%"/>
+            <h4> From theory ... to practice </h4>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4> Prerequisite: Formalism Introduction </h4>
+
+            <pre class="fragment"><code style="background-color: #12265100" class="language-swift" data-noescape>
+  Γ            Type bindings { X : T } i.e. hypothesis            </code></pre>
+            <pre class="fragment"><code style="background-color: #12265100" class="language-swift" data-noescape>
+  Γ ⊢ A : T    Given Γ, the term A inhabits the type T            </code></pre>
+            <pre class="fragment"><code style="background-color: #12265100" class="language-swift" data-noescape>
+  P0 ... Pn    when premisses P0 ... Pn are verified
+  ---------    then
+  C            we conclude C            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Language &lambda;1</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -255,16 +376,61 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Functions</h4>
 
             <p>&lambda;-expressions: abstraction and application</p>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Functional Type | <code style="background-color: #122651" data-noescape>M -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    ?
+    -------------------
+    Γ ⊢ x => b : ?
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    ?
+    -------------------
+    Γ ⊢ x => b : M -> N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ ?
+    -------------------
+    Γ ⊢ x => b : M -> N
+
+
+
+
+
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
     -------------------
     Γ ⊢ x => b : M -> N
@@ -276,10 +442,55 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Functional Type | <code style="background-color: #122651" data-noescape>M -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    -------------------
+    Γ ⊢ x => b : M -> N
+
+
+    ?
+    ---------------------------
+    Γ ⊢ f e : N
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    -------------------
+    Γ ⊢ x => b : M -> N
+
+
+    Γ ⊢ f : ?        Γ ⊢ e : ?
+    ---------------------------
+    Γ ⊢ f e : N
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    -------------------
+    Γ ⊢ x => b : M -> N
+
+
+    Γ ⊢ f : M -> N   Γ ⊢ e : ?
+    ---------------------------
+    Γ ⊢ f e : N
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Functional Type | <code style="background-color: #12265100" data-noescape>M -> N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
     -------------------
     Γ ⊢ x => b : M -> N
@@ -291,10 +502,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;2 : &lambda;1 and dependent functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -310,10 +521,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;2 : &lambda;1 and dependent functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -321,18 +532,37 @@
          x => e                 -- Abstraction
          e e                    -- Application
          x                      -- Variables
-
+    t ::=
          i                      -- Basic Types (Int, ...)
-         e -> e                 -- Function Type
-
+         t -> t                 -- Function Type
+         (x:t) -> t             -- Dependent Functional Type
 
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;2 : &lambda;1 and dependent functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    x &in; Variables
+    i &in; Identifiers
+
+    e ::=
+         x => e                 -- Abstraction
+         e e                    -- Application
+         x                      -- Variables
+    t ::=
+         i                      -- Basic Types (Int, ...)
+         t -> t                 -- &equiv; (_:t) -> t
+         (x:t) -> t             -- Dependent Functional Type
+
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>&lambda;2 : &lambda;1 and dependent functional Type</h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -342,16 +572,17 @@
          x                      -- Variables
 
          i                      -- Basic Types (Int, ...)
-         e -> e                 -- Function Type
+         e -> e                 -- &equiv; (_:e) -> e
          (x:e) -> e             -- Dependent Functional Type
-         Type                   -- Type of Type
+
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;2 : &lambda;1 and dependent functional Type</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
     i &in; Identifiers
 
@@ -367,15 +598,13 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651" data-noescape>(x:M) -> N</code>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100" data-noescape>(x:M) -> N</code>
             </h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
-    --------------------------------
+    ------------------------
     Γ ⊢ x => b : M -> N
 
 
@@ -390,15 +619,13 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651" data-noescape>(x:M) -> N</code>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100" data-noescape>(x:M) -> N</code>
             </h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ, x : M ⊢ b : N
-    --------------------------------
+    ------------------------
     Γ ⊢ x => b : (_:M) -> N
 
 
@@ -413,14 +640,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (_:M) -> N
 
 
@@ -435,14 +660,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (x:M) -> N
 
 
@@ -457,14 +680,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (x:M) -> N
 
 
@@ -479,14 +700,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (x:M) -> N
 
 
@@ -501,14 +720,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (x:M) -> N
 
 
@@ -523,14 +740,12 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Dependent functional Type | <code style="background-color: #122651">(x:M) -> N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Dependent functional Type | <code style="background-color: #12265100">(x:M) -> N</code></h4>
 
-            <div style="text-align: center;"><p>Type of return value varies with its argument</p></div>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ, x : M ⊢ b : N   Γ ⊢ M : Type
-    --------------------------------
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ, x : M ⊢ b : N
+    ------------------------
     Γ ⊢ x => b : (x:M) -> N
 
 
@@ -545,10 +760,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   // Type Lambda
   type IdT = [X] =>> X => X
 
@@ -560,10 +775,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type IdT : ?
   val  IdT = X => X -> X
 
@@ -575,10 +790,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type IdT : Type -> Type
   val  IdT = X => X -> X
 
@@ -590,14 +805,14 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type IdT : Type -> Type
   val  IdT = X => X -> X
 
-  type combine : (A:Type) -> A -> A -> A
+  type combine : (X:Type) -> X -> X -> X
   val  combine = ???
 
   val  incr : IdT[Int] = combine[Int](1)
@@ -605,14 +820,14 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type IdT : Type -> Type
   val  IdT = X => X -> X
 
-  type combine : (A:Type) -> A -> A -> A
+  type combine : (X:Type) -> X -> X -> X
   val  combine = ???
 
   type incr : IdT Int
@@ -620,14 +835,14 @@
           </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Dependent functional Type: From Scala 3 to &lambda;2</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type IdT : Type -> Type
   val  IdT = X => X -> X
 
-  type combine : (A:Type) -> A -> A -> A
+  type combine : (X:Type) -> X -> X -> X
   val  combine = ???
 
   type incr : Int -> Int
@@ -635,15 +850,15 @@
           </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type</h4>
             <p> Type whose terms are <b>either</b> <br/> of given Type, or of another Type </p>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;3: Language &lambda;2 and Sum Types</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
 
     e ::=
@@ -657,10 +872,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>&lambda;3: Language &lambda;2 and Sum Types</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     x &in; Variables
 
     e ::=
@@ -674,10 +889,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: A complete example</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     type Boolean : Type
     val  Boolean = Unit + Unit
 
@@ -692,10 +907,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: A complete example</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     type Boolean : Type
     val  Boolean = Unit + Unit
 
@@ -710,10 +925,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: A complete example</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     type Boolean : Type
     val  Boolean = Unit + Unit
 
@@ -728,19 +943,19 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : ?                  Γ ⊢ a : ?
     ------------------         ------------------
     Γ ⊢ inl a : ?              Γ ⊢ inr a : ?
 
 
-    Γ ⊢ a : ?
-    Γ ⊢ l : ?                      Γ ⊢ r : ?
-    ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+
+
+
+
 
 
 
@@ -750,41 +965,19 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : ?
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : ?
 
 
-    Γ ⊢ a : ?
-    Γ ⊢ l : ?                      Γ ⊢ r : ?
-    ------------------------------------------------------------
-    Γ ⊢ case a l r : P
 
 
 
 
-
-            </code></pre>
-
-        </section>
-
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
-
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
-    Γ ⊢ a : M                  Γ ⊢ a : N
-    ------------------         ------------------
-    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
-
-
-    Γ ⊢ a : ?
-    Γ ⊢ l : ?                      Γ ⊢ r : ?
-    ------------------------------------------------------------
-    Γ ⊢ case a l r : P
 
 
 
@@ -794,19 +987,63 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
 
-    Γ ⊢ a : M + N
+
+
+
+
+
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+
+    Γ ⊢ x : ?
+    Γ ⊢ l : ?                      Γ ⊢ r : ?
+    ------------------------------------------------------------
+    Γ ⊢ case x l r : P
+
+
+
+
+
+            </code></pre>
+
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+    Γ ⊢ a : M                  Γ ⊢ a : N
+    ------------------         ------------------
+    Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
+
+
+    Γ ⊢ x : M + N
     Γ ⊢ l : M -> P                 Γ ⊢ r : N -> P
     ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+    Γ ⊢ case x l r : P
 
 
 
@@ -816,19 +1053,19 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
 
-    Γ ⊢ a : M + N
+    Γ ⊢ x : M + N
     Γ ⊢ l : (_:M) -> P             Γ ⊢ r : (_:N) -> P
     ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+    Γ ⊢ case x l r : P
 
 
 
@@ -838,19 +1075,19 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
 
-    Γ ⊢ a : M + N                  x &notin; fv(P)
-    Γ ⊢ l : (x:M) -> P             Γ ⊢ r : (x:N) -> P
+    Γ ⊢ a : M + N                  y &notin; fv(P)
+    Γ ⊢ l : (y:M) -> P             Γ ⊢ r : (y:N) -> P
     ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+    Γ ⊢ case x l r : P
 
 
 
@@ -860,19 +1097,19 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
 
-    Γ ⊢ a : M + N                  x &notin; fv(P)
-    Γ ⊢ l : (x:M) -> P[a:=inl x]   Γ ⊢ r : (x:N) -> P[a:=inr x]
+    Γ ⊢ a : M + N                  y &notin; fv(P)
+    Γ ⊢ l : (y:M) -> P[x:=inl y]   Γ ⊢ r : (y:N) -> P[x:=inr y]
     ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+    Γ ⊢ case x l r : P
 
 
 
@@ -882,19 +1119,19 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
-            <h4>Sum Type | <code style="background-color: #122651">M + N</code></h4>
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <h4>Sum Type | <code style="background-color: #12265100">M + N</code></h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
     Γ ⊢ a : M                  Γ ⊢ a : N
     ------------------         ------------------
     Γ ⊢ inl a : M + N          Γ ⊢ inr a : M + N
 
 
-    Γ ⊢ a : M + N                  x &notin; fv(P)
-    Γ ⊢ l : (x:M) -> P[a:=inl x]   Γ ⊢ r : (x:N) -> P[a:=inr x]
+    Γ ⊢ a : M + N                  y &notin; fv(P)
+    Γ ⊢ l : (y:M) -> P[x:=inl y]   Γ ⊢ r : (y:N) -> P[x:=inr y]
     ------------------------------------------------------------
-    Γ ⊢ case a l r : P
+    Γ ⊢ case x l r : P
 
 
     Γ ⊢ M : Type    Γ ⊢ N : Type
@@ -904,17 +1141,17 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: From Scala 3 to &lambda;3</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type Case[B <: Boolean] <: String | Int =
     B match
       case true  => String
       case false => Int
 
-  def default(b: Boolean): Case[b.type] =
-    b match
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
       case _: true  => ""
       case _: false => 0
 
@@ -923,17 +1160,17 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: From Scala 3 to &lambda;3</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type Case : Boolean -> Type
   val  Case = x => case x (_ => String) (_ => Int)
 
 
 
-  def default(b: Boolean): Case[b.type] =
-    b match
+  val default : (b:Boolean) => Case[b.type] =
+    b => b match
       case _: true  => ""
       case _: false => 0
 
@@ -942,10 +1179,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: From Scala 3 to &lambda;3</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type Case : Boolean -> Type
   val  Case = x => case x (_ => String) (_ => Int)
 
@@ -961,10 +1198,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: From Scala 3 to &lambda;3</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type Case : Boolean -> Type
   val  Case = x => case x (_ => String) (_ => Int)
 
@@ -980,10 +1217,10 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Sum Type: From Scala 3 to &lambda;3</h4>
 
-            <pre><code style="background-color: #122651" class="language-nethra" data-noescape>
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
   type Case : Boolean -> Type
   val  Case = x => case x (_ => String) (_ => Int)
 
@@ -999,19 +1236,18 @@
             </code></pre>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Not covered in this presentation</h4>
 
             <ul>
                 <li class="fragment">Dependent Pair</li>
                 <li class="fragment">Dependent recursive Type</li>
                 <li class="fragment">Propositional Equality</li>
-                <li class="fragment">Implicit Type</li>
                 <li class="fragment">Russell's Paradox</li>
             </ul>
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Languages with Dependent Types</h4>
 
             <ul>
@@ -1026,10 +1262,11 @@
 
         </section>
 
-        <section data-background-color="#122651" data-background-opacity="0.2">
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
             <h4>Some references</h4>
 
             <ul>
+                <li> <a href="https://docs.scala-lang.org/scala3/reference/"> Scala 3 language documentation </a> </li>
                 <li>
                     <a href="https://archive.wikiwix.com/cache/display2.php?url=http%3A%2F%2Fdare.ubn.kun.nl%2Fdspace%2Fbitstream%2F2066%2F17240%2F1%2F13256.pdf">Introduction
                         to generalized Type systems </a></li>
@@ -1037,17 +1274,45 @@
                 <li>
                     <a href="https://www.irif.fr/~mellies/mpri/mpri-ens/articles/hofmann-syntax-and-semantics-of-dependent-Types.pdf">Syntax
                         and semantics of dependent Types</a></li>
-                <li><a href="https://www.academia.edu/51788443/A_simple_Type_theoretic_language_Mini_TT">A simple
-                    Type-theoretic language:
-                    Mini-TT</a>
                 <li><a href="http://www.cs.nott.ac.uk/~psztxa/publ/pitypema-new.pdf">ΠΣ: Dependent Types without the
                     Sugar</a>
                 <li><a href="https://dl.acm.org/doi/pdf/10.1145/289423.289451">Cayenne a language with dependent
                     Types</a>
                 <li><a href="https://arxiv.org/pdf/2207.02129.pdf">Implementing Dependent Types in pi-forall</a>
-                <li><a href="https://homotopyTypetheory.org/book/">Homotopy Type Theory</a>
                 <li><a href="https://nextjournal.com/zampino/russell-paradox">Russell's Paradox - Agda Edition</a></li>
             </ul>
+        </section>
+
+        <section data-background-image="images/main-background.svg" data-background-size="100%">
+            <br/>
+            <h4> Are you experienced in Dependent Types with Scala 3?</h4>
+
+            <pre><code style="background-color: #12265100" class="language-nethra" data-noescape>
+enum Nat:
+  case Zero()
+  case Succ[P <: Nat]()
+
+type Add[P1 <: Nat, P2 <: Nat] <: Nat =
+  P1 match
+    case Zero => P2
+    case Succ[p] => Succ[Add[p, P2]]
+
+sealed trait Vec[S <: Nat, E]:
+  def +[L <: Nat](l: Vec[L, E]): Vec[Add[S, L], E]
+
+case class Empty[E]() extends Vec[Zero, E]:
+  override def +[L <: Nat](l: Vec[L, E]) = l
+
+case class Cons[S <: Nat, E](head: E, tail: Vec[S, E])
+  extends Vec[Succ[S], E]:
+  override def +[L <: Nat](l: Vec[L, E]) = Cons(head, tail.+(l))
+            </code></pre>
+        </section>
+
+        <section data-background-image="images/last-background.svg" data-background-size="100%">
+            <br/>
+            <h2>Thank you 🤗</h2>
+            <img width="15%" src="images/qr-code.png"/>
         </section>
 
     </div>

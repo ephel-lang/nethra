@@ -19,14 +19,14 @@ section.has-light-background, section.has-light-background h1, section.has-light
  * GLOBAL STYLES
  *********************************************/
 :root {
-  --r-background-color: #282A36;
+  --r-background-color: #000000;
   --r-main-font: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
   --r-main-font-size: 40px;
   --r-main-color: #F8F8F2;
   --r-block-margin: 20px;
   --r-heading-margin: 0 0 20px 0;
   --r-heading-font: League Gothic, Impact, sans-serif;
-  --r-heading-color: #BD93F9;
+  --r-heading-color: #EFEFEF;
   --r-heading-line-height: 1.2;
   --r-heading-letter-spacing: normal;
   --r-heading-text-transform: none;
@@ -111,6 +111,7 @@ section.has-light-background, section.has-light-background h1, section.has-light
 
 .reveal h4 {
   font-size: var(--r-heading4-size);
+  color: #AAAAAA;
 }
 
 .reveal h1 {
