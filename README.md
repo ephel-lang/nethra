@@ -12,7 +12,7 @@ Nethra is an experiment based on well-known theories and constructions like:
 
 - A presentation based on this work done for [FunctionalScala](https://www.functionalscala.com) is [available on You tube](https://www.youtube.com/watch?v=FFMPK4Prby0)
 - A presentation done for [ScalaIO 2024](https://scala.io/talks/dependent-types-from-theory-to-practice) about this project and dependent types in general is [available](http://d.plaindoux.free.fr/talks/dependent-type/main.html) 
-- A presentation as been done for [Sunny-Tech 2024](https://sunny-tech.io/sessions/types-dependants-de-la-theorie).
+- A presentation has been done for [Sunny-Tech 2024](https://sunny-tech.io/sessions/types-dependants-de-la-theorie).
 
 ## References
 
