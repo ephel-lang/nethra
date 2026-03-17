@@ -176,4 +176,8 @@ setup.log
 # Local OPAM switch
 _opam/
 
+# MacOS
+
+.DS_Store
+
 # End of https://www.toptal.com/developers/gitignore/api/ocaml
